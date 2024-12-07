@@ -1,8 +1,14 @@
 package cn.edu.ujn.Forum.dao;
 
 import cn.edu.ujn.Forum.dao.Report;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface ReportMapper {
+
+    List<Report> selectAll();
+
     int deleteByPrimaryKey(Integer id);
 
     int insert(Report row);
@@ -14,4 +20,7 @@ public interface ReportMapper {
     int updateByPrimaryKeySelective(Report row);
 
     int updateByPrimaryKey(Report row);
+    // 新增分页查询举报记录的方法
+    List<Report> selectAllPaged(@Param("offset") int offset, @Param("limit") int limit);
+
 }
