@@ -37,6 +37,65 @@
 			<property name="enableSubPackages" value="true" />
 		</javaClientGenerator>
 		<!--生成对应表及类名 -->
-        <table tableName="user" schema="crm" domainObjectName="User" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"/>
+		<!-- Tables Configuration -->
+		<table tableName="fans" schema="crm" domainObjectName="Fan"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="friend_groups_and_members" schema="crm" domainObjectName="FriendGroup"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="activities" schema="crm" domainObjectName="Activity"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="users" schema="crm" domainObjectName="User"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="notifications" schema="crm" domainObjectName="Notification"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="files" schema="crm" domainObjectName="File"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="reports" schema="crm" domainObjectName="Report"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="report_types" schema="crm" domainObjectName="ReportType"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="permissions" schema="crm" domainObjectName="Permission"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="searchRecords" schema="crm" domainObjectName="SearchRecord"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="post" schema="crm" domainObjectName="Post"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
+
+		<table tableName="comment" schema="crm" domainObjectName="Comment"
+			   enableCountByExample="false" enableUpdateByExample="false"
+			   enableDeleteByExample="false" enableSelectByExample="false"
+			   selectByExampleQueryId="false"/>
 	</context>
 </generatorConfiguration>
