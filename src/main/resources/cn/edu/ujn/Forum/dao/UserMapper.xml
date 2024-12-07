@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.ujn.Forum.dao.UserMapper">
+  <resultMap id="BaseResultMap" type="cn.edu.ujn.Forum.dao.User">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="password_hash" jdbcType="VARCHAR" property="passwordHash" />
+    <result column="verification_code" jdbcType="VARCHAR" property="verificationCode" />
+    <result column="is_verified" jdbcType="BIT" property="isVerified" />
+    <result column="reset_token" jdbcType="VARCHAR" property="resetToken" />
+    <result column="reset_token_expiration" jdbcType="TIMESTAMP" property="resetTokenExpiration" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, username, email, phone, password_hash, verification_code, is_verified, reset_token, 
+    reset_token_expiration, created_at, updated_at
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from users
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from users
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.User">
+    insert into users (id, username, email, 
+      phone, password_hash, verification_code, 
+      is_verified, reset_token, reset_token_expiration, 
+      created_at, updated_at)
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
+      #{phone,jdbcType=VARCHAR}, #{passwordHash,jdbcType=VARCHAR}, #{verificationCode,jdbcType=VARCHAR}, 
+      #{isVerified,jdbcType=BIT}, #{resetToken,jdbcType=VARCHAR}, #{resetTokenExpiration,jdbcType=TIMESTAMP}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.User">
+    insert into users
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="passwordHash != null">
+        password_hash,
+      </if>
+      <if test="verificationCode != null">
+        verification_code,
+      </if>
+      <if test="isVerified != null">
+        is_verified,
+      </if>
+      <if test="resetToken != null">
+        reset_token,
+      </if>
+      <if test="resetTokenExpiration != null">
+        reset_token_expiration,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordHash != null">
+        #{passwordHash,jdbcType=VARCHAR},
+      </if>
+      <if test="verificationCode != null">
+        #{verificationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isVerified != null">
+        #{isVerified,jdbcType=BIT},
+      </if>
+      <if test="resetToken != null">
+        #{resetToken,jdbcType=VARCHAR},
+      </if>
+      <if test="resetTokenExpiration != null">
+        #{resetTokenExpiration,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.edu.ujn.Forum.dao.User">
+    update users
+    <set>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordHash != null">
+        password_hash = #{passwordHash,jdbcType=VARCHAR},
+      </if>
+      <if test="verificationCode != null">
+        verification_code = #{verificationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isVerified != null">
+        is_verified = #{isVerified,jdbcType=BIT},
+      </if>
+      <if test="resetToken != null">
+        reset_token = #{resetToken,jdbcType=VARCHAR},
+      </if>
+      <if test="resetTokenExpiration != null">
+        reset_token_expiration = #{resetTokenExpiration,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.User">
+    update users
+    set username = #{username,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      password_hash = #{passwordHash,jdbcType=VARCHAR},
+      verification_code = #{verificationCode,jdbcType=VARCHAR},
+      is_verified = #{isVerified,jdbcType=BIT},
+      reset_token = #{resetToken,jdbcType=VARCHAR},
+      reset_token_expiration = #{resetTokenExpiration,jdbcType=TIMESTAMP},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
