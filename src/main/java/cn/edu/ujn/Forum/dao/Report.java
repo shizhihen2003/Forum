@@ -82,4 +82,18 @@ public class Report {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @Override
+    public String toString() {
+        return "Report{" +
+                "id=" + id +
+                ", postId=" + postId +
+                ", userId=" + userId +
+                ", reportTypeId=" + reportTypeId +
+                ", description='" + description + '\'' +
+                ", status='" + status + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }
