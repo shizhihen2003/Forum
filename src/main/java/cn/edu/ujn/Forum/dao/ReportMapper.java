@@ -26,4 +26,5 @@ public interface ReportMapper {
 
     // 新增统计总记录数的方法
     int countReports();
+
 }

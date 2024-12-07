@@ -50,6 +50,7 @@ public class ReportServiceImpl implements IReportService {
         // 查询总记录数
         int total = reportMapper.countReports();
 
+
         // 封装分页结果
         Page<Report> result = new Page<>();
         result.setPage(page);    // 当前页
