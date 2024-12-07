@@ -29,6 +29,10 @@
     FROM reports
     LIMIT #{offset}, #{limit};
   </select>
+  <select id="countReports" resultType="int">
+    SELECT COUNT(*) FROM reports;
+  </select>
+
 
 
 
