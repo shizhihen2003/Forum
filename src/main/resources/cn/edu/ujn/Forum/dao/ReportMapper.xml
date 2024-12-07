@@ -35,6 +35,7 @@
 
 
 
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from reports
     where id = #{id,jdbcType=INTEGER}
