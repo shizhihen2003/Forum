@@ -64,7 +64,6 @@ public class ReportServiceImpl implements IReportService {
         result.setSize(size);    // 每页记录数
         result.setTotal(total);  // 总记录数
         result.setRows(reports); // 当前页的记录列表
-
         return result;
 
 
