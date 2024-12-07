@@ -20,6 +20,18 @@
     from reports
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectAll" resultType="cn.edu.ujn.Forum.dao.Report">
+    SELECT <include refid="Base_Column_List" />
+    FROM reports;
+  </select>
+  <select id="selectAllPaged" parameterType="map" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List" />
+    FROM reports
+    LIMIT #{offset}, #{limit};
+  </select>
+
+
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from reports
     where id = #{id,jdbcType=INTEGER}
