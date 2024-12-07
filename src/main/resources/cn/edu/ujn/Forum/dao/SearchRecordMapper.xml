@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.ujn.Forum.dao.SearchRecordMapper">
+  <resultMap id="BaseResultMap" type="cn.edu.ujn.Forum.dao.SearchRecord">
+    <id column="SearchRecordID" jdbcType="INTEGER" property="searchrecordid" />
+    <result column="UserID" jdbcType="VARCHAR" property="userid" />
+    <result column="SearchTime" jdbcType="INTEGER" property="searchtime" />
+    <result column="PermissionID" jdbcType="INTEGER" property="permissionid" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    SearchRecordID, UserID, SearchTime, PermissionID
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from searchRecords
+    where SearchRecordID = #{searchrecordid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from searchRecords
+    where SearchRecordID = #{searchrecordid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.SearchRecord">
+    insert into searchRecords (SearchRecordID, UserID, SearchTime, 
+      PermissionID)
+    values (#{searchrecordid,jdbcType=INTEGER}, #{userid,jdbcType=VARCHAR}, #{searchtime,jdbcType=INTEGER}, 
+      #{permissionid,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.SearchRecord">
+    insert into searchRecords
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="searchrecordid != null">
+        SearchRecordID,
+      </if>
+      <if test="userid != null">
+        UserID,
+      </if>
+      <if test="searchtime != null">
+        SearchTime,
+      </if>
+      <if test="permissionid != null">
+        PermissionID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="searchrecordid != null">
+        #{searchrecordid,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null">
+        #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="searchtime != null">
+        #{searchtime,jdbcType=INTEGER},
+      </if>
+      <if test="permissionid != null">
+        #{permissionid,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.edu.ujn.Forum.dao.SearchRecord">
+    update searchRecords
+    <set>
+      <if test="userid != null">
+        UserID = #{userid,jdbcType=VARCHAR},
+      </if>
+      <if test="searchtime != null">
+        SearchTime = #{searchtime,jdbcType=INTEGER},
+      </if>
+      <if test="permissionid != null">
+        PermissionID = #{permissionid,jdbcType=INTEGER},
+      </if>
+    </set>
+    where SearchRecordID = #{searchrecordid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.SearchRecord">
+    update searchRecords
+    set UserID = #{userid,jdbcType=VARCHAR},
+      SearchTime = #{searchtime,jdbcType=INTEGER},
+      PermissionID = #{permissionid,jdbcType=INTEGER}
+    where SearchRecordID = #{searchrecordid,jdbcType=INTEGER}
+  </update>
+</mapper>
