@@ -15,7 +15,7 @@
     id, post_id, user_id, report_type_id, description, status, created_at, updated_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from reports
     where id = #{id,jdbcType=INTEGER}
@@ -29,20 +29,20 @@
     FROM reports
     LIMIT #{offset}, #{limit};
   </select>
-
-
-
+  <select id="countReports" resultType="int">
+    SELECT COUNT(*) FROM reports;
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from reports
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.Report">
-    insert into reports (id, post_id, user_id, 
-      report_type_id, description, status, 
-      created_at, updated_at)
-    values (#{id,jdbcType=INTEGER}, #{postId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, 
-      #{reportTypeId,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+    insert into reports (id, post_id, user_id,
+    report_type_id, description, status,
+    created_at, updated_at)
+    values (#{id,jdbcType=INTEGER}, #{postId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+    #{reportTypeId,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=CHAR},
+    #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.Report">
     insert into reports
@@ -129,12 +129,12 @@
   <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.Report">
     update reports
     set post_id = #{postId,jdbcType=INTEGER},
-      user_id = #{userId,jdbcType=INTEGER},
-      report_type_id = #{reportTypeId,jdbcType=INTEGER},
-      description = #{description,jdbcType=VARCHAR},
-      status = #{status,jdbcType=CHAR},
-      created_at = #{createdAt,jdbcType=TIMESTAMP},
-      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    user_id = #{userId,jdbcType=INTEGER},
+    report_type_id = #{reportTypeId,jdbcType=INTEGER},
+    description = #{description,jdbcType=VARCHAR},
+    status = #{status,jdbcType=CHAR},
+    created_at = #{createdAt,jdbcType=TIMESTAMP},
+    updated_at = #{updatedAt,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>
