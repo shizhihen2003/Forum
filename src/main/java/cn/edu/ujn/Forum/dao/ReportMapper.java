@@ -20,7 +20,10 @@ public interface ReportMapper {
     int updateByPrimaryKeySelective(Report row);
 
     int updateByPrimaryKey(Report row);
-    // 新增分页查询举报记录的方法
+
+    // 分页查询举报记录的方法
     List<Report> selectAllPaged(@Param("offset") int offset, @Param("limit") int limit);
 
+    // 新增统计总记录数的方法
+    int countReports();
 }
