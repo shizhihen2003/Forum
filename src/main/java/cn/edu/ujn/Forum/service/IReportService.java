@@ -1,7 +1,9 @@
 package cn.edu.ujn.Forum.service;
 
 import cn.edu.ujn.Forum.dao.Report;
+
 import cn.edu.ujn.Forum.util.Page; // 引入Page类
+
 
 import java.util.List;
 
@@ -18,4 +20,5 @@ public interface IReportService {
      * @return 分页结果，包括总记录数、当前页、每页数量和记录列表
      */
     Page<Report> getReportsPaged(int page, int size); // 修改返回值类型为Page<Report>
+
 }
