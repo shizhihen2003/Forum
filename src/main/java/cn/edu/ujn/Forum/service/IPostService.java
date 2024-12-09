@@ -45,24 +45,37 @@ public interface IPostService {
     boolean likePost(Long id);
 
     /**
+     * 置顶帖子
+     */
+    boolean setTopStatus(Long id, Integer isTop);
+
+    /**
+     * 设置精华
+     */
+    boolean setEssenceStatus(Long id, Integer isEssence);
+
+    /**
+     * 批量删除帖子
+     */
+    boolean batchDelete(List<Long> ids);
+
+    /**
      * 获取热门帖子
-     * @param limit 获取数量
-     * @return 热门帖子列表
      */
     List<Post> getHotPosts(int limit);
 
     /**
      * 获取相关帖子
-     * @param postId 当前帖子ID
-     * @param limit 获取数量
-     * @return 相关帖子列表
      */
     List<Post> getRelatedPosts(Long postId, int limit);
 
     /**
      * 上传图片
-     * @param file 图片文件
-     * @return 图片URL
      */
     String uploadImage(MultipartFile file) throws Exception;
+
+    /**
+     * 批量审核帖子
+     */
+    boolean batchAudit(List<Long> ids, Integer status, String reason);
 }
