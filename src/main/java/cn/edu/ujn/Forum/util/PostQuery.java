@@ -8,12 +8,8 @@ public class PostQuery {
     private Integer page = 1;   // 当前页码，默认第1页
     private Integer pageSize = 10;  // 每页条数，默认10条
     private Integer limit;      // 查询限制数
-
-    // 新增setLimit方法
-    public void setLimit(int limit) {
-        this.limit = limit;
-        this.pageSize = limit;  // 设置limit的同时更新pageSize
-    }
+    private String orderBy;     // 排序规则
+    private Long excludeId;     // 需要排除的帖子ID
 
     // 获取offset
     public Integer getOffset() {
@@ -25,7 +21,7 @@ public class PostQuery {
         return limit != null ? limit : pageSize;
     }
 
-    // 原有的getter和setter方法
+    // Getter和Setter方法
     public Long getCategoryId() {
         return categoryId;
     }
@@ -74,6 +70,27 @@ public class PostQuery {
         this.pageSize = pageSize != null ? pageSize : 10;
     }
 
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+        this.pageSize = limit;  // 设置limit的同时更新pageSize
+    }
+
+    public String getOrderBy() {
+        return orderBy;
+    }
+
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
+    }
+
+    public Long getExcludeId() {
+        return excludeId;
+    }
+
+    public void setExcludeId(Long excludeId) {
+        this.excludeId = excludeId;
+    }
+
     @Override
     public String toString() {
         return "PostQuery{" +
@@ -84,6 +101,8 @@ public class PostQuery {
                 ", page=" + page +
                 ", pageSize=" + pageSize +
                 ", limit=" + limit +
+                ", orderBy='" + orderBy + '\'' +
+                ", excludeId=" + excludeId +
                 '}';
     }
 }

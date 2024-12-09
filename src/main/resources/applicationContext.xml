@@ -62,6 +62,8 @@
 		<property name="prefix" value="/WEB-INF/jsp/" />
 		<property name="suffix" value=".jsp" />
 	</bean>
-<!--	&lt;!&ndash; 静态资源映射 &ndash;&gt;-->
-<!--	<mvc:resources mapping="/static/**" location="/static/"/>-->
+	<!-- 静态资源映射 -->
+	<mvc:resources mapping="/static/**" location="/static/"/>
+	<!-- 在spring-mvc.xml中 -->
+	<mvc:resources mapping="/upload/**" location="/static/upload/"/>
 </beans>
