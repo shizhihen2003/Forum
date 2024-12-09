@@ -1,6 +1,7 @@
 package cn.edu.ujn.Forum.dao;
 
 import java.util.Date;
+import java.util.List;
 
 public class Comment {
     private Long id;
@@ -21,8 +22,18 @@ public class Comment {
 
     private String content;
 
+    private List<Comment> children;
+
     public Long getId() {
         return id;
+    }
+
+    public List<Comment> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Comment> children) {
+        this.children = children;
     }
 
     public void setId(Long id) {

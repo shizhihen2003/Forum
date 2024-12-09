@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.ujn.Forum.dao.PostMapper">
+  <!-- 基础字段映射 -->
   <resultMap id="BaseResultMap" type="cn.edu.ujn.Forum.dao.Post">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="category_id" jdbcType="BIGINT" property="categoryId" />
@@ -14,40 +15,114 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
+
+  <!-- 带BLOB字段的结果映射 -->
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.edu.ujn.Forum.dao.Post">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
+
+  <!-- 带用户信息的结果映射 -->
+  <resultMap extends="ResultMapWithBLOBs" id="ResultMapWithUser" type="cn.edu.ujn.Forum.dao.Post">
+    <result column="author_name" property="authorName" />
+    <result column="author_avatar" property="authorAvatar" />
+    <result column="category_name" property="categoryName" />
+  </resultMap>
+
+  <!-- 基础列 -->
   <sql id="Base_Column_List">
-    id, category_id, user_id, title, summary, view_count, like_count, comment_count, 
+    id, category_id, user_id, title, summary, view_count, like_count, comment_count,
     status, create_time, update_time
   </sql>
+
+  <!-- BLOB列 -->
   <sql id="Blob_Column_List">
     content
   </sql>
+
+  <!-- 查询基础列 -->
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
-    select 
-    <include refid="Base_Column_List" />
-    ,
+    select
+    <include refid="Base_Column_List" />,
     <include refid="Blob_Column_List" />
     from post
     where id = #{id,jdbcType=BIGINT}
   </select>
+
+  <!-- 查询列表（带用户信息） -->
+  <select id="selectList" parameterType="cn.edu.ujn.Forum.util.PostQuery" resultMap="BaseResultMap">
+    SELECT
+    p.*,
+    u.username as author_name,
+    u.avatar as author_avatar,
+    c.name as category_name
+    FROM post p
+    LEFT JOIN user u ON p.user_id = u.id
+    LEFT JOIN category c ON p.category_id = c.id
+    <where>
+      p.status != 3
+      <if test="categoryId != null">
+        AND p.category_id = #{categoryId}
+      </if>
+      <if test="userId != null">
+        AND p.user_id = #{userId}
+      </if>
+      <if test="status != null">
+        AND p.status = #{status}
+      </if>
+      <if test="keyword != null and keyword != ''">
+        AND (p.title LIKE CONCAT('%',#{keyword},'%')
+        OR p.content LIKE CONCAT('%',#{keyword},'%'))
+      </if>
+    </where>
+    ORDER BY p.create_time DESC
+    <if test="offset != null and limit != null">
+      LIMIT #{offset}, #{limit}
+    </if>
+  </select>
+
+  <!-- 统计总数 -->
+  <select id="countList" parameterType="cn.edu.ujn.Forum.util.PostQuery" resultType="java.lang.Integer">
+    SELECT COUNT(*)
+    FROM post p
+    <where>
+      p.status != 3
+      <if test="categoryId != null">
+        AND p.category_id = #{categoryId}
+      </if>
+      <if test="userId != null">
+        AND p.user_id = #{userId}
+      </if>
+      <if test="status != null">
+        AND p.status = #{status}
+      </if>
+      <if test="keyword != null and keyword != ''">
+        AND (p.title LIKE CONCAT('%',#{keyword},'%')
+        OR p.content LIKE CONCAT('%',#{keyword},'%'))
+      </if>
+    </where>
+  </select>
+
+  <!-- 删除帖子 -->
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from post
     where id = #{id,jdbcType=BIGINT}
   </delete>
+
+  <!-- 插入帖子（全字段） -->
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.Post">
-    insert into post (id, category_id, user_id, 
-      title, summary, view_count, 
-      like_count, comment_count, status, 
-      create_time, update_time, content
-      )
-    values (#{id,jdbcType=BIGINT}, #{categoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, 
-      #{title,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, #{viewCount,jdbcType=INTEGER}, 
-      #{likeCount,jdbcType=INTEGER}, #{commentCount,jdbcType=INTEGER}, #{status,jdbcType=TINYINT}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR}
-      )
+    insert into post (id, category_id, user_id,
+                      title, summary, view_count,
+                      like_count, comment_count, status,
+                      create_time, update_time, content
+    )
+    values (#{id,jdbcType=BIGINT}, #{categoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
+            #{title,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, #{viewCount,jdbcType=INTEGER},
+            #{likeCount,jdbcType=INTEGER}, #{commentCount,jdbcType=INTEGER}, #{status,jdbcType=TINYINT},
+            #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR}
+           )
   </insert>
+
+  <!-- 插入帖子（动态字段） -->
   <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.Post">
     insert into post
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -127,6 +202,8 @@
       </if>
     </trim>
   </insert>
+
+  <!-- 更新帖子（动态字段） -->
   <update id="updateByPrimaryKeySelective" parameterType="cn.edu.ujn.Forum.dao.Post">
     update post
     <set>
@@ -166,33 +243,66 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <!-- 更新帖子（带BLOB字段） -->
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.edu.ujn.Forum.dao.Post">
     update post
     set category_id = #{categoryId,jdbcType=BIGINT},
-      user_id = #{userId,jdbcType=BIGINT},
-      title = #{title,jdbcType=VARCHAR},
-      summary = #{summary,jdbcType=VARCHAR},
-      view_count = #{viewCount,jdbcType=INTEGER},
-      like_count = #{likeCount,jdbcType=INTEGER},
-      comment_count = #{commentCount,jdbcType=INTEGER},
-      status = #{status,jdbcType=TINYINT},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP},
-      content = #{content,jdbcType=LONGVARCHAR}
+        user_id = #{userId,jdbcType=BIGINT},
+        title = #{title,jdbcType=VARCHAR},
+        summary = #{summary,jdbcType=VARCHAR},
+        view_count = #{viewCount,jdbcType=INTEGER},
+        like_count = #{likeCount,jdbcType=INTEGER},
+        comment_count = #{commentCount,jdbcType=INTEGER},
+        status = #{status,jdbcType=TINYINT},
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+        content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <!-- 更新帖子（不带BLOB字段） -->
   <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.Post">
     update post
     set category_id = #{categoryId,jdbcType=BIGINT},
-      user_id = #{userId,jdbcType=BIGINT},
-      title = #{title,jdbcType=VARCHAR},
-      summary = #{summary,jdbcType=VARCHAR},
-      view_count = #{viewCount,jdbcType=INTEGER},
-      like_count = #{likeCount,jdbcType=INTEGER},
-      comment_count = #{commentCount,jdbcType=INTEGER},
-      status = #{status,jdbcType=TINYINT},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+        user_id = #{userId,jdbcType=BIGINT},
+        title = #{title,jdbcType=VARCHAR},
+        summary = #{summary,jdbcType=VARCHAR},
+        view_count = #{viewCount,jdbcType=INTEGER},
+        like_count = #{likeCount,jdbcType=INTEGER},
+        comment_count = #{commentCount,jdbcType=INTEGER},
+        status = #{status,jdbcType=TINYINT},
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+        update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 更新帖子状态 -->
+  <update id="updateStatus">
+    UPDATE post
+    SET status = #{status,jdbcType=TINYINT},
+        update_time = NOW()
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 增加浏览次数 -->
+  <update id="increaseViewCount">
+    UPDATE post
+    SET view_count = view_count + 1
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 更新点赞次数 -->
+  <update id="updateLikeCount">
+    UPDATE post
+    SET like_count = like_count + #{delta,jdbcType=INTEGER}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 更新评论次数 -->
+  <update id="updateCommentCount">
+    UPDATE post
+    SET comment_count = comment_count + #{delta,jdbcType=INTEGER}
+    WHERE id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>
