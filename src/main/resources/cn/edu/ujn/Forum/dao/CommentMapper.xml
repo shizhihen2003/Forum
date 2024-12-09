@@ -18,10 +18,11 @@
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
 
-  <!-- 带用户信息的结果映射 -->
+  <!-- 带用户信息的结果映射（包含子评论） -->
   <resultMap extends="ResultMapWithBLOBs" id="ResultMapWithUser" type="cn.edu.ujn.Forum.dao.Comment">
     <result column="author_name" property="authorName" />
     <result column="author_avatar" property="authorAvatar" />
+    <collection property="children" column="id" select="selectByParentId"/>
   </resultMap>
 
   <!-- 基础列 -->
@@ -45,6 +46,33 @@
     WHERE c.id = #{id,jdbcType=BIGINT}
   </select>
 
+  <!-- 获取帖子的评论列表（包含回复） -->
+  <select id="getPostComments" parameterType="java.lang.Long" resultMap="ResultMapWithUser">
+    SELECT
+      c.*,
+      u.username as author_name,
+      u.avatar as author_avatar
+    FROM comment c
+           LEFT JOIN user u ON c.user_id = u.id
+    WHERE c.post_id = #{postId}
+      AND c.parent_id IS NULL
+      AND c.status = 1
+    ORDER BY c.create_time DESC
+  </select>
+
+  <!-- 根据父评论ID查询回复列表 -->
+  <select id="selectByParentId" resultMap="ResultMapWithUser">
+    SELECT
+      c.*,
+      u.username as author_name,
+      u.avatar as author_avatar
+    FROM comment c
+           LEFT JOIN user u ON c.user_id = u.id
+    WHERE c.parent_id = #{parentId}
+      AND c.status = 1
+    ORDER BY c.create_time ASC
+  </select>
+
   <!-- 根据帖子ID查询评论 -->
   <select id="selectByPostId" parameterType="java.lang.Long" resultMap="ResultMapWithUser">
     SELECT
@@ -57,19 +85,6 @@
       AND c.parent_id IS NULL
       AND c.status = 1
     ORDER BY c.create_time DESC
-  </select>
-
-  <!-- 根据父评论ID查询评论 -->
-  <select id="selectByParentId" parameterType="java.lang.Long" resultMap="ResultMapWithUser">
-    SELECT
-      c.*,
-      u.username as author_name,
-      u.avatar as author_avatar
-    FROM comment c
-           LEFT JOIN user u ON c.user_id = u.id
-    WHERE c.parent_id = #{parentId,jdbcType=BIGINT}
-      AND c.status = 1
-    ORDER BY c.create_time ASC
   </select>
 
   <!-- 根据评论ID批量查询 -->
@@ -105,12 +120,9 @@
   </insert>
 
   <!-- 插入评论(动态字段) -->
-  <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.Comment">
+  <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.Comment" useGeneratedKeys="true" keyProperty="id">
     insert into comment
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="postId != null">
         post_id,
       </if>
@@ -137,9 +149,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="postId != null">
         #{postId,jdbcType=BIGINT},
       </if>
@@ -254,4 +263,6 @@
     DELETE FROM comment
     WHERE post_id = #{postId,jdbcType=BIGINT}
   </delete>
+
+
 </mapper>

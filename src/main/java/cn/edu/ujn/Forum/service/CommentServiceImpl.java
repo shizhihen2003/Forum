@@ -1,136 +1,84 @@
 package cn.edu.ujn.Forum.service;
 
 import cn.edu.ujn.Forum.dao.Comment;
-
 import cn.edu.ujn.Forum.dao.CommentMapper;
 import cn.edu.ujn.Forum.dao.PostMapper;
-import cn.edu.ujn.Forum.dao.Comment;
-import cn.edu.ujn.Forum.service.ICommentService;
 import cn.edu.ujn.Forum.util.CommentDTO;
-import cn.edu.ujn.Forum.util.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements ICommentService {
+
     @Autowired
     private CommentMapper commentMapper;
+
     @Autowired
     private PostMapper postMapper;
 
-
     @Override
+    @Transactional
     public Comment createComment(CommentDTO commentDTO) {
         // 参数校验
-        String error = commentDTO.validate();
-        if(error != null) {
-            throw new IllegalArgumentException(error);
+        if(commentDTO.getPostId() == null) {
+            throw new IllegalArgumentException("帖子ID不能为空");
         }
-
-        // 检查帖子是否存在
-        if(postMapper.selectById(commentDTO.getPostId()) == null) {
-            throw new IllegalArgumentException("帖子不存在");
+        if(commentDTO.getContent() == null || commentDTO.getContent().trim().isEmpty()) {
+            throw new IllegalArgumentException("评论内容不能为空");
         }
 
         Comment comment = new Comment();
-        // 设置基础信息
         comment.setPostId(commentDTO.getPostId());
-        comment.setParentId(commentDTO.getParentId());
         comment.setContent(commentDTO.getContent());
-
-        // 设置其他信息
+        comment.setParentId(commentDTO.getParentId());
         comment.setUserId(getCurrentUserId());
         comment.setLikeCount(0);
-        comment.setStatus((byte) 0); // 待审核
+        comment.setStatus(1);  // 默认状态为已发布
         comment.setCreateTime(new Date());
 
         // 插入评论
         commentMapper.insert(comment);
 
         // 更新帖子评论数
-        postMapper.updateCommentCount(comment.getPostId(), 1);
+        postMapper.updateCommentCount(commentDTO.getPostId(), 1);
 
         return comment;
     }
 
     @Override
+    @Transactional
     public boolean deleteComment(Long id) {
+        // 查询评论
         Comment comment = commentMapper.selectById(id);
         if(comment == null) {
             return false;
         }
 
         // 权限检查
-        Long currentUserId = getCurrentUserId();
-        if(!comment.getUserId().equals(currentUserId) && !isAdmin()) {
+        if(!comment.getUserId().equals(getCurrentUserId()) && !isAdmin()) {
             throw new IllegalStateException("没有删除权限");
         }
 
-        // 逻辑删除评论
-        if(commentMapper.updateStatus(id, 3) > 0) {
-            // 更新帖子评论数
-            postMapper.updateCommentCount(comment.getPostId(), -1);
-            return true;
-        }
+        // 删除评论
+        commentMapper.updateStatus(id, 3);  // 状态改为已删除
 
-        return false;
+        // 更新帖子评论数
+        postMapper.updateCommentCount(comment.getPostId(), -1);
+
+        return true;
     }
 
     @Override
     public List<Comment> getPostComments(Long postId) {
-        // 获取所有评论
-        List<Comment> allComments = commentMapper.selectByPostId(postId);
-
-        // 按父评论ID分组
-        Map<Long, List<Comment>> groupedComments = allComments.stream()
-                .collect(Collectors.groupingBy(
-                        comment -> comment.getParentId() == null ? -1 : comment.getParentId()
-                ));
-
-        // 获取顶级评论
-        List<Comment> rootComments = groupedComments.getOrDefault(-1L, new ArrayList<>());
-
-        // 递归设置子评论
-        for(Comment comment : rootComments) {
-            setChildComments(comment, groupedComments);
-        }
-
-        return rootComments;
-    }
-
-    // 递归设置子评论
-    private void setChildComments(Comment comment, Map<Long, List<Comment>> groupedComments) {
-        List<Comment> children = groupedComments.get(comment.getId());
-        if(children != null) {
-            comment.setChildren(children);
-            for(Comment child : children) {
-                setChildComments(child, groupedComments);
-            }
-        }
+        return commentMapper.getPostComments(postId);
     }
 
     @Override
-    public boolean auditComment(Long id, Integer status, String reason) {
-        // 权限检查
-        if(!isAdmin()) {
-            throw new IllegalStateException("没有审核权限");
-        }
-
-        Comment comment = commentMapper.selectById(id);
-        if(comment == null || comment.getStatus() == 3) {
-            return false;
-        }
-
-        return commentMapper.updateStatus(id, status) > 0;
-    }
-
-    @Override
+    @Transactional
     public boolean likeComment(Long id) {
         Comment comment = commentMapper.selectById(id);
         if(comment == null || comment.getStatus() != 1) {
@@ -140,15 +88,69 @@ public class CommentServiceImpl implements ICommentService {
         return commentMapper.updateLikeCount(id, 1) > 0;
     }
 
-    // 获取当前用户ID方法
-    private Long getCurrentUserId() {
-        // TODO: 实现获取当前用户ID的逻辑
-        return 1L; // 临时返回值
+    @Override
+    @Transactional
+    public boolean auditComment(Long id, Integer status, String reason) {
+        // 权限检查
+        if(!isAdmin()) {
+            throw new IllegalStateException("没有审核权限");
+        }
+
+        Comment comment = commentMapper.selectById(id);
+        if(comment == null) {
+            return false;
+        }
+
+        // 更新评论状态
+        return commentMapper.updateStatus(id, status) > 0;
     }
 
-    // 检查是否是管理员
+    @Override
+    @Transactional
+    public boolean batchAudit(List<Long> ids, Integer status, String reason) {
+        if(!isAdmin()) {
+            throw new IllegalStateException("没有审核权限");
+        }
+        return commentMapper.updateStatusBatch(ids, status) > 0;
+    }
+
+    @Override
+    public Comment getCommentDetail(Long id) {
+        return commentMapper.selectById(id);
+    }
+
+    @Override
+    @Transactional
+    public boolean updateComment(Long id, CommentDTO commentDTO) {
+        // 查询原评论
+        Comment oldComment = commentMapper.selectById(id);
+        if(oldComment == null || oldComment.getStatus() == 3) {
+            return false;
+        }
+
+        // 权限检查
+        if(!oldComment.getUserId().equals(getCurrentUserId()) && !isAdmin()) {
+            throw new IllegalStateException("没有修改权限");
+        }
+
+        // 更新评论
+        Comment comment = new Comment();
+        comment.setId(id);
+        comment.setContent(commentDTO.getContent());
+        comment.setUpdateTime(new Date());
+
+        return commentMapper.updateSelective(comment) > 0;
+    }
+
+    // 获取当前用户ID - 需要实际实现
+    private Long getCurrentUserId() {
+        // TODO: 实现获取当前用户ID的逻辑
+        return 1L;
+    }
+
+    // 检查是否是管理员 - 需要实际实现
     private boolean isAdmin() {
         // TODO: 实现管理员检查逻辑
-        return false; // 临时返回值
+        return true;
     }
 }

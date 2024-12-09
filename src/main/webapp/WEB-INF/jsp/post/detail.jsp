@@ -6,7 +6,7 @@
 <head>
   <title>${post.title}</title>
   <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
-  <link href="${pageContext.request.contextPath}/static/css/editor.md.min.css" rel="stylesheet">
+  <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.min.css" rel="stylesheet">
   <style>
     .post-container {
       background: #fff;
@@ -105,9 +105,9 @@
             <span><i class="bi bi-person"></i> ${post.authorName}</span>
             <span class="ml-3"><i class="bi bi-folder"></i> ${post.categoryName}</span>
             <span class="ml-3">
-                                <i class="bi bi-clock"></i>
-                                <fmt:formatDate value="${post.createTime}" pattern="yyyy-MM-dd HH:mm"/>
-                            </span>
+                            <i class="bi bi-clock"></i>
+                            <fmt:formatDate value="${post.createTime}" pattern="yyyy-MM-dd HH:mm"/>
+                        </span>
             <span class="ml-3"><i class="bi bi-eye"></i> ${post.viewCount} 浏览</span>
             <span class="ml-3"><i class="bi bi-chat"></i> ${post.commentCount} 评论</span>
             <span class="ml-3"><i class="bi bi-heart"></i> ${post.likeCount} 点赞</span>
@@ -129,7 +129,7 @@
             <i class="bi bi-chat"></i> 评论
           </button>
           <c:if test="${sessionScope.user.id eq post.userId}">
-            <a href="/post/edit/${post.id}" class="btn btn-warning ml-2">
+            <a href="${pageContext.request.contextPath}/post/edit/${post.id}" class="btn btn-warning ml-2">
               <i class="bi bi-pencil"></i> 编辑
             </a>
           </c:if>
@@ -142,8 +142,7 @@
 
         <!-- 评论表单 -->
         <div class="comment-form">
-                        <textarea class="form-control" id="commentContent" rows="3"
-                                  placeholder="发表评论..."></textarea>
+          <textarea class="form-control" id="commentContent" rows="3" placeholder="发表评论..."></textarea>
           <button class="btn btn-primary mt-2" onclick="submitComment()">发表评论</button>
         </div>
 
@@ -156,8 +155,7 @@
                 <div>
                   <span class="font-weight-bold">${comment.authorName}</span>
                   <small class="text-muted ml-2">
-                    <fmt:formatDate value="${comment.createTime}"
-                                    pattern="yyyy-MM-dd HH:mm"/>
+                    <fmt:formatDate value="${comment.createTime}" pattern="yyyy-MM-dd HH:mm"/>
                   </small>
                 </div>
               </div>
@@ -177,27 +175,20 @@
                   <c:forEach items="${comment.children}" var="reply">
                     <div class="comment-reply">
                       <div class="comment-user">
-                        <img src="${reply.authorAvatar}"
-                             class="comment-avatar">
+                        <img src="${reply.authorAvatar}" class="comment-avatar">
                         <div>
-                                                        <span class="font-weight-bold">
-                                                            ${reply.authorName}
-                                                        </span>
+                          <span class="font-weight-bold">${reply.authorName}</span>
                           <small class="text-muted ml-2">
-                            <fmt:formatDate value="${reply.createTime}"
-                                            pattern="yyyy-MM-dd HH:mm"/>
+                            <fmt:formatDate value="${reply.createTime}" pattern="yyyy-MM-dd HH:mm"/>
                           </small>
                         </div>
                       </div>
                       <div class="comment-content">${reply.content}</div>
                       <div class="comment-actions">
-                        <a href="javascript:void(0)"
-                           onclick="likeComment(${reply.id})">
-                          <i class="bi bi-heart"></i>
-                          赞(${reply.likeCount})
+                        <a href="javascript:void(0)" onclick="likeComment(${reply.id})">
+                          <i class="bi bi-heart"></i> 赞(${reply.likeCount})
                         </a>
-                        <a href="javascript:void(0)"
-                           onclick="replyComment(${reply.id})">
+                        <a href="javascript:void(0)" onclick="replyComment(${reply.id})">
                           <i class="bi bi-reply"></i> 回复
                         </a>
                       </div>
@@ -216,8 +207,7 @@
       <!-- 作者信息 -->
       <div class="card mb-3">
         <div class="card-body text-center">
-          <img src="${post.authorAvatar}" class="rounded-circle mb-3"
-               style="width: 80px; height: 80px;">
+          <img src="${post.authorAvatar}" class="rounded-circle mb-3" style="width: 80px; height: 80px;">
           <h5 class="card-title">${post.authorName}</h5>
           <button class="btn btn-outline-primary btn-sm" onclick="followAuthor()">
             <i class="bi bi-plus"></i> 关注作者
@@ -231,7 +221,7 @@
         <div class="card-body">
           <div class="list-group list-group-flush">
             <c:forEach items="${relatedPosts}" var="related">
-              <a href="/post/detail/${related.id}"
+              <a href="${pageContext.request.contextPath}/post/detail/${related.id}"
                  class="list-group-item list-group-item-action">
                   ${related.title}
               </a>
@@ -267,14 +257,21 @@
 
 <script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/js/bootstrap.min.js"></script>
-<script src="${pageContext.request.contextPath}/static/js/editor.md.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/editormd.min.js"></script>
 <script>
   // 初始化Markdown渲染
-  editormd.markdownToHTML("content");
+  editormd.markdownToHTML("content", {
+    htmlDecode: "style,script,iframe",
+    emoji: true,
+    taskList: true,
+    tex: true,
+    flowChart: true,
+    sequenceDiagram: true
+  });
 
   // 点赞帖子
   function likePost() {
-    $.post('/post/like/${post.id}', function(res) {
+    $.post('${pageContext.request.contextPath}/post/like/${post.id}', function(res) {
       if(res.code === 200) {
         alert('点赞成功');
         location.reload();
@@ -293,7 +290,7 @@
     }
 
     $.ajax({
-      url: '/comment/create',
+      url: '${pageContext.request.contextPath}/comment/create',
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify({
@@ -326,7 +323,7 @@
     }
 
     $.ajax({
-      url: '/comment/create',
+      url: '${pageContext.request.contextPath}/comment/create',
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify({
@@ -347,7 +344,7 @@
 
   // 点赞评论
   function likeComment(commentId) {
-    $.post('/comment/like/' + commentId, function(res) {
+    $.post('${pageContext.request.contextPath}/comment/like/' + commentId, function(res) {
       if(res.code === 200) {
         alert('点赞成功');
         location.reload();
@@ -355,6 +352,16 @@
         alert(res.message);
       }
     });
+  }
+
+  // 显示评论表单
+  function showCommentForm() {
+    $('#commentContent').focus();
+  }
+
+  // 关注作者
+  function followAuthor() {
+    alert('关注功能开发中...');
   }
 </script>
 </body>

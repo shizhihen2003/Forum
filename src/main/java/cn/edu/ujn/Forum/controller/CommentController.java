@@ -58,7 +58,7 @@ public class CommentController {
      */
     @GetMapping("/list/{postId}")
     @ResponseBody
-    public Result<List<Comment>> getPostComments(@PathVariable Long postId) {
+    public Result<List<Comment>> getPostComments(@PathVariable("postId") Long postId) {
         try {
             List<Comment> comments = commentService.getPostComments(postId);
             return Result.success(comments);

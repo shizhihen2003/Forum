@@ -1,9 +1,10 @@
 package cn.edu.ujn.Forum.dao;
 
 import cn.edu.ujn.Forum.util.PostQuery;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
-
+@Mapper
 public interface PostMapper {
     /**
      * 根据ID查询帖子

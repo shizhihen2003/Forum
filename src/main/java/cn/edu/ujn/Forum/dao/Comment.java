@@ -5,35 +5,23 @@ import java.util.List;
 
 public class Comment {
     private Long id;
-
     private Long postId;
-
     private Long userId;
-
     private Long parentId;
-
+    private String content;
     private Integer likeCount;
-
-    private Byte status;
-
+    private Integer status;
     private Date createTime;
-
     private Date updateTime;
 
-    private String content;
-
+    // 扩展字段
+    private String authorName;
+    private String authorAvatar;
     private List<Comment> children;
 
+    // Getters and Setters
     public Long getId() {
         return id;
-    }
-
-    public List<Comment> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<Comment> children) {
-        this.children = children;
     }
 
     public void setId(Long id) {
@@ -64,6 +52,14 @@ public class Comment {
         this.parentId = parentId;
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     public Integer getLikeCount() {
         return likeCount;
     }
@@ -72,11 +68,11 @@ public class Comment {
         this.likeCount = likeCount;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -96,11 +92,27 @@ public class Comment {
         this.updateTime = updateTime;
     }
 
-    public String getContent() {
-        return content;
+    public String getAuthorName() {
+        return authorName;
     }
 
-    public void setContent(String content) {
-        this.content = content == null ? null : content.trim();
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getAuthorAvatar() {
+        return authorAvatar;
+    }
+
+    public void setAuthorAvatar(String authorAvatar) {
+        this.authorAvatar = authorAvatar;
+    }
+
+    public List<Comment> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Comment> children) {
+        this.children = children;
     }
 }

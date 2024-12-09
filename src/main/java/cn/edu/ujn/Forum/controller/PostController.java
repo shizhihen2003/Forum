@@ -1,7 +1,9 @@
 package cn.edu.ujn.Forum.controller;
 
+import cn.edu.ujn.Forum.dao.Comment;
 import cn.edu.ujn.Forum.dao.Post;
 import cn.edu.ujn.Forum.dao.Category;
+import cn.edu.ujn.Forum.service.ICommentService;
 import cn.edu.ujn.Forum.service.IPostService;
 import cn.edu.ujn.Forum.service.ICategoryService;
 import cn.edu.ujn.Forum.util.PageResult;
@@ -29,6 +31,9 @@ public class PostController {
 
     @Autowired
     private ICategoryService categoryService;
+
+    @Autowired
+    private ICommentService commentService;
 
     /**
      * 跳转到首页帖子列表
@@ -207,10 +212,18 @@ public class PostController {
     /**
      * 跳转到详情页面（返回视图）
      */
+    /**
+     * 跳转到详情页面（返回视图）
+     */
     @GetMapping("/detail/{id}")
     public String toDetailPage(@PathVariable("id") Long id, Model model) {
+        // 获取帖子详情
         Post post = postService.getPostDetail(id);
         model.addAttribute("post", post);
+
+        // 获取评论列表
+        List<Comment> comments = commentService.getPostComments(id);
+        model.addAttribute("comments", comments); // 添加到模型中
 
         // 获取相关帖子
         List<Post> relatedPosts = postService.getRelatedPosts(id, 5);
