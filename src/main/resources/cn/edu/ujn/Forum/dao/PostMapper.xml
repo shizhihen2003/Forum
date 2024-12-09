@@ -69,12 +69,22 @@
       <if test="status != null">
         AND p.status = #{status}
       </if>
+      <if test="excludeId != null">
+        AND p.id != #{excludeId}
+      </if>
       <if test="keyword != null and keyword != ''">
         AND (p.title LIKE CONCAT('%',#{keyword},'%')
         OR p.content LIKE CONCAT('%',#{keyword},'%'))
       </if>
     </where>
-    ORDER BY p.create_time DESC
+    <choose>
+      <when test="orderBy != null and orderBy != ''">
+        ORDER BY ${orderBy}
+      </when>
+      <otherwise>
+        ORDER BY p.create_time DESC
+      </otherwise>
+    </choose>
     <if test="offset != null and limit != null">
       LIMIT #{offset}, #{limit}
     </if>
@@ -94,6 +104,9 @@
       </if>
       <if test="status != null">
         AND p.status = #{status}
+      </if>
+      <if test="excludeId != null">
+        AND p.id != #{excludeId}
       </if>
       <if test="keyword != null and keyword != ''">
         AND (p.title LIKE CONCAT('%',#{keyword},'%')
