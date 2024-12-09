@@ -4,28 +4,24 @@ import java.util.Date;
 
 public class Post {
     private Long id;
-
     private Long categoryId;
-
     private Long userId;
-
     private String title;
-
     private String summary;
-
     private Integer viewCount;
-
     private Integer likeCount;
-
     private Integer commentCount;
-
+    private Integer isTop;
+    private Integer isEssence;
     private Byte status;
-
     private Date createTime;
-
     private Date updateTime;
-
     private String content;
+
+    // 扩展字段
+    private String authorName;
+    private String authorAvatar;
+    private String categoryName;
 
     public Long getId() {
         return id;
@@ -91,6 +87,22 @@ public class Post {
         this.commentCount = commentCount;
     }
 
+    public Integer getIsTop() {
+        return isTop;
+    }
+
+    public void setIsTop(Integer isTop) {
+        this.isTop = isTop;
+    }
+
+    public Integer getIsEssence() {
+        return isEssence;
+    }
+
+    public void setIsEssence(Integer isEssence) {
+        this.isEssence = isEssence;
+    }
+
     public Byte getStatus() {
         return status;
     }
@@ -121,5 +133,29 @@ public class Post {
 
     public void setContent(String content) {
         this.content = content == null ? null : content.trim();
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getAuthorAvatar() {
+        return authorAvatar;
+    }
+
+    public void setAuthorAvatar(String authorAvatar) {
+        this.authorAvatar = authorAvatar;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }

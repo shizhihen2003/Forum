@@ -11,6 +11,8 @@
     <result column="view_count" jdbcType="INTEGER" property="viewCount" />
     <result column="like_count" jdbcType="INTEGER" property="likeCount" />
     <result column="comment_count" jdbcType="INTEGER" property="commentCount" />
+    <result column="is_top" jdbcType="INTEGER" property="isTop" />
+    <result column="is_essence" jdbcType="INTEGER" property="isEssence" />
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -31,7 +33,7 @@
   <!-- 基础列 -->
   <sql id="Base_Column_List">
     id, category_id, user_id, title, summary, view_count, like_count, comment_count,
-    status, create_time, update_time
+    is_top, is_essence, status, create_time, update_time
   </sql>
 
   <!-- BLOB列 -->
@@ -79,17 +81,16 @@
     </where>
     <choose>
       <when test="orderBy != null and orderBy != ''">
-        ORDER BY ${orderBy}
+        ORDER BY p.is_top DESC, ${orderBy}
       </when>
       <otherwise>
-        ORDER BY p.create_time DESC
+        ORDER BY p.is_top DESC, p.create_time DESC
       </otherwise>
     </choose>
     <if test="offset != null and limit != null">
       LIMIT #{offset}, #{limit}
     </if>
   </select>
-
   <!-- 统计总数 -->
   <select id="countList" parameterType="cn.edu.ujn.Forum.util.PostQuery" resultType="java.lang.Integer">
     SELECT COUNT(*)
@@ -115,6 +116,51 @@
     </where>
   </select>
 
+  <!-- 查询热门帖子 -->
+  <select id="selectHotPosts" resultMap="ResultMapWithUser">
+    SELECT
+      p.*,
+      u.username as author_name,
+      u.avatar as author_avatar,
+      c.name as category_name
+    FROM post p
+           LEFT JOIN user u ON p.user_id = u.id
+           LEFT JOIN category c ON p.category_id = c.id
+    WHERE p.status = 1
+    ORDER BY p.view_count DESC, p.like_count DESC, p.comment_count DESC
+      LIMIT #{limit}
+  </select>
+
+  <!-- 根据ID查询帖子详情 -->
+  <select id="selectById" parameterType="java.lang.Long" resultMap="ResultMapWithUser">
+    SELECT
+      p.*,
+      u.username as author_name,
+      u.avatar as author_avatar,
+      c.name as category_name
+    FROM post p
+           LEFT JOIN user u ON p.user_id = u.id
+           LEFT JOIN category c ON p.category_id = c.id
+    WHERE p.id = #{id}
+  </select>
+
+  <!-- 查询相关帖子 -->
+  <select id="selectRelatedPosts" resultMap="ResultMapWithUser">
+    SELECT
+      p.*,
+      u.username as author_name,
+      u.avatar as author_avatar,
+      c.name as category_name
+    FROM post p
+           LEFT JOIN user u ON p.user_id = u.id
+           LEFT JOIN category c ON p.category_id = c.id
+    WHERE p.category_id = #{categoryId}
+      AND p.id != #{currentId}
+      AND p.status = 1
+    ORDER BY p.create_time DESC, p.view_count DESC
+      LIMIT #{limit}
+  </select>
+
   <!-- 删除帖子 -->
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from post
@@ -126,11 +172,13 @@
     insert into post (id, category_id, user_id,
                       title, summary, view_count,
                       like_count, comment_count, status,
+                      is_top, is_essence,
                       create_time, update_time, content
     )
     values (#{id,jdbcType=BIGINT}, #{categoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
             #{title,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, #{viewCount,jdbcType=INTEGER},
             #{likeCount,jdbcType=INTEGER}, #{commentCount,jdbcType=INTEGER}, #{status,jdbcType=TINYINT},
+            #{isTop,jdbcType=INTEGER}, #{isEssence,jdbcType=INTEGER},
             #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR}
            )
   </insert>
@@ -162,6 +210,12 @@
       </if>
       <if test="commentCount != null">
         comment_count,
+      </if>
+      <if test="isTop != null">
+        is_top,
+      </if>
+      <if test="isEssence != null">
+        is_essence,
       </if>
       <if test="status != null">
         status,
@@ -200,6 +254,12 @@
       </if>
       <if test="commentCount != null">
         #{commentCount,jdbcType=INTEGER},
+      </if>
+      <if test="isTop != null">
+        #{isTop,jdbcType=INTEGER},
+      </if>
+      <if test="isEssence != null">
+        #{isEssence,jdbcType=INTEGER},
       </if>
       <if test="status != null">
         #{status,jdbcType=TINYINT},
@@ -241,6 +301,12 @@
       <if test="commentCount != null">
         comment_count = #{commentCount,jdbcType=INTEGER},
       </if>
+      <if test="isTop != null">
+        is_top = #{isTop,jdbcType=INTEGER},
+      </if>
+      <if test="isEssence != null">
+        is_essence = #{isEssence,jdbcType=INTEGER},
+      </if>
       <if test="status != null">
         status = #{status,jdbcType=TINYINT},
       </if>
@@ -267,6 +333,8 @@
         view_count = #{viewCount,jdbcType=INTEGER},
         like_count = #{likeCount,jdbcType=INTEGER},
         comment_count = #{commentCount,jdbcType=INTEGER},
+        is_top = #{isTop,jdbcType=INTEGER},
+        is_essence = #{isEssence,jdbcType=INTEGER},
         status = #{status,jdbcType=TINYINT},
         create_time = #{createTime,jdbcType=TIMESTAMP},
         update_time = #{updateTime,jdbcType=TIMESTAMP},
@@ -284,6 +352,8 @@
         view_count = #{viewCount,jdbcType=INTEGER},
         like_count = #{likeCount,jdbcType=INTEGER},
         comment_count = #{commentCount,jdbcType=INTEGER},
+        is_top = #{isTop,jdbcType=INTEGER},
+        is_essence = #{isEssence,jdbcType=INTEGER},
         status = #{status,jdbcType=TINYINT},
         create_time = #{createTime,jdbcType=TIMESTAMP},
         update_time = #{updateTime,jdbcType=TIMESTAMP}
@@ -316,6 +386,22 @@
   <update id="updateCommentCount">
     UPDATE post
     SET comment_count = comment_count + #{delta,jdbcType=INTEGER}
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 更新置顶状态 -->
+  <update id="updateTopStatus">
+    UPDATE post
+    SET is_top = #{isTop,jdbcType=INTEGER},
+        update_time = NOW()
+    WHERE id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 更新精华状态 -->
+  <update id="updateEssenceStatus">
+    UPDATE post
+    SET is_essence = #{isEssence,jdbcType=INTEGER},
+        update_time = NOW()
     WHERE id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

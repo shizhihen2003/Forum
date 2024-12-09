@@ -9,7 +9,9 @@ public class PostDTO implements Serializable {
     private String title;        // 标题
     private String content;      // 内容
     private String summary;      // 摘要
-    private Integer status;      // 帖子状态: 0-草稿 1-已发布
+    private Integer status;      // 状态
+    private Integer isTop;       // 是否置顶
+    private Integer isEssence;   // 是否精华
 
     // Getter和Setter方法
     public Long getCategoryId() {
@@ -52,6 +54,22 @@ public class PostDTO implements Serializable {
         this.status = status;
     }
 
+    public Integer getIsTop() {
+        return isTop;
+    }
+
+    public void setIsTop(Integer isTop) {
+        this.isTop = isTop;
+    }
+
+    public Integer getIsEssence() {
+        return isEssence;
+    }
+
+    public void setIsEssence(Integer isEssence) {
+        this.isEssence = isEssence;
+    }
+
     // 参数校验方法
     public String validate() {
         if(categoryId == null) {
@@ -80,6 +98,8 @@ public class PostDTO implements Serializable {
                 ", content='" + content + '\'' +
                 ", summary='" + summary + '\'' +
                 ", status=" + status +
+                ", isTop=" + isTop +
+                ", isEssence=" + isEssence +
                 '}';
     }
 }

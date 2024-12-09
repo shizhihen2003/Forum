@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -43,14 +44,23 @@ public class PostServiceImpl implements IPostService {
         post.setCategoryId(postDTO.getCategoryId());
         post.setTitle(postDTO.getTitle());
         post.setContent(postDTO.getContent());
-        post.setSummary(postDTO.getSummary());
+
+        // 设置摘要
+        String summary = postDTO.getSummary();
+        if(StringUtils.isEmpty(summary)) {
+            // 如果没有提供摘要，从正文提取
+            summary = extractSummary(postDTO.getContent(), 500);
+        }
+        post.setSummary(summary);
 
         // 设置其他信息
         post.setUserId(getCurrentUserId());
         post.setViewCount(0);
         post.setLikeCount(0);
         post.setCommentCount(0);
-        post.setStatus((byte) (postDTO.getStatus() != null ? postDTO.getStatus() : 0)); // 默认为待审核
+        post.setIsTop(0);
+        post.setIsEssence(0);
+        post.setStatus(postDTO.getStatus() != null ? postDTO.getStatus().byteValue() : (byte)0);
         post.setCreateTime(new Date());
 
         // 插入数据库
@@ -75,7 +85,7 @@ public class PostServiceImpl implements IPostService {
         }
 
         // 权限检查
-        if(!oldPost.getUserId().equals(getCurrentUserId())) {
+        if(!oldPost.getUserId().equals(getCurrentUserId()) && !isAdmin()) {
             throw new IllegalStateException("没有修改权限");
         }
 
@@ -85,7 +95,13 @@ public class PostServiceImpl implements IPostService {
         post.setCategoryId(postDTO.getCategoryId());
         post.setTitle(postDTO.getTitle());
         post.setContent(postDTO.getContent());
-        post.setSummary(postDTO.getSummary());
+
+        String summary = postDTO.getSummary();
+        if(StringUtils.isEmpty(summary)) {
+            summary = extractSummary(postDTO.getContent(), 500);
+        }
+        post.setSummary(summary);
+
         post.setUpdateTime(new Date());
 
         return postMapper.update(post) > 0;
@@ -101,8 +117,7 @@ public class PostServiceImpl implements IPostService {
         }
 
         // 权限检查
-        Long currentUserId = getCurrentUserId();
-        if(!post.getUserId().equals(currentUserId) && !isAdmin()) {
+        if(!post.getUserId().equals(getCurrentUserId()) && !isAdmin()) {
             throw new IllegalStateException("没有删除权限");
         }
 
@@ -163,12 +178,35 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
+    @Transactional
+    public boolean setTopStatus(Long id, Integer isTop) {
+        if(!isAdmin()) {
+            throw new IllegalStateException("没有置顶权限");
+        }
+        return postMapper.updateTopStatus(id, isTop) > 0;
+    }
+
+    @Override
+    @Transactional
+    public boolean setEssenceStatus(Long id, Integer isEssence) {
+        if(!isAdmin()) {
+            throw new IllegalStateException("没有设置精华权限");
+        }
+        return postMapper.updateEssenceStatus(id, isEssence) > 0;
+    }
+
+    @Override
+    @Transactional
+    public boolean batchDelete(List<Long> ids) {
+        if(!isAdmin()) {
+            throw new IllegalStateException("没有批量删除权限");
+        }
+        return postMapper.batchDelete(ids) > 0;
+    }
+
+    @Override
     public List<Post> getHotPosts(int limit) {
-        PostQuery query = new PostQuery();
-        query.setStatus(1); // 已发布的帖子
-        query.setOrderBy("view_count DESC"); // 按浏览量排序
-        query.setLimit(limit);
-        return postMapper.selectList(query);
+        return postMapper.selectHotPosts(limit);
     }
 
     @Override
@@ -177,15 +215,7 @@ public class PostServiceImpl implements IPostService {
         if(current == null) {
             return new ArrayList<>();
         }
-
-        // 获取同分类的其他帖子
-        PostQuery query = new PostQuery();
-        query.setCategoryId(current.getCategoryId());
-        query.setStatus(1); // 已发布的帖子
-        query.setExcludeId(postId); // 排除当前帖子
-        query.setLimit(limit);
-        query.setOrderBy("create_time DESC"); // 按创建时间倒序
-        return postMapper.selectList(query);
+        return postMapper.selectRelatedPosts(current.getCategoryId(), postId, limit);
     }
 
     @Override
@@ -206,26 +236,51 @@ public class PostServiceImpl implements IPostService {
         String fileName = UUID.randomUUID().toString() + extension;
 
         // 保存文件
-        File uploadDir = new File(uploadPath);
-        if(!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
         File dest = new File(uploadPath + fileName);
+        if(!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
         file.transferTo(dest);
 
         // 返回访问URL
         return uploadUrl + fileName;
     }
 
-    // 获取当前用户ID方法
-    private Long getCurrentUserId() {
-        // TODO: 实现获取当前用户ID的逻辑
-        return 1L; // 临时返回值
+    @Override
+    @Transactional
+    public boolean batchAudit(List<Long> ids, Integer status, String reason) {
+        if(!isAdmin()) {
+            throw new IllegalStateException("没有审核权限");
+        }
+        return postMapper.batchUpdateStatus(ids, status) > 0;
     }
 
-    // 检查是否是管理员
+    // 提取摘要
+    private String extractSummary(String content, int length) {
+        if(StringUtils.isEmpty(content)) {
+            return "";
+        }
+        // 移除HTML标签
+        content = content.replaceAll("<[^>]+>", "");
+        // 移除Markdown标记
+        content = content.replaceAll("\\[([^\\]]*)\\]\\([^\\)]*\\)", "$1");
+        content = content.replaceAll("[*_~`]", "");
+
+        if(content.length() <= length) {
+            return content;
+        }
+        return content.substring(0, length);
+    }
+
+    // 获取当前用户ID - 需要实际实现
+    private Long getCurrentUserId() {
+        // TODO: 实现获取当前用户ID的逻辑
+        return 1L;
+    }
+
+    // 检查是否是管理员 - 需要实际实现
     private boolean isAdmin() {
         // TODO: 实现管理员检查逻辑
-        return false; // 临时返回值
+        return true;
     }
 }
