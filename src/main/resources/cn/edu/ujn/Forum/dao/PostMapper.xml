@@ -91,6 +91,7 @@
       LIMIT #{offset}, #{limit}
     </if>
   </select>
+
   <!-- 统计总数 -->
   <select id="countList" parameterType="cn.edu.ujn.Forum.util.PostQuery" resultType="java.lang.Integer">
     SELECT COUNT(*)
