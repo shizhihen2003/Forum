@@ -6,17 +6,31 @@ import cn.edu.ujn.Forum.util.PageResult;
 import cn.edu.ujn.Forum.util.PostDTO;
 import cn.edu.ujn.Forum.util.PostQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service
-public class PostServiceImpl implements IPostService{
+public class PostServiceImpl implements IPostService {
+
     @Autowired
     private PostMapper postMapper;
 
+    @Value("${upload.path}")
+    private String uploadPath;
+
+    @Value("${upload.url}")
+    private String uploadUrl;
+
     @Override
+    @Transactional
     public Post createPost(PostDTO postDTO) {
         // 参数校验
         String error = postDTO.validate();
@@ -32,11 +46,11 @@ public class PostServiceImpl implements IPostService{
         post.setSummary(postDTO.getSummary());
 
         // 设置其他信息
-        post.setUserId(getCurrentUserId()); // 需要实现获取当前用户ID的方法
+        post.setUserId(getCurrentUserId());
         post.setViewCount(0);
         post.setLikeCount(0);
         post.setCommentCount(0);
-        post.setStatus((byte) 0); // 待审核
+        post.setStatus((byte) (postDTO.getStatus() != null ? postDTO.getStatus() : 0)); // 默认为待审核
         post.setCreateTime(new Date());
 
         // 插入数据库
@@ -46,6 +60,7 @@ public class PostServiceImpl implements IPostService{
     }
 
     @Override
+    @Transactional
     public boolean updatePost(Long id, PostDTO postDTO) {
         // 参数校验
         String error = postDTO.validate();
@@ -77,6 +92,7 @@ public class PostServiceImpl implements IPostService{
     }
 
     @Override
+    @Transactional
     public boolean deletePost(Long id) {
         // 查询帖子
         Post post = postMapper.selectById(id);
@@ -85,7 +101,8 @@ public class PostServiceImpl implements IPostService{
         }
 
         // 权限检查
-        if(!post.getUserId().equals(getCurrentUserId())) {
+        Long currentUserId = getCurrentUserId();
+        if(!post.getUserId().equals(currentUserId) && !isAdmin()) {
             throw new IllegalStateException("没有删除权限");
         }
 
@@ -117,9 +134,10 @@ public class PostServiceImpl implements IPostService{
     }
 
     @Override
+    @Transactional
     public boolean auditPost(Long id, Integer status, String reason) {
         // 权限检查
-        if(!isAdmin()) { // 需要实现管理员检查方法
+        if(!isAdmin()) {
             throw new IllegalStateException("没有审核权限");
         }
 
@@ -134,6 +152,7 @@ public class PostServiceImpl implements IPostService{
     }
 
     @Override
+    @Transactional
     public boolean likePost(Long id) {
         Post post = postMapper.selectById(id);
         if(post == null || post.getStatus() != 1) {
@@ -141,6 +160,61 @@ public class PostServiceImpl implements IPostService{
         }
 
         return postMapper.updateLikeCount(id, 1) > 0;
+    }
+
+    @Override
+    public List<Post> getHotPosts(int limit) {
+        PostQuery query = new PostQuery();
+        query.setStatus(1); // 已发布的帖子
+        query.setOrderBy("view_count DESC"); // 按浏览量排序
+        query.setLimit(limit);
+        return postMapper.selectList(query);
+    }
+
+    @Override
+    public List<Post> getRelatedPosts(Long postId, int limit) {
+        Post current = postMapper.selectById(postId);
+        if(current == null) {
+            return new ArrayList<>();
+        }
+
+        // 获取同分类的其他帖子
+        PostQuery query = new PostQuery();
+        query.setCategoryId(current.getCategoryId());
+        query.setStatus(1); // 已发布的帖子
+        query.setExcludeId(postId); // 排除当前帖子
+        query.setLimit(limit);
+        query.setOrderBy("create_time DESC"); // 按创建时间倒序
+        return postMapper.selectList(query);
+    }
+
+    @Override
+    public String uploadImage(MultipartFile file) throws Exception {
+        if(file.isEmpty()) {
+            throw new IllegalArgumentException("请选择图片文件");
+        }
+
+        // 检查文件类型
+        String contentType = file.getContentType();
+        if(contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("只能上传图片文件");
+        }
+
+        // 生成文件名
+        String originalFilename = file.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String fileName = UUID.randomUUID().toString() + extension;
+
+        // 保存文件
+        File uploadDir = new File(uploadPath);
+        if(!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+        File dest = new File(uploadPath + fileName);
+        file.transferTo(dest);
+
+        // 返回访问URL
+        return uploadUrl + fileName;
     }
 
     // 获取当前用户ID方法
@@ -154,5 +228,4 @@ public class PostServiceImpl implements IPostService{
         // TODO: 实现管理员检查逻辑
         return false; // 临时返回值
     }
-
 }

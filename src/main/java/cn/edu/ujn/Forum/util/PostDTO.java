@@ -2,7 +2,6 @@ package cn.edu.ujn.Forum.util;
 
 import java.io.Serializable;
 
-
 public class PostDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -10,6 +9,7 @@ public class PostDTO implements Serializable {
     private String title;        // 标题
     private String content;      // 内容
     private String summary;      // 摘要
+    private Integer status;      // 帖子状态: 0-草稿 1-已发布
 
     // Getter和Setter方法
     public Long getCategoryId() {
@@ -44,6 +44,14 @@ public class PostDTO implements Serializable {
         this.summary = summary;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     // 参数校验方法
     public String validate() {
         if(categoryId == null) {
@@ -71,6 +79,7 @@ public class PostDTO implements Serializable {
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
                 ", summary='" + summary + '\'' +
+                ", status=" + status +
                 '}';
     }
 }

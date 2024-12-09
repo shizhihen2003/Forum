@@ -5,7 +5,7 @@
 <head>
   <title>发布帖子</title>
   <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
-  <link href="${pageContext.request.contextPath}/static/css/editor.md.min.css" rel="stylesheet">
+  <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.min.css" rel="stylesheet">
   <style>
     .form-container {
       background: #fff;
@@ -35,6 +35,10 @@
       margin-bottom: 20px;
       z-index: 1000;
     }
+    .char-count {
+      margin-top: 5px;
+      color: #6c757d;
+    }
   </style>
 </head>
 <body>
@@ -63,6 +67,7 @@
                    required maxlength="200"
                    placeholder="请输入帖子标题，简明扼要">
             <div class="invalid-feedback">请输入标题</div>
+            <div class="char-count">还可以输入<span id="titleCount">200</span>字</div>
           </div>
 
           <!-- 分类 -->
@@ -83,7 +88,6 @@
             <div id="editor">
               <textarea style="display:none;"></textarea>
             </div>
-            <input type="hidden" name="content">
             <div class="invalid-feedback">请输入正文内容</div>
           </div>
 
@@ -93,11 +97,12 @@
             <textarea class="form-control" name="summary" rows="3"
                       maxlength="500"
                       placeholder="请输入帖子摘要，如不填写将自动提取正文前500字"></textarea>
-            <small class="text-muted">摘要长度不超过500字符</small>
+            <div class="char-count">还可以输入<span id="summaryCount">500</span>字</div>
           </div>
 
           <div class="form-group">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <span class="spinner-border spinner-border-sm d-none" role="status" id="submitSpinner"></span>
               <i class="bi bi-send"></i> 发布帖子
             </button>
             <button type="button" class="btn btn-secondary ml-2" onclick="saveDraft()">
@@ -139,7 +144,7 @@
 
 <script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/js/bootstrap.min.js"></script>
-<script src="${pageContext.request.contextPath}/static/js/editor.md.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/editormd.min.js"></script>
 <script>
   var editor;
 
@@ -148,17 +153,19 @@
     editor = editormd("editor", {
       width: "100%",
       height: 500,
-      path: "${pageContext.request.contextPath}/static/lib/",
+      path: "${pageContext.request.contextPath}/static/plugins/editor.md/lib/",
       placeholder: "请输入帖子正文，支持Markdown格式...",
       emoji: true,
       taskList: true,
       tex: true,
+      tocm: true,
       flowChart: true,
       sequenceDiagram: true,
+      htmlDecode: "style,script,iframe|on*",
       saveHTMLToTextarea: true,
       imageUpload: true,
       imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-      imageUploadURL: "${pageContext.request.contextPath}/api/upload/image",
+      imageUploadURL: "${pageContext.request.contextPath}/post/upload",
       toolbarIcons: function() {
         return [
           "undo", "redo", "|",
@@ -172,29 +179,42 @@
         ]
       }
     });
+
+    // 添加字数统计功能
+    $('input[name="title"]').on('input', function() {
+      var remaining = 200 - $(this).val().length;
+      $('#titleCount').text(remaining);
+    });
+
+    $('textarea[name="summary"]').on('input', function() {
+      var remaining = 500 - $(this).val().length;
+      $('#summaryCount').text(remaining);
+    });
   });
 
   // 表单验证
   function validateForm() {
+    var isValid = true;
+
     var title = $('input[name="title"]').val();
     if(!title) {
       showError('title', '请输入标题');
-      return false;
+      isValid = false;
     }
 
     var categoryId = $('select[name="categoryId"]').val();
     if(!categoryId) {
       showError('categoryId', '请选择分类');
-      return false;
+      isValid = false;
     }
 
     var content = editor.getMarkdown();
     if(!content) {
       alert('请输入正文内容');
-      return false;
+      isValid = false;
     }
 
-    return true;
+    return isValid;
   }
 
   // 显示错误信息
@@ -210,28 +230,52 @@
     input.removeClass('is-invalid');
   }
 
+  // 显示加载状态
+  function setLoading(loading) {
+    var btn = $('#submitBtn');
+    var spinner = $('#submitSpinner');
+    if(loading) {
+      btn.prop('disabled', true);
+      spinner.removeClass('d-none');
+    } else {
+      btn.prop('disabled', false);
+      spinner.addClass('d-none');
+    }
+  }
+
   // 提交帖子
   function submitPost() {
     if(!validateForm()) {
       return false;
     }
 
-    var formData = new FormData(document.getElementById('postForm'));
-    formData.set('content', editor.getMarkdown());
+    setLoading(true);
+
+    // 构建JSON数据
+    var postData = {
+      title: $('input[name="title"]').val(),
+      categoryId: $('select[name="categoryId"]').val(),
+      content: editor.getMarkdown(),
+      summary: $('textarea[name="summary"]').val()
+    };
 
     $.ajax({
       url: '${pageContext.request.contextPath}/post/create',
       type: 'POST',
-      data: formData,
-      processData: false,
-      contentType: false,
+      data: JSON.stringify(postData),
+      contentType: 'application/json',
       success: function(res) {
+        setLoading(false);
         if(res.code === 200) {
           alert('发布成功');
           location.href = '${pageContext.request.contextPath}/post/detail/' + res.data.id;
         } else {
-          alert(res.message);
+          alert(res.message || '发布失败');
         }
+      },
+      error: function() {
+        setLoading(false);
+        alert('发布失败，请稍后重试');
       }
     });
 
@@ -240,22 +284,28 @@
 
   // 保存草稿
   function saveDraft() {
-    var formData = new FormData(document.getElementById('postForm'));
-    formData.set('content', editor.getMarkdown());
-    formData.set('status', 0);  // 草稿状态
+    var postData = {
+      title: $('input[name="title"]').val(),
+      categoryId: $('select[name="categoryId"]').val(),
+      content: editor.getMarkdown(),
+      summary: $('textarea[name="summary"]').val(),
+      status: 0
+    };
 
     $.ajax({
       url: '${pageContext.request.contextPath}/post/draft',
       type: 'POST',
-      data: formData,
-      processData: false,
-      contentType: false,
+      data: JSON.stringify(postData),
+      contentType: 'application/json',
       success: function(res) {
         if(res.code === 200) {
           alert('草稿保存成功');
         } else {
-          alert(res.message);
+          alert(res.message || '保存失败');
         }
+      },
+      error: function() {
+        alert('保存失败，请稍后重试');
       }
     });
   }
