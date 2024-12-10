@@ -11,19 +11,9 @@ public class User {
 
     private String phone;
 
-    private String passwordHash;
+    private String password;
 
-    private String verificationCode;
-
-    private Boolean isVerified;
-
-    private String resetToken;
-
-    private Date resetTokenExpiration;
-
-    private Date createdAt;
-
-    private Date updatedAt;
+    private String verification_code;
 
     public Integer getId() {
         return id;
@@ -38,7 +28,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        this.username = username == null ? null : username.trim();
+        this.username = username;
     }
 
     public String getEmail() {
@@ -46,7 +36,7 @@ public class User {
     }
 
     public void setEmail(String email) {
-        this.email = email == null ? null : email.trim();
+        this.email = email;
     }
 
     public String getPhone() {
@@ -54,62 +44,34 @@ public class User {
     }
 
     public void setPhone(String phone) {
-        this.phone = phone == null ? null : phone.trim();
+        this.phone = phone;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash == null ? null : passwordHash.trim();
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public String getVerificationCode() {
-        return verificationCode;
+    public String getVerification_code() {
+        return verification_code;
     }
 
-    public void setVerificationCode(String verificationCode) {
-        this.verificationCode = verificationCode == null ? null : verificationCode.trim();
+    public void setVerification_code(String verification_code) {
+        this.verification_code = verification_code;
     }
 
-    public Boolean getIsVerified() {
-        return isVerified;
-    }
-
-    public void setIsVerified(Boolean isVerified) {
-        this.isVerified = isVerified;
-    }
-
-    public String getResetToken() {
-        return resetToken;
-    }
-
-    public void setResetToken(String resetToken) {
-        this.resetToken = resetToken == null ? null : resetToken.trim();
-    }
-
-    public Date getResetTokenExpiration() {
-        return resetTokenExpiration;
-    }
-
-    public void setResetTokenExpiration(Date resetTokenExpiration) {
-        this.resetTokenExpiration = resetTokenExpiration;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", password='" + password + '\'' +
+                ", verification_code='" + verification_code + '\'' +
+                '}';
     }
 }

@@ -1,74 +1,50 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@ page isELIgnored="false"%>
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>登录页面</title>
-<meta http-equiv=Content-Type content="text/html; charset=utf-8">
-<link href="${pageContext.request.contextPath}/css/style.css"
-	type=text/css rel=stylesheet>
-<link href="${pageContext.request.contextPath}/css/boot-crm.css"
-	type=text/css rel=stylesheet>
-<script src="${pageContext.request.contextPath}/js/jquery-1.11.3.min.js">
-	
-</script>
-<style>
-.background_{ background:url("${pageContext.request.contextPath}/images/login.jpg") no-repeat;
-background-size: 100%;  //这一设置把图片铺满整个背景
-leftMargin:0;
-topMargin:0;
-marginWidth:0;
-marginHeight:0;
-}
-  </style>
-<meta content="MSHTML 6.00.2600.0" name=GENERATOR>
-<script>
-	// 判断是登录账号和密码是否为空
-	function check() {
-		var usercode = $("#usercode").val();
-		var password = $("#password").val();
-		if (usercode == "" || password == "") {
-			$("#message").text("账号或密码不能为空！");
-			return false;
-		}
-		return true;
-	}
-</script>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+        form {
+            display: inline-block;
+            text-align: left;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+    </style>
 </head>
-<body  class="background_">
-	<div ALIGN="center">
-		<table  border="0" width="800px" cellspacing="0" cellpadding="0"
-			id="table1">
-			<tr>
-				<td height="93"></td>
-				<td></td>
-			</tr>
-			<tr >
-				<td		width="500" height="412"></td>
-				<td class="login_msg" width="400" align="center" >
-					<!-- margin:0px auto; 控制当前标签居中 -->
-					<fieldset style="width: auto; margin: 0px auto; background-color: rgba(255, 255,255, 0.5);">
-						<legend>
-							<font style="font-size: 15px" face="宋体"> 欢迎使用济大客户管理系统 </font>
-						</legend>
-						<font color="red"> <%-- 提示信息--%> <span id="message">${msg}</span>
-						</font>
-						<%-- 提交后的位置：/WEB-INF/jsp/customer.jsp--%>
-						<form action="${pageContext.request.contextPath }/login"	method="post" onsubmit="return check()">
-							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
-							<br /> 账&nbsp;号：<input id="usercode" type="text" name="userCode" />
-							<br />
-							<br /> 密&nbsp;码：<input id="password" type="password" name="userPassword" /> <br />
-							<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-							<center>
-								<input type="submit" value="登录" />
-							</center>
-						</form>
-					</fieldset>
-				</td>
-			</tr>
-		</table>
-	</div>
+<body>
+    <h1>Login</h1>
+    <form action="/Forum/api/user/login" method="post">
+        <label for="emailOrPhone">Email or Phone:</label>
+        <input type="text" id="emailOrPhone" name="emailOrPhone" placeholder="Enter your email or phone" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+    <!-- 显示错误消息 -->
+            <c:if test="${not empty errorMessage}">
+                <div style="color: red;">
+                    <p>${errorMessage}</p>
+                </div>
+            </c:if>
+
+    <p>Don't have an account? <a href="/Forum/api/user/register">Register here</a></p>
 </body>
 </html>

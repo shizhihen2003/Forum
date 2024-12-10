@@ -24,6 +24,45 @@
     from users
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <!-- 根据邮箱或手机号查询用户 -->
+  <select id="selectByEmailOrPhone" parameterType="string" resultType="User">
+    SELECT * FROM users WHERE email = #{emailOrPhone} OR phone = #{emailOrPhone}
+  </select>
+
+  <!-- 根据手机号查询用户 -->
+  <select id="selectByPhone" parameterType="string" resultType="User">
+    SELECT * FROM users WHERE phone = #{phone}
+  </select>
+
+  <!-- 根据邮箱查询用户 -->
+  <select id="selectByEmail" parameterType="string" resultType="User">
+    SELECT * FROM users WHERE email = #{email}
+  </select>
+
+  <!-- 更新密码 -->
+  <update id="updatePassword" parameterType="map">
+    UPDATE users SET password_hash = #{passwordHash} WHERE id = #{id}
+  </update>
+
+  <!-- 更新手机验证码 -->
+  <update id="updateVerificationCode" parameterType="map">
+    UPDATE users SET verification_code = #{verificationCode} WHERE phone = #{phone}
+  </update>
+
+  <!-- 更新手机验证状态 -->
+  <update id="updateVerificationStatus" parameterType="map">
+    UPDATE users SET is_verified = #{isVerified} WHERE phone = #{phone}
+  </update>
+
+  <!-- 根据密码重置令牌查询用户 -->
+  <select id="selectByResetToken" parameterType="string" resultType="User">
+    SELECT * FROM users WHERE reset_token = #{resetToken}
+  </select>
+
+  <!-- 更新密码重置令牌 -->
+  <update id="updateResetToken" parameterType="map">
+    UPDATE users SET reset_token = #{resetToken}, reset_token_expiration = #{resetTokenExpiration} WHERE id = #{id}
+  </update>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from users
     where id = #{id,jdbcType=INTEGER}
