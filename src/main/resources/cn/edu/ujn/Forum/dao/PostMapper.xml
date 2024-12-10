@@ -168,14 +168,14 @@
   </delete>
 
   <!-- 插入帖子（全字段） -->
-  <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.Post">
-    insert into post (id, category_id, user_id,
+  <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.Post" useGeneratedKeys="true" keyProperty="id">
+    insert into post (category_id, user_id,
                       title, summary, view_count,
                       like_count, comment_count, status,
                       is_top, is_essence,
                       create_time, update_time, content
     )
-    values (#{id,jdbcType=BIGINT}, #{categoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
+    values (#{categoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
             #{title,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, #{viewCount,jdbcType=INTEGER},
             #{likeCount,jdbcType=INTEGER}, #{commentCount,jdbcType=INTEGER}, #{status,jdbcType=TINYINT},
             #{isTop,jdbcType=INTEGER}, #{isEssence,jdbcType=INTEGER},
