@@ -8,63 +8,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Welcome</title>
 
-    <!-- 下面是一些基本的 CSS 样式，用于页面美化 -->
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff;  /* 浅蓝色背景 */
+            font-family: 'Arial', sans-serif;
+            background-color: #e9f5fc; /* 柔和的浅蓝背景 */
             margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         .container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            width: 400px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 40px 30px;
             text-align: center;
+            max-width: 400px;
+            width: 100%;
         }
 
-        h1 {
-            color: #007BFF;  /* 蓝色文字 */
+        .container h1 {
+            color: #0078d4; /* 深蓝色标题 */
             font-size: 24px;
             margin-bottom: 20px;
         }
 
-        p {
-            color: #333;
+        .container p {
             font-size: 16px;
+            color: #555;
             margin: 10px 0;
         }
 
         .btn {
-            background-color: #FF6347;  /* 番茄红按钮 */
-            color: white;
-            padding: 12px 20px;
+            background-color: #28a745; /* 绿色按钮 */
+            color: #fff;
             border: none;
             border-radius: 5px;
             font-size: 16px;
+            padding: 12px 20px;
             cursor: pointer;
+            margin-top: 20px;
             text-decoration: none;
-            margin-top: 40px;  /* 将按钮向下移动 40px，避免与链接重合 */
+            display: inline-block;
         }
 
         .btn:hover {
-            background-color: #FF4500;  /* 悬停时改变按钮颜色 */
+            background-color: #218838; /* 按钮悬停变色 */
         }
 
         .link {
-            text-decoration: none;
-            color: #007BFF;  /* 蓝色链接 */
-            font-size: 16px;
-            margin-top: 20px;
             display: block;
-            margin-bottom: 20px;  /* 增加与按钮的间距，避免重叠 */
+            margin-top: 20px;
+            color: #0078d4; /* 深蓝链接 */
+            text-decoration: none;
+            font-size: 14px;
         }
 
         .link:hover {
@@ -74,17 +73,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome, ${user.username}!</h1>  <!-- 显示用户名 -->
+        <h1>Welcome, ${sessionScope.loggedInUser.username}!</h1>
+        <p><strong>Email:</strong> ${sessionScope.loggedInUser.email}</p>
+        <p><strong>Phone:</strong> ${sessionScope.loggedInUser.phone}</p>
 
-        <p><strong>Email:</strong> ${user.email}</p>  <!-- 显示用户邮箱 -->
+        <a href="/Forum/api/user/logout" class="btn">Logout</a>
 
-        <p><strong>Phone:</strong> ${user.phone}</p>  <!-- 显示用户手机号 -->
-
-        <!-- 退出登录按钮 -->
-        <a href="/Forum/api/user/" class="link">Logout</a>
-
-        <!-- 重置密码按钮 -->
-        <a href="/reset-password" class="btn">Reset Password</a>
     </div>
 </body>
 </html>

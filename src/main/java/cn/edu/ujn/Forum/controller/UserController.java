@@ -34,29 +34,32 @@ public class UserController {
     }
     // 用户登录
     @PostMapping("/login")
-    public String login(@RequestParam String emailOrPhone, @RequestParam String password, Model model) {
+    public String login(@RequestParam String emailOrPhone,
+                        @RequestParam String password,
+                        Model model,
+                        HttpSession session) {
         User user = null;
 
         // 判断输入的是 email 还是 phone
         if (emailOrPhone.contains("@")) {
-            user = userMapper.selectByEmailOrPhone(emailOrPhone, null);  // 查找邮箱
+            user = userMapper.selectByEmailOrPhone(emailOrPhone, null); // 查找邮箱
         } else {
-            user = userMapper.selectByEmailOrPhone(null, emailOrPhone);  // 查找手机号
+            user = userMapper.selectByEmailOrPhone(null, emailOrPhone); // 查找手机号
         }
 
-        // 判断用户是否存在，并且密码是否匹配
         if (user != null) {
-            // 如果密码哈希为空，说明用户的密码没有正确存储
+            // 检查密码
             if (user.getPassword() != null && user.getPassword().equals(password)) {
-                model.addAttribute("user", user);
-                return "home";  // 登录成功
+                // 登录成功，将用户信息存入 Session
+                session.setAttribute("loggedInUser", user);
+                return "home"; // 重定向到主页
             } else {
                 model.addAttribute("errorMessage", "Invalid email/phone or password.");
-                return "login";  // 登录失败
+                return "login"; // 登录失败
             }
         } else {
             model.addAttribute("errorMessage", "User not found.");
-            return "login";  // 用户未找到
+            return "login"; // 用户未找到
         }
     }
 
