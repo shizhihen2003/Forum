@@ -52,6 +52,9 @@ public class UserController {
             if (user.getPassword() != null && user.getPassword().equals(password)) {
                 // 登录成功，将用户信息存入 Session
                 session.setAttribute("loggedInUser", user);
+
+
+
                 return "home"; // 重定向到主页
             } else {
                 model.addAttribute("errorMessage", "Invalid email/phone or password.");
