@@ -15,19 +15,22 @@
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, username, email, phone, password_hash, verification_code, is_verified, reset_token, 
+    id, username, email, phone, password_hash, verification_code, is_verified, reset_token,
     reset_token_expiration, created_at, updated_at
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from users
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <!-- 根据邮箱或手机号查询用户 -->
-  <select id="selectByEmailOrPhone" parameterType="string" resultType="User">
-    SELECT * FROM users WHERE email = #{emailOrPhone} OR phone = #{emailOrPhone}
+
+  <select id="selectByEmailOrPhone" resultType="User">
+    SELECT * FROM users
+    WHERE (email = #{email} OR phone = #{phone})
+    LIMIT 1;
   </select>
+
 
   <!-- 根据手机号查询用户 -->
   <select id="selectByPhone" parameterType="string" resultType="User">
@@ -68,14 +71,14 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.User">
-    insert into users (id, username, email, 
-      phone, password_hash, verification_code, 
-      is_verified, reset_token, reset_token_expiration, 
-      created_at, updated_at)
-    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
-      #{phone,jdbcType=VARCHAR}, #{passwordHash,jdbcType=VARCHAR}, #{verificationCode,jdbcType=VARCHAR}, 
-      #{isVerified,jdbcType=BIT}, #{resetToken,jdbcType=VARCHAR}, #{resetTokenExpiration,jdbcType=TIMESTAMP}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+    insert into users (id, username, email,
+    phone, password_hash, verification_code,
+    is_verified, reset_token, reset_token_expiration,
+    created_at, updated_at)
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
+    #{phone,jdbcType=VARCHAR}, #{passwordHash,jdbcType=VARCHAR}, #{verificationCode,jdbcType=VARCHAR},
+    #{isVerified,jdbcType=BIT}, #{resetToken,jdbcType=VARCHAR}, #{resetTokenExpiration,jdbcType=TIMESTAMP},
+    #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.User">
     insert into users
@@ -189,15 +192,15 @@
   <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.User">
     update users
     set username = #{username,jdbcType=VARCHAR},
-      email = #{email,jdbcType=VARCHAR},
-      phone = #{phone,jdbcType=VARCHAR},
-      password_hash = #{passwordHash,jdbcType=VARCHAR},
-      verification_code = #{verificationCode,jdbcType=VARCHAR},
-      is_verified = #{isVerified,jdbcType=BIT},
-      reset_token = #{resetToken,jdbcType=VARCHAR},
-      reset_token_expiration = #{resetTokenExpiration,jdbcType=TIMESTAMP},
-      created_at = #{createdAt,jdbcType=TIMESTAMP},
-      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    email = #{email,jdbcType=VARCHAR},
+    phone = #{phone,jdbcType=VARCHAR},
+    password_hash = #{passwordHash,jdbcType=VARCHAR},
+    verification_code = #{verificationCode,jdbcType=VARCHAR},
+    is_verified = #{isVerified,jdbcType=BIT},
+    reset_token = #{resetToken,jdbcType=VARCHAR},
+    reset_token_expiration = #{resetTokenExpiration,jdbcType=TIMESTAMP},
+    created_at = #{createdAt,jdbcType=TIMESTAMP},
+    updated_at = #{updatedAt,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>
