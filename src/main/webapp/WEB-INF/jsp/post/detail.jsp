@@ -7,6 +7,7 @@
   <title>${post.title}</title>
   <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
   <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.min.css" rel="stylesheet">
+  <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.preview.css" rel="stylesheet">
   <style>
     .post-container {
       background: #fff;
@@ -82,6 +83,47 @@
       background: #ffa940;
       color: white;
     }
+    /* Markdown 相关样式 */
+    .editormd-preview-container,
+    .editormd-html-preview {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+    .markdown-body {
+      padding: 20px 0;
+    }
+    .markdown-body pre {
+      background-color: #f6f8fa;
+      border-radius: 3px;
+      padding: 16px;
+    }
+    .markdown-body img {
+      max-width: 100%;
+      height: auto;
+    }
+    .markdown-body table {
+      display: table;
+      width: 100%;
+      margin: 15px 0;
+      border-collapse: collapse;
+    }
+    .markdown-body table th,
+    .markdown-body table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    .markdown-body blockquote {
+      padding: 0 1em;
+      color: #6a737d;
+      border-left: 0.25em solid #dfe2e5;
+    }
+    .markdown-body code {
+      padding: 0.2em 0.4em;
+      background-color: rgba(27,31,35,0.05);
+      border-radius: 3px;
+    }
   </style>
 </head>
 <body>
@@ -114,8 +156,8 @@
           </div>
         </div>
 
-        <div class="post-content markdown-body" id="content">
-          ${post.content}
+        <div id="content" class="post-content markdown-body">
+          <textarea style="display:none;">${post.content}</textarea>
         </div>
 
         <div class="post-actions">
@@ -135,7 +177,6 @@
           </c:if>
         </div>
       </div>
-
       <!-- 评论区域 -->
       <div class="comment-section">
         <h4>评论列表 (${post.commentCount})</h4>
@@ -151,7 +192,7 @@
           <c:forEach items="${comments}" var="comment">
             <div class="comment-item" id="comment-${comment.id}">
               <div class="comment-user">
-                <img src="${comment.authorAvatar}" class="comment-avatar">
+                <img src="${comment.authorAvatar}" class="comment-avatar" alt="user avatar">
                 <div>
                   <span class="font-weight-bold">${comment.authorName}</span>
                   <small class="text-muted ml-2">
@@ -159,7 +200,9 @@
                   </small>
                 </div>
               </div>
-              <div class="comment-content">${comment.content}</div>
+              <div id="comment-content-${comment.id}" class="comment-content markdown-body">
+                <textarea style="display:none;">${comment.content}</textarea>
+              </div>
               <div class="comment-actions">
                 <a href="javascript:void(0)" onclick="likeComment(${comment.id})">
                   <i class="bi bi-heart"></i> 赞(${comment.likeCount})
@@ -175,7 +218,7 @@
                   <c:forEach items="${comment.children}" var="reply">
                     <div class="comment-reply">
                       <div class="comment-user">
-                        <img src="${reply.authorAvatar}" class="comment-avatar">
+                        <img src="${reply.authorAvatar}" class="comment-avatar" alt="user avatar">
                         <div>
                           <span class="font-weight-bold">${reply.authorName}</span>
                           <small class="text-muted ml-2">
@@ -183,7 +226,9 @@
                           </small>
                         </div>
                       </div>
-                      <div class="comment-content">${reply.content}</div>
+                      <div id="comment-content-${reply.id}" class="comment-content markdown-body">
+                        <textarea style="display:none;">${reply.content}</textarea>
+                      </div>
                       <div class="comment-actions">
                         <a href="javascript:void(0)" onclick="likeComment(${reply.id})">
                           <i class="bi bi-heart"></i> 赞(${reply.likeCount})
@@ -207,7 +252,7 @@
       <!-- 作者信息 -->
       <div class="card mb-3">
         <div class="card-body text-center">
-          <img src="${post.authorAvatar}" class="rounded-circle mb-3" style="width: 80px; height: 80px;">
+          <img src="${post.authorAvatar}" class="rounded-circle mb-3" style="width: 80px; height: 80px;" alt="author avatar">
           <h5 class="card-title">${post.authorName}</h5>
           <button class="btn btn-outline-primary btn-sm" onclick="followAuthor()">
             <i class="bi bi-plus"></i> 关注作者
@@ -255,18 +300,66 @@
   </div>
 </div>
 
+<!-- 基础脚本 -->
 <script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/js/bootstrap.min.js"></script>
+
+<!-- Editor.md 相关脚本 -->
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/marked.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/prettify.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/raphael.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/underscore.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/sequence-diagram.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/flowchart.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/jquery.flowchart.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/editormd.min.js"></script>
+
 <script>
-  // 初始化Markdown渲染
-  editormd.markdownToHTML("content", {
-    htmlDecode: "style,script,iframe",
-    emoji: true,
-    taskList: true,
-    tex: true,
-    flowChart: true,
-    sequenceDiagram: true
+  $(function() {
+    console.log('Initializing Markdown rendering...');
+
+    // 初始化帖子内容的Markdown渲染
+    editormd.markdownToHTML("content", {
+      htmlDecode: "style,script,iframe",
+      emoji: true,
+      taskList: true,
+      tex: true,
+      flowChart: true,
+      sequenceDiagram: true,
+      previewCodeHighlight: true,
+      tocm: true,
+      toc: true,
+      tocContainer: "",
+      tocDropdown: false,
+      atLink: true,
+      emailLink: true,
+      imageLink: true,
+      theme: "default",
+      mode: "markdown"
+    });
+
+    // 初始化所有评论的Markdown渲染
+    $('.comment-content').each(function() {
+      var $this = $(this);
+      var commentId = $this.attr('id');
+      if (!commentId) return;
+
+      console.log('Rendering comment:', commentId);
+
+      editormd.markdownToHTML(commentId, {
+        htmlDecode: "style,script,iframe",
+        emoji: true,
+        taskList: true,
+        tex: true,
+        flowChart: true,
+        sequenceDiagram: true,
+        previewCodeHighlight: true,
+        theme: "default",
+        mode: "markdown"
+      });
+    });
+
+    console.log('Markdown rendering completed');
   });
 
   // 点赞帖子
