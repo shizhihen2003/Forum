@@ -60,8 +60,17 @@
             <param-name>contextConfigLocation</param-name>
             <param-value>classpath:applicationContext.xml</param-value>
         </init-param>
-        <!-- 配置服务器启动后立即加载Spring MVC配置文件 -->
         <load-on-startup>1</load-on-startup>
+        <multipart-config>
+            <!-- 上传文件的临时目录 -->
+            <location>/tmp</location>
+            <!-- 单个文件的最大值，5MB -->
+            <max-file-size>5242880</max-file-size>
+            <!-- 总请求的最大值，10MB -->
+            <max-request-size>10485760</max-request-size>
+            <!-- 超过多少时写入到临时文件，0表示立即写入 -->
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
     </servlet>
     <servlet-mapping>
         <servlet-name>springmvc</servlet-name>

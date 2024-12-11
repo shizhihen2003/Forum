@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.ujn.Forum.dao.UserProfileMapper">
+    <resultMap id="BaseResultMap" type="cn.edu.ujn.Forum.dao.UserProfile">
+        <id column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+        <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+        <result column="bio" jdbcType="VARCHAR" property="bio" />
+        <result column="location" jdbcType="VARCHAR" property="location" />
+        <result column="birthday" jdbcType="TIMESTAMP" property="birthday" />
+        <result column="gender" jdbcType="VARCHAR" property="gender" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id, avatar, nickname, bio, location, birthday, gender, create_time, update_time
+    </sql>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user_profile
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.UserProfile">
+        INSERT INTO user_profile (
+        user_id, avatar, nickname, bio, location,
+        birthday, gender, create_time, update_time
+        )
+        VALUES (
+        #{userId}, #{avatar}, #{nickname}, #{bio}, #{location},
+        #{birthday}, #{gender}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="cn.edu.ujn.Forum.dao.UserProfile">
+        UPDATE user_profile
+        <set>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="bio != null">bio = #{bio},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="birthday != null">birthday = #{birthday},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            update_time = NOW()
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateAvatar">
+        UPDATE user_profile
+        SET avatar = #{avatar},
+        update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteByUserId">
+        DELETE FROM user_profile
+        WHERE user_id = #{userId}
+    </delete>
+</mapper>
