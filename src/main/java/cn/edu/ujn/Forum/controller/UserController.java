@@ -78,13 +78,15 @@ public class UserController {
     // 显示主页并将当前登录用户的用户名传递给服务层
     @GetMapping("/home")
     public String homePage(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");  // 从 session 获取用户信息
+        // 将 "user" 改为 "loggedInUser" 以匹配登录时存储的属性名
+        User user = (User) session.getAttribute("loggedInUser");
         if (user == null) {
-            return "redirect:/login";  // 如果没有找到用户信息，跳转到登录页面
+            return "redirect:/login";
         }
 
-        model.addAttribute("user", user);
-        return "home";  // 用户信息存在，返回主页
+        // 使用正确的属性名将用户信息添加到模型中
+        model.addAttribute("loggedInUser", user); // 这里也改为 loggedInUser 以保持一致
+        return "home";
     }
 
 
@@ -157,7 +159,7 @@ public class UserController {
     public String logout(HttpSession session) {
         // 清除 session 中的用户数据
         session.invalidate();  // 使用 invalidate() 方法来清除整个 session
-        return "redirect:/login";  // 重定向到登录页面
+        return "redirect:/post";  // 重定向到登录页面
     }
 
 }
