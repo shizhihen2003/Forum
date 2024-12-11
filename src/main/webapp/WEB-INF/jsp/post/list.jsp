@@ -179,8 +179,8 @@
         <c:choose>
           <c:when test="${not empty sessionScope.loggedInUser}">
             欢迎, ${sessionScope.loggedInUser.username}
-            <a href="${pageContext.request.contextPath}/user/home" class="ml-2">个人中心</a>
-            <a href="${pageContext.request.contextPath}/user/logout" class="ml-2">退出</a>
+            <a href="${pageContext.request.contextPath}/home" class="ml-2">个人中心</a>
+            <a href="${pageContext.request.contextPath}/logout" class="ml-2">退出</a>
           </c:when>
           <c:otherwise>
             <a href="${pageContext.request.contextPath}/login">登录</a>
