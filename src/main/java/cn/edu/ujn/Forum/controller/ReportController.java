@@ -1,6 +1,7 @@
 package cn.edu.ujn.Forum.controller;
 
 import cn.edu.ujn.Forum.dao.Report;
+import cn.edu.ujn.Forum.dao.ReportTypeMapper;
 import cn.edu.ujn.Forum.service.IReportService;
 import cn.edu.ujn.Forum.util.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ public class ReportController {
 
     @Autowired
     private IReportService reportService;
+    @Autowired
+    private ReportTypeMapper reportTypeMapper;
 
     /**
      * 查询所有与举报信息
@@ -50,7 +53,7 @@ public class ReportController {
     /**
      * 新增举报信息
      */
-    @PostMapping("/user/reports")
+    @PostMapping("/post/detail/reports")
     @ResponseBody
     public String create(@RequestBody Report report) {
         try {

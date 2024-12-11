@@ -375,6 +375,7 @@ function likePost(userId, postId) {
       if (res.code === 200) {
         $('#likeCount').text(res.likeCount);
         updateLikeButtonUI(true);
+        fetchLikeUsers(postId); // 点赞成功后更新点赞用户列表
       } else {
         alert(res.message || '点赞失败');
       }
@@ -398,6 +399,7 @@ function unlikePost(userId, postId) {
       if (res.code === 200) {
         $('#likeCount').text(res.likeCount);
         updateLikeButtonUI(false);
+        fetchLikeUsers(postId); // 取消点赞后也更新用户列表
       } else {
         alert(res.message || '取消点赞失败');
       }
