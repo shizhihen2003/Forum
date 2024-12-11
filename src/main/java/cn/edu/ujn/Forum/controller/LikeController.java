@@ -1,0 +1,159 @@
+package cn.edu.ujn.Forum.controller;
+
+import cn.edu.ujn.Forum.service.ILikeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/likes")
+public class LikeController {
+
+    @Autowired
+    private ILikeService likeService;
+
+    /**
+     * 用户给帖子点赞
+     *
+     * @param userId 用户ID
+     * @param postId 帖子ID
+     * @return 操作结果
+     */
+    @PostMapping("/like")
+    public Map<String, Object> likePost(@RequestParam("userId") Integer userId,
+                                        @RequestParam("postId") Integer postId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean result = likeService.likePost(userId, postId);
+            if (result) {
+                response.put("code", 200);
+                response.put("message", "点赞成功");
+                response.put("likeCount", likeService.getLikeCountByPostId(postId)); // 返回最新点赞数量
+            } else {
+                response.put("code", 400);
+                response.put("message", "点赞失败");
+            }
+        } catch (Exception e) {
+            response.put("code", 500);
+            response.put("message", "点赞操作异常：" + e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 用户取消点赞
+     *
+     * @param userId 用户ID
+     * @param postId 帖子ID
+     * @return 操作结果
+     */
+    @PostMapping("/unlike")
+    public Map<String, Object> unlikePost(@RequestParam("userId") Integer userId,
+                                          @RequestParam("postId") Integer postId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean result = likeService.unlikePost(userId, postId);
+            if (result) {
+                response.put("code", 200);
+                response.put("message", "取消点赞成功");
+                response.put("likeCount", likeService.getLikeCountByPostId(postId)); // 返回最新点赞数量
+            } else {
+                response.put("code", 400);
+                response.put("message", "取消点赞失败");
+            }
+        } catch (Exception e) {
+            response.put("code", 500);
+            response.put("message", "取消点赞操作异常：" + e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 获取某个帖子的点赞数量
+     *
+     * @param postId 帖子ID
+     * @return 点赞数量
+     */
+    @GetMapping("/count/{postId}")
+    public Map<String, Object> getLikeCount(@PathVariable("postId") Integer postId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            int likeCount = likeService.getLikeCountByPostId(postId);
+            response.put("code", 200);
+            response.put("message", "查询成功");
+            response.put("likeCount", likeCount);
+        } catch (Exception e) {
+            response.put("code", 500);
+            response.put("message", "查询点赞数量异常：" + e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 获取点赞某个帖子的用户ID列表
+     *
+     * @param postId 帖子ID
+     * @return 点赞用户ID列表
+     */
+    @GetMapping("/users/{postId}")
+    public Map<String, Object> getUsersWhoLikedPost(@PathVariable("postId") Integer postId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Integer> users = likeService.getUsersWhoLikedPost(postId);
+            response.put("code", 200);
+            response.put("message", "查询成功");
+            response.put("users", users);
+        } catch (Exception e) {
+            response.put("code", 500);
+            response.put("message", "查询点赞用户异常：" + e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 获取用户点赞过的帖子ID列表
+     *
+     * @param userId 用户ID
+     * @return 用户点赞过的帖子ID列表
+     */
+    @GetMapping("/posts/{userId}")
+    public Map<String, Object> getLikedPostsByUserId(@PathVariable("userId") Integer userId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Integer> posts = likeService.getLikedPostsByUserId(userId);
+            response.put("code", 200);
+            response.put("message", "查询成功");
+            response.put("posts", posts);
+        } catch (Exception e) {
+            response.put("code", 500);
+            response.put("message", "查询用户点赞帖子异常：" + e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 检查用户是否点赞某帖子
+     *
+     * @param userId 用户ID
+     * @param postId 帖子ID
+     * @return 是否点赞
+     */
+    @GetMapping("/check")
+    public Map<String, Object> hasUserLikedPost(@RequestParam("userId") Integer userId,
+                                                @RequestParam("postId") Integer postId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean isLiked = likeService.hasUserLikedPost(userId, postId);
+            response.put("code", 200);
+            response.put("message", "查询成功");
+            response.put("isLiked", isLiked);
+        } catch (Exception e) {
+            response.put("code", 500);
+            response.put("message", "检查点赞状态异常：" + e.getMessage());
+        }
+        return response;
+    }
+}

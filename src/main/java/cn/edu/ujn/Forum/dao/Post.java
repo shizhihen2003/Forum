@@ -17,6 +17,7 @@ public class Post {
     private Date createTime;
     private Date updateTime;
     private String content;
+    private boolean isLiked;
 
     // 扩展字段
     private String authorName;
@@ -157,5 +158,13 @@ public class Post {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public boolean getIsLiked() {
+        return isLiked;
+    }
+
+    public void setIsLiked(boolean isLiked) {
+        this.isLiked = isLiked;
     }
 }
