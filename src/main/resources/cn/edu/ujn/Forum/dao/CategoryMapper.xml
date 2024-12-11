@@ -15,7 +15,9 @@
     </select>
 
     <select id="selectList" resultMap="BaseResultMap">
-        SELECT * FROM category WHERE status = 1 ORDER BY sort ASC
+        SELECT * FROM category
+        WHERE status = 1
+        ORDER BY sort ASC
     </select>
 
     <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.Category" useGeneratedKeys="true" keyProperty="id">

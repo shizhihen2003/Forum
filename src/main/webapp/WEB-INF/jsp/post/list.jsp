@@ -7,93 +7,203 @@
   <title>论坛首页</title>
   <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    body {
+      background-color: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
     .post-card {
+      background: #fff;
       margin-bottom: 20px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 15px;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       transition: all 0.3s ease;
     }
+
     .post-card:hover {
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       transform: translateY(-2px);
     }
+
     .post-title {
       font-size: 18px;
-      margin-bottom: 10px;
+      font-weight: 600;
+      margin-bottom: 12px;
     }
+
     .post-title a {
-      color: #333;
+      color: #2c3e50;
       text-decoration: none;
     }
+
     .post-title a:hover {
-      color: #007bff;
+      color: #0056b3;
     }
+
     .post-meta {
       color: #666;
-      font-size: 13px;
-      margin-bottom: 10px;
+      font-size: 14px;
+      margin-bottom: 12px;
     }
+
     .post-summary {
       color: #666;
-      margin-bottom: 10px;
-      line-height: 1.5;
+      margin-bottom: 15px;
+      line-height: 1.6;
+      font-size: 14px;
     }
+
     .post-footer {
-      color: #999;
-      font-size: 12px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      color: #666;
+      font-size: 13px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
     }
-    .badge-top {
-      background: #ff4d4f;
-      color: white;
-    }
-    .badge-essence {
-      background: #ffa940;
-      color: white;
-    }
+
     .category-box {
-      background: #f8f9fa;
-      padding: 15px;
-      border-radius: 4px;
-      margin-bottom: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
+
     .category-title {
       font-size: 16px;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      color: #2c3e50;
     }
+
     .category-list {
       display: flex;
       flex-wrap: wrap;
+      gap: 10px;
     }
+
     .category-item {
-      margin: 5px;
-      padding: 5px 10px;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 15px;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: #666;
+      background: #f8f9fa;
+      border: 1px solid #eee;
+      transition: all 0.3s ease;
+      font-size: 14px;
       cursor: pointer;
     }
+
+    .category-item:hover {
+      background: #e9ecef;
+      color: #333;
+    }
+
     .category-item.active {
-      background: #007bff;
+      background: #0056b3;
       color: white;
-      border-color: #007bff;
+      border-color: #0056b3;
+    }
+
+    .badge-top {
+      background: #ff4d4f;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .badge-essence {
+      background: #ffa940;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .search-box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .btn-primary {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+
+    .btn-primary:hover {
+      background-color: #004494;
+      border-color: #004494;
+    }
+
+    .stat-icon {
+      margin-right: 5px;
+      color: #666;
+    }
+
+    .pagination {
+      margin-top: 30px;
+      justify-content: center;
+    }
+
+    .sidebar-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #2c3e50;
     }
   </style>
 </head>
 <body>
-<div class="container mt-4">
+<!-- 顶部状态栏 -->
+<div class="container-fluid bg-light py-2 mb-4">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <c:choose>
+          <c:when test="${not empty sessionScope.loggedInUser}">
+            欢迎, ${sessionScope.loggedInUser.username}
+            <a href="${pageContext.request.contextPath}/user/home" class="ml-2">个人中心</a>
+            <a href="${pageContext.request.contextPath}/user/logout" class="ml-2">退出</a>
+          </c:when>
+          <c:otherwise>
+            <a href="${pageContext.request.contextPath}/login">登录</a>
+            <span class="mx-2">|</span>
+            <a href="${pageContext.request.contextPath}/register">注册</a>
+          </c:otherwise>
+        </c:choose>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
   <!-- 分类导航 -->
   <div class="category-box">
     <div class="category-title">分类导航</div>
     <div class="category-list">
       <div class="category-item ${empty param.categoryId ? 'active' : ''}"
-           onclick="location.href='${pageContext.request.contextPath}/post/list'">全部</div>
+           data-id="" onclick="loadPosts(null)">
+        全部
+      </div>
       <c:forEach items="${categories}" var="category">
         <div class="category-item ${param.categoryId eq category.id ? 'active' : ''}"
-             onclick="location.href='${pageContext.request.contextPath}/post/list?categoryId=${category.id}'">
+             data-id="${category.id}" onclick="loadPosts(${category.id})">
             ${category.name}
         </div>
       </c:forEach>
@@ -101,15 +211,14 @@
   </div>
 
   <div class="row">
-    <!-- 帖子列表 -->
+    <!-- 主内容区 -->
     <div class="col-md-9">
       <!-- 搜索栏 -->
-      <div class="search-box mb-4">
-        <form class="form-inline" method="get" action="${pageContext.request.contextPath}/post/list">
-          <input type="hidden" name="categoryId" value="${param.categoryId}">
+      <div class="search-box">
+        <form class="form-inline" id="searchForm" onsubmit="return handleSearch(event)">
           <div class="input-group w-100">
-            <input type="text" class="form-control" name="keyword"
-                   value="${param.keyword}" placeholder="搜索帖子">
+            <input type="text" class="form-control" id="searchInput" name="keyword"
+                   value="${param.keyword}" placeholder="搜索帖子标题或内容">
             <div class="input-group-append">
               <button class="btn btn-primary" type="submit">搜索</button>
             </div>
@@ -117,96 +226,242 @@
         </form>
       </div>
 
-      <!-- 帖子列表 -->
-      <c:forEach items="${pageResult.list}" var="post">
-        <div class="post-card">
-          <div class="post-title">
-            <a href="${pageContext.request.contextPath}/post/detail/${post.id}">${post.title}</a>
-            <c:if test="${post.isTop == 1}">
-              <span class="badge badge-top">置顶</span>
-            </c:if>
-            <c:if test="${post.isEssence == 1}">
-              <span class="badge badge-essence">精华</span>
-            </c:if>
-          </div>
-          <div class="post-meta">
-            <span><i class="bi bi-person"></i> ${post.authorName}</span>
-            <span class="ml-3"><i class="bi bi-folder"></i> ${post.categoryName}</span>
-            <span class="ml-3">
-                                <i class="bi bi-clock"></i>
-                                <fmt:formatDate value="${post.createTime}" pattern="yyyy-MM-dd HH:mm"/>
-                            </span>
-          </div>
-          <div class="post-summary">${post.summary}</div>
-          <div class="post-footer">
-            <div>
-              <span><i class="bi bi-eye"></i> ${post.viewCount} 浏览</span>
-              <span class="ml-3"><i class="bi bi-chat"></i> ${post.commentCount} 评论</span>
-              <span class="ml-3"><i class="bi bi-heart"></i> ${post.likeCount} 点赞</span>
-            </div>
-            <div>
-              <c:if test="${not empty sessionScope.user}">
-                <a href="${pageContext.request.contextPath}/post/create" class="btn btn-sm btn-primary">发帖</a>
+      <!-- 帖子列表容器 -->
+      <div id="postContainer">
+        <c:forEach items="${pageResult.list}" var="post">
+          <div class="post-card">
+            <div class="post-title">
+              <a href="${pageContext.request.contextPath}/post/detail/${post.id}">${post.title}</a>
+              <c:if test="${post.isTop == 1}">
+                <span class="badge badge-top">置顶</span>
+              </c:if>
+              <c:if test="${post.isEssence == 1}">
+                <span class="badge badge-essence">精华</span>
               </c:if>
             </div>
+            <div class="post-meta">
+              <span><i class="bi bi-person stat-icon"></i>${post.authorName}</span>
+              <span class="ml-3"><i class="bi bi-folder stat-icon"></i>${post.categoryName}</span>
+              <span class="ml-3">
+                <i class="bi bi-clock stat-icon"></i>
+                <fmt:formatDate value="${post.createTime}" pattern="yyyy-MM-dd HH:mm"/>
+              </span>
+            </div>
+            <div class="post-summary">${post.summary}</div>
+            <div class="post-footer">
+              <div>
+                <span><i class="bi bi-eye stat-icon"></i>${post.viewCount} 浏览</span>
+                <span class="ml-3"><i class="bi bi-chat stat-icon"></i>${post.commentCount} 评论</span>
+                <span class="ml-3"><i class="bi bi-heart stat-icon"></i>${post.likeCount} 点赞</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </c:forEach>
+        </c:forEach>
+      </div>
 
-      <!-- 分页 -->
-      <nav aria-label="Page navigation" class="mt-4">
-        <ul class="pagination justify-content-center">
-          <c:if test="${pageResult.current > 1}">
-            <li class="page-item">
-              <a class="page-link" href="?page=${pageResult.current-1}${queryString}">上一页</a>
-            </li>
-          </c:if>
-
-          <c:forEach begin="1" end="${pageResult.pages}" var="p">
-            <li class="page-item ${p eq pageResult.current ? 'active' : ''}">
-              <a class="page-link" href="?page=${p}${queryString}">${p}</a>
-            </li>
-          </c:forEach>
-
-          <c:if test="${pageResult.current < pageResult.pages}">
-            <li class="page-item">
-              <a class="page-link" href="?page=${pageResult.current+1}${queryString}">下一页</a>
-            </li>
-          </c:if>
-        </ul>
-      </nav>
+      <!-- 分页导航 -->
+      <div id="paginationContainer"></div>
     </div>
 
     <!-- 侧边栏 -->
     <div class="col-md-3">
       <!-- 快捷操作 -->
-      <div class="card mb-4">
-        <div class="card-body">
-          <h5 class="card-title">快捷操作</h5>
-          <a href="${pageContext.request.contextPath}/post/create" class="btn btn-primary btn-block">发布帖子</a>
-        </div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">快捷操作</div>
+        <c:choose>
+          <c:when test="${not empty sessionScope.loggedInUser}">
+            <a href="${pageContext.request.contextPath}/post/create" class="btn btn-primary btn-block">发布帖子</a>
+          </c:when>
+          <c:otherwise>
+            <a href="${pageContext.request.contextPath}/login" class="btn btn-primary btn-block">登录发帖</a>
+          </c:otherwise>
+        </c:choose>
       </div>
 
       <!-- 热门帖子 -->
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">热门帖子</h5>
-          <div class="list-group list-group-flush">
-            <c:forEach items="${hotPosts}" var="post">
-              <a href="${pageContext.request.contextPath}/post/detail/${post.id}"
-                 class="list-group-item list-group-item-action">
-                  ${post.title}
-                <span class="badge badge-light float-right">${post.viewCount}</span>
-              </a>
-            </c:forEach>
-          </div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">热门帖子</div>
+        <div class="list-group list-group-flush">
+          <c:forEach items="${hotPosts}" var="post">
+            <a href="${pageContext.request.contextPath}/post/detail/${post.id}"
+               class="list-group-item list-group-item-action">
+                ${post.title}
+              <span class="badge badge-light float-right">${post.viewCount}</span>
+            </a>
+          </c:forEach>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 <script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/js/bootstrap.min.js"></script>
+<script>
+  let currentCategoryId = null;
+  let currentPage = 1;
+  let currentKeyword = '';
+
+  // 页面加载时的初始化
+  $(document).ready(function() {
+    // 获取URL参数
+    const urlParams = new URLSearchParams(window.location.search);
+    currentKeyword = urlParams.get('keyword') || '';
+    currentCategoryId = urlParams.get('categoryId') || null;
+    currentPage = parseInt(urlParams.get('page')) || 1;
+
+    // 设置搜索框的初始值
+    $('#searchInput').val(currentKeyword);
+
+    // 初始加载帖子
+    loadPosts(currentCategoryId, currentPage, currentKeyword);
+  });
+
+  function loadPosts(categoryId, page = 1, keyword = '') {
+    currentCategoryId = categoryId;
+    currentPage = page;
+    currentKeyword = keyword;
+
+    // 更新分类样式
+    $('.category-item').removeClass('active');
+    if (categoryId === null) {
+      $('.category-item[data-id=""]').addClass('active');
+    } else {
+      $('.category-item[data-id="' + categoryId + '"]').addClass('active');
+    }
+
+    // 更新URL，但不重新加载页面
+    const newUrl = updateURLParameter(window.location.href, {
+      categoryId: categoryId || '',
+      page: page,
+      keyword: keyword
+    });
+    window.history.pushState({}, '', newUrl);
+
+    // 发起Ajax请求
+    $.ajax({
+      url: '${pageContext.request.contextPath}/post/list',
+      type: 'GET',
+      data: {
+        categoryId: categoryId,
+        page: page,
+        pageSize: 10,
+        keyword: keyword
+      },
+      success: function(response) {
+        if (response.code === 200) {
+          updatePosts(response.data.list);
+          updatePagination(response.data);
+        } else {
+          console.error('加载帖子失败:', response.message);
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('加载帖子失败:', error);
+      }
+    });
+  }
+
+  function updatePosts(posts) {
+    const container = $('#postContainer');
+    container.empty();
+
+    posts.forEach(function(post) {
+      const createTime = new Date(post.createTime);
+      const formattedDate = formatDate(createTime);
+
+      // 修改这里，去掉模板字符串，使用字符串连接
+      const postHtml =
+              '<div class="post-card">' +
+              '<div class="post-title">' +
+              '<a href="' + '${pageContext.request.contextPath}/post/detail/' + post.id + '">' + post.title + '</a>' +
+              (post.isTop === 1 ? '<span class="badge badge-top">置顶</span>' : '') +
+              (post.isEssence === 1 ? '<span class="badge badge-essence">精华</span>' : '') +
+              '</div>' +
+              '<div class="post-meta">' +
+              '<span><i class="bi bi-person stat-icon"></i>' + (post.authorName || '匿名用户') + '</span>' +
+              '<span class="ml-3"><i class="bi bi-folder stat-icon"></i>' + (post.categoryName || '未分类') + '</span>' +
+              '<span class="ml-3"><i class="bi bi-clock stat-icon"></i>' + formattedDate + '</span>' +
+              '</div>' +
+              '<div class="post-summary">' + (post.summary || '暂无简介') + '</div>' +
+              '<div class="post-footer">' +
+              '<div>' +
+              '<span><i class="bi bi-eye stat-icon"></i>' + (post.viewCount || 0) + ' 浏览</span>' +
+              '<span class="ml-3"><i class="bi bi-chat stat-icon"></i>' + (post.commentCount || 0) + ' 评论</span>' +
+              '<span class="ml-3"><i class="bi bi-heart stat-icon"></i>' + (post.likeCount || 0) + ' 点赞</span>' +
+              '</div>' +
+              '</div>' +
+              '</div>';
+      container.append(postHtml);
+    });
+  }
+
+  function updatePagination(pageData) {
+    const container = $('#paginationContainer');
+    if (pageData.pages <= 1) {
+      container.empty();
+      return;
+    }
+
+    let html = '<nav aria-label="Page navigation"><ul class="pagination">';
+
+    // 上一页
+    if (pageData.current > 1) {
+      html += '<li class="page-item">' +
+              '<a class="page-link" href="javascript:void(0)" onclick="loadPosts(currentCategoryId, ' +
+              (pageData.current - 1) + ', currentKeyword)">上一页</a>' +
+              '</li>';
+    }
+
+    // 页码
+    for (let i = 1; i <= pageData.pages; i++) {
+      html += '<li class="page-item ' + (i === pageData.current ? 'active' : '') + '">' +
+              '<a class="page-link" href="javascript:void(0)" onclick="loadPosts(currentCategoryId, ' +
+              i + ', currentKeyword)">' + i + '</a>' +
+              '</li>';
+    }
+
+    // 下一页
+    if (pageData.current < pageData.pages) {
+      html += '<li class="page-item">' +
+              '<a class="page-link" href="javascript:void(0)" onclick="loadPosts(currentCategoryId, ' +
+              (pageData.current + 1) + ', currentKeyword)">下一页</a>' +
+              '</li>';
+    }
+
+    html += '</ul></nav>';
+    container.html(html);
+  }
+
+  // 处理搜索表单提交
+  function handleSearch(event) {
+    event.preventDefault();
+    const keyword = $('#searchInput').val().trim();
+    loadPosts(currentCategoryId, 1, keyword);
+    return false;
+  }
+
+  // 更新URL参数的辅助函数
+  function updateURLParameter(url, params) {
+    const urlObj = new URL(url);
+    Object.keys(params).forEach(key => {
+      if (params[key]) {
+        urlObj.searchParams.set(key, params[key]);
+      } else {
+        urlObj.searchParams.delete(key);
+      }
+    });
+    return urlObj.toString();
+  }
+
+  // 格式化日期的辅助函数
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  }
+</script>
 </body>
 </html>

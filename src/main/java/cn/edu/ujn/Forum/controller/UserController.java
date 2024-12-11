@@ -26,10 +26,10 @@ public class UserController {
     private UserServiceImpl userService;
 
     // 映射根路径，返回index.jsp页面
-    @RequestMapping("/")
-    public String index() {
-        return "index";  // 这里不需要加文件路径，Spring 会自动映射到 WEB-INF/jsp/index.jsp
-    }
+//    @RequestMapping("/")
+//    public String index() {
+//        return "index";  // 这里不需要加文件路径，Spring 会自动映射到 WEB-INF/jsp/index.jsp
+//    }
 
 
 
