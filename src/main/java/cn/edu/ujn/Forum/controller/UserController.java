@@ -1,18 +1,22 @@
 package cn.edu.ujn.Forum.controller;
 
-import cn.edu.ujn.Forum.dao.Logs;
-import cn.edu.ujn.Forum.dao.LogsMapper;
-import cn.edu.ujn.Forum.dao.User;
-import cn.edu.ujn.Forum.dao.UserMapper;
+import cn.edu.ujn.Forum.dao.*;
 import cn.edu.ujn.Forum.service.ILogsService;
 import cn.edu.ujn.Forum.service.UserServiceImpl;
-import jakarta.servlet.http.HttpSession;
+import cn.edu.ujn.Forum.util.Result;
+import jakarta.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpSession;
 
-import java.security.Principal;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 
 @Controller
@@ -24,6 +28,11 @@ public class UserController {
     private ILogsService logsService;
     @Autowired
     private UserServiceImpl userService;
+    @Autowired
+    private UserProfileMapper userProfileMapper;
+
+    @Autowired
+    private ServletContext servletContext;
 
     // 映射根路径，返回index.jsp页面
 //    @RequestMapping("/")
@@ -162,5 +171,72 @@ public class UserController {
         return "redirect:/post";  // 重定向到登录页面
     }
 
+
+    @PostMapping("/uploadAvatar")
+    @ResponseBody
+    public Result<String> uploadAvatar(@RequestParam("file") MultipartFile file, HttpSession session) {
+        try {
+            User currentUser = (User) session.getAttribute("loggedInUser");
+            if (currentUser == null) {
+                return Result.fail("用户未登录");
+            }
+
+            // 检查文件类型
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return Result.fail("只能上传图片文件");
+            }
+
+            // 获取上传目录的真实路径
+            String uploadDir = servletContext.getRealPath("/static/upload/avatars");
+            Path uploadPath = Paths.get(uploadDir);
+
+            // 如果目录不存在则创建
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // 生成文件名
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String fileName = "avatar_" + currentUser.getId() + "_" + System.currentTimeMillis() + extension;
+
+            // 创建完整的文件路径
+            Path filePath = uploadPath.resolve(fileName);
+
+            // 保存文件
+            Files.copy(file.getInputStream(), filePath);
+
+            // 更新用户头像信息
+            String avatarUrl = "/static/upload/avatars/" + fileName;
+
+            // 查询用户资料
+            UserProfile profile = userProfileMapper.selectByUserId(currentUser.getId());
+            if (profile == null) {
+                // 如果不存在则创建新的用户资料
+                profile = new UserProfile();
+                profile.setUserId(currentUser.getId());
+                profile.setAvatar(avatarUrl);
+                profile.setNickname(currentUser.getUsername());
+                userProfileMapper.insert(profile);
+            } else {
+                // 更新现有用户资料的头像
+                userProfileMapper.updateAvatar(currentUser.getId(), avatarUrl);
+
+                // 删除旧头像文件
+                if (profile.getAvatar() != null) {
+                    String oldAvatarPath = servletContext.getRealPath(profile.getAvatar());
+                    Path oldFilePath = Paths.get(oldAvatarPath);
+                    if (Files.exists(oldFilePath)) {
+                        Files.delete(oldFilePath);
+                    }
+                }
+            }
+
+            return Result.success(avatarUrl);
+        } catch (IOException e) {
+            return Result.fail("头像上传失败：" + e.getMessage());
+        }
+    }
 }
 
