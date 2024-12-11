@@ -29,7 +29,7 @@
 </head>
 <body>
     <h1>Login</h1>
-    <form action="/Forum/api/user/login" method="post">
+    <form action="/Forum/login" method="post">
         <label for="emailOrPhone">Email or Phone:</label>
         <input type="text" id="emailOrPhone" name="emailOrPhone" placeholder="Enter your email or phone" required>
         <br>
@@ -45,6 +45,6 @@
                 </div>
             </c:if>
 
-    <p>Don't have an account? <a href="/Forum/api/user/register">Register here</a></p>
+    <p>Don't have an account? <a href="/Forum/register">Register here</a></p>
 </body>
 </html>

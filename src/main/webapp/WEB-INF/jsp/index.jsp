@@ -38,9 +38,9 @@
 </head>
 <body>
     <h1>Welcome to the Forum</h1>
-    <button onclick="window.location.href='/Forum/api/user/login';">Login</button>
+    <button onclick="window.location.href='/Forum/login';">Login</button>
     <div class="register-link">
-        <p>Don't have an account? <a href="/Forum/api/user/register">Register here</a>.</p>
+        <p>Don't have an account? <a href="/Forum/register">Register here</a>.</p>
     </div>
 </body>
 </html>

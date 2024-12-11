@@ -77,7 +77,7 @@
         <p><strong>Email:</strong> ${sessionScope.loggedInUser.email}</p>
         <p><strong>Phone:</strong> ${sessionScope.loggedInUser.phone}</p>
 
-        <a href="/Forum/api/user/logout" class="btn">Logout</a>
+        <a href="/Forum/logout" class="btn">Logout</a>
 
     </div>
 </body>

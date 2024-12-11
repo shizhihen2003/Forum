@@ -101,7 +101,12 @@
 
     <div class="container">
         <h1>Register</h1>
-        <form action="/Forum/api/user/register" method="post">
+        <form action="/Forum/register" method="post">
+
+            <!-- 显示错误信息 -->
+            <c:if test="${not empty error}">
+                <div class="error">${error}</div>
+            </c:if>
 
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required><br>
@@ -112,17 +117,27 @@
             <label for="phone">Phone:</label>
             <input type="text" id="phone" name="phone" required><br>
 
+            <!-- 手机号错误提示 -->
+            <c:if test="${not empty phoneError}">
+                <div class="error">${phoneError}</div>
+            </c:if>
+
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required><br>
 
             <label for="verification_code">Verification Code:</label>
             <input type="text" id="verification_code" name="verification_code" required><br>
 
+            <!-- 验证码错误提示 -->
+            <c:if test="${not empty verificationCodeError}">
+                <div class="error">${verificationCodeError}</div>
+            </c:if>
+
             <button type="submit">Register</button>
         </form>
 
         <div class="form-footer">
-            <p>Already have an account? <a href="/Forum/api/user/login">Login</a></p>
+            <p>Already have an account? <a href="/Forum/login">Login</a></p>
         </div>
     </div>
 

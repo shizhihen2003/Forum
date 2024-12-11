@@ -1,7 +1,10 @@
 package cn.edu.ujn.Forum.controller;
 
+import cn.edu.ujn.Forum.dao.Logs;
+import cn.edu.ujn.Forum.dao.LogsMapper;
 import cn.edu.ujn.Forum.dao.User;
 import cn.edu.ujn.Forum.dao.UserMapper;
+import cn.edu.ujn.Forum.service.ILogsService;
 import cn.edu.ujn.Forum.service.UserServiceImpl;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +13,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Date;
 
 @Controller
-@RequestMapping("/api/user")
+@RequestMapping("")
 public class UserController {
     @Autowired
     private UserMapper userMapper;
-
+    @Autowired
+    private ILogsService logsService;
     @Autowired
     private UserServiceImpl userService;
 
@@ -53,7 +58,11 @@ public class UserController {
                 // 登录成功，将用户信息存入 Session
                 session.setAttribute("loggedInUser", user);
 
-
+                // 将登录信息记录到 logs 表
+                Logs logs = new Logs();
+                logs.setUserId(user.getId());   // 设置用户 ID
+                logs.setLoginTime(new Date());  // 设置当前时间
+                logsService.insertLog(logs);
 
                 return "home"; // 重定向到主页
             } else {
@@ -101,6 +110,17 @@ public class UserController {
 
             Model model) {
 
+        // 校验手机号是否只包含数字
+        if (!phone.matches("[0-9]+")) {
+            model.addAttribute("error", "Phone number must contain only digits.");
+            return "register";  // 如果手机号不合法，返回注册页面
+        }
+
+        // 校验验证码是否为 6 位
+        if (verification_code.length() != 6) {
+            model.addAttribute("error", "Verification code must be 6 digits long.");
+            return "register";  // 如果验证码不符合要求，返回注册页面
+        }
 
         // 校验其他信息（邮箱和手机号唯一性等）
         if (userMapper.selectByEmail(email) != null) {
@@ -131,6 +151,13 @@ public class UserController {
 
         model.addAttribute("message", "Registration successful, please login.");
         return "login";  // 注册成功，重定向到登录页面
+    }
+
+    @RequestMapping("/logout")
+    public String logout(HttpSession session) {
+        // 清除 session 中的用户数据
+        session.invalidate();  // 使用 invalidate() 方法来清除整个 session
+        return "redirect:/login";  // 重定向到登录页面
     }
 
 }
