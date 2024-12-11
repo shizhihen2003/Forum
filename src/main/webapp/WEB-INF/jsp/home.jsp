@@ -171,14 +171,15 @@
         <div class="profile-card">
             <div class="profile-header">
                 <div class="avatar-container">
-
+                    <img src="${sessionScope.userProfile.avatar}" class="avatar" id="currentAvatar" alt="用户头像">
                     <label for="avatarInput" class="avatar-upload" title="更换头像">
                         <i class="bi bi-camera-fill"></i>
                     </label>
                     <input type="file" id="avatarInput" name="file" accept="image/*" style="display: none" onchange="uploadAvatar(this)">
                 </div>
-                <div class="profile-name">${sessionScope.loggedInUser.username}</div>
-                <div class="profile-bio">这个人很懒，还没有填写个人简介</div>
+
+                <div class="profile-name">${sessionScope.userProfile.nickname}</div>
+                <div class="profile-bio">${empty sessionScope.userProfile.bio ? '这个人很懒，还没有填写个人简介' : sessionScope.userProfile.bio}</div>
                 <div class="profile-stats">
                     <div class="stat-item">
                         <div class="stat-value">0</div>

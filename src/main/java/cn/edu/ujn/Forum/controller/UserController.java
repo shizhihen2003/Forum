@@ -5,6 +5,7 @@ import cn.edu.ujn.Forum.service.ILogsService;
 import cn.edu.ujn.Forum.service.UserServiceImpl;
 import cn.edu.ujn.Forum.util.Result;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,7 +52,8 @@ public class UserController {
     public String login(@RequestParam String emailOrPhone,
                         @RequestParam String password,
                         Model model,
-                        HttpSession session) {
+                        HttpSession session,
+                        HttpServletRequest request) {
         User user = null;
 
         // 判断输入的是 email 还是 phone
@@ -64,8 +66,23 @@ public class UserController {
         if (user != null) {
             // 检查密码
             if (user.getPassword() != null && user.getPassword().equals(password)) {
-                // 登录成功，将用户信息存入 Session
+                String contextPath = request.getContextPath();  // 获取上下文路径
+                // 获取用户资料
+                UserProfile userProfile = userProfileMapper.selectByUserId(user.getId());
+                if (userProfile == null) {
+                    // 如果没有资料，创建默认资料
+                    userProfile = new UserProfile();
+                    userProfile.setUserId(user.getId());
+                    userProfile.setNickname(user.getUsername());
+                    userProfile.setAvatar(contextPath + "/static/upload/avatars/default-avatar.jpg");
+                    userProfile.setCreateTime(new Date());
+                    userProfile.setUpdateTime(new Date());
+                    userProfileMapper.insert(userProfile);
+                }
+
+                // 将用户信息和资料都存入 session
                 session.setAttribute("loggedInUser", user);
+                session.setAttribute("userProfile", userProfile);
 
                 // 将登录信息记录到 logs 表
                 Logs logs = new Logs();
@@ -174,7 +191,9 @@ public class UserController {
 
     @PostMapping("/uploadAvatar")
     @ResponseBody
-    public Result<String> uploadAvatar(@RequestParam("file") MultipartFile file, HttpSession session) {
+    public Result<String> uploadAvatar(@RequestParam("file") MultipartFile file,
+                                       HttpSession session,
+                                       HttpServletRequest request) {
         try {
             User currentUser = (User) session.getAttribute("loggedInUser");
             if (currentUser == null) {
@@ -188,7 +207,8 @@ public class UserController {
             }
 
             // 获取上传目录的真实路径
-            String uploadDir = servletContext.getRealPath("/static/upload/avatars");
+            String projectPath = servletContext.getRealPath("/");
+            String uploadDir = projectPath + "static/upload/avatars";
             Path uploadPath = Paths.get(uploadDir);
 
             // 如果目录不存在则创建
@@ -208,7 +228,8 @@ public class UserController {
             Files.copy(file.getInputStream(), filePath);
 
             // 更新用户头像信息
-            String avatarUrl = "/static/upload/avatars/" + fileName;
+            String contextPath = request.getContextPath();
+            String avatarUrl = contextPath + "/static/upload/avatars/" + fileName;
 
             // 查询用户资料
             UserProfile profile = userProfileMapper.selectByUserId(currentUser.getId());
@@ -219,9 +240,14 @@ public class UserController {
                 profile.setAvatar(avatarUrl);
                 profile.setNickname(currentUser.getUsername());
                 userProfileMapper.insert(profile);
+                // 添加到 session
+                session.setAttribute("userProfile", profile);
             } else {
                 // 更新现有用户资料的头像
+                profile.setAvatar(avatarUrl);  // 先更新对象
                 userProfileMapper.updateAvatar(currentUser.getId(), avatarUrl);
+                // 更新 session 中的用户资料
+                session.setAttribute("userProfile", profile);
 
                 // 删除旧头像文件
                 if (profile.getAvatar() != null) {
