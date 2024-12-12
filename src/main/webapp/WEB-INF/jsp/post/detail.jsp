@@ -334,141 +334,142 @@
     sequenceDiagram: true
   });
 
-$(document).ready(function() {
-  const postId = ${post.id};
-  fetchLikeCount(postId); // 获取点赞数
-  fetchLikeUsers(postId); // 获取点赞用户列表
-  checkLikeStatus(currentUserId, postId); // 检查用户点赞状态
-  loadReportTypes(); // 加载举报类型
-});
-
-// 检查用户是否点赞该帖
-function checkLikeStatus(userId, postId) {
-  $.get('${pageContext.request.contextPath}/likes/check', {userId: userId, postId: postId}, function(res) {
-    if(res.code === 200) {
-      var isLiked = res.isLiked;
-      updateLikeButtonUI(isLiked);
-    } else {
-      alert(res.message || '检查点赞状态失败');
-    }
-  }).fail(function() {
-    alert('检查点赞状态失败，请稍后重试');
+ $(document).ready(function() {
+    const postId = ${post.id};
+    fetchLikeCount(postId); // 获取点赞数
+    fetchLikeUsers(postId); // 获取点赞用户列表
+    checkLikeStatus(postId); // 检查用户点赞状态
+    loadReportTypes(); // 加载举报类型
   });
-}
 
-// 根据是否点赞更新按钮UI
-function updateLikeButtonUI(isLiked) {
-  var likeButton = $('#likeButton');
-  if(isLiked) {
-    likeButton.html('<i class="bi bi-heart"></i> 已点赞')
-      .removeClass('btn-primary')
-      .addClass('btn-danger')
-      .attr('onclick', 'toggleLike(' + ${post.id} + ', true)');
-  } else {
-    likeButton.html('<i class="bi bi-heart"></i> 点赞')
-      .removeClass('btn-danger')
-      .addClass('btn-primary')
-      .attr('onclick', 'toggleLike(' + ${post.id} + ', false)');
-  }
-}
-
-// 点赞帖子
-function likePost(userId, postId) {
-  $.ajax({
-    url: '${pageContext.request.contextPath}/likes/like',
-    type: 'POST',
-    data: {
-      userId: userId,
-      postId: postId
-    },
-    success: function(res) {
-      if (res.code === 200) {
-        $('#likeCount').text(res.likeCount);
-        updateLikeButtonUI(true);
-        fetchLikeUsers(postId); // 点赞成功后更新点赞用户列表
-      } else {
-        alert(res.message || '点赞失败');
-      }
-    },
-    error: function() {
-      alert('点赞失败，请稍后重试');
-    }
-  });
-}
-
-// 取消点赞
-function unlikePost(userId, postId) {
-  $.ajax({
-    url: '${pageContext.request.contextPath}/likes/unlike',
-    type: 'POST',
-    data: {
-      userId: userId,
-      postId: postId
-    },
-    success: function(res) {
-      if (res.code === 200) {
-        $('#likeCount').text(res.likeCount);
+  // 检查用户是否点赞该帖
+  function checkLikeStatus(postId) {
+    $.get('${pageContext.request.contextPath}/likes/check', {postId: postId}, function(res) {
+      if(res.code === 200) {
+        var isLiked = res.isLiked;
+        updateLikeButtonUI(isLiked);
+      } else if(res.code === 401) {
         updateLikeButtonUI(false);
-        fetchLikeUsers(postId); // 取消点赞后也更新用户列表
       } else {
-        alert(res.message || '取消点赞失败');
+        alert(res.message || '检查点赞状态失败');
       }
-    },
-    error: function() {
-      alert('取消点赞失败，请稍后重试');
-    }
-  });
-}
-
-// 切换点赞状态
-function toggleLike(postId, isLiked) {
-  if (!currentUserId) {
-    alert('请先登录再点赞');
-window.location.href = 'http://localhost:8080/Forum/login';
-    return;
+    }).fail(function() {
+      alert('检查点赞状态失败，请稍后重试');
+    });
   }
-  if (isLiked) {
-    // 已点赞则取消点赞
-    unlikePost(currentUserId, postId);
-  } else {
-    // 未点赞则点赞
-    likePost(currentUserId, postId);
-  }
-}
 
-// 动态获取点赞数量
-function fetchLikeCount(postId) {
-  $.get('${pageContext.request.contextPath}/likes/count/' + postId, function(res) {
-    if (res.code === 200) {
-      $('#likeCount').text(res.likeCount);
+  // 根据是否点赞更新按钮UI
+  function updateLikeButtonUI(isLiked) {
+    var likeButton = $('#likeButton');
+    if(isLiked) {
+      likeButton.html('<i class="bi bi-heart"></i> 已点赞')
+        .removeClass('btn-primary')
+        .addClass('btn-danger')
+        .attr('onclick', 'toggleLike(' + ${post.id} + ', true)');
     } else {
-      alert(res.message || '获取点赞数量失败');
+      likeButton.html('<i class="bi bi-heart"></i> 点赞')
+        .removeClass('btn-danger')
+        .addClass('btn-primary')
+        .attr('onclick', 'toggleLike(' + ${post.id} + ', false)');
     }
-  }).fail(function() {
-    alert('获取点赞数量失败，请稍后重试');
-  });
-}
+  }
 
-// 获取点赞用户列表
-function fetchLikeUsers(postId) {
-  $.get('${pageContext.request.contextPath}/likes/users/' + postId, function(res) {
-    if (res.code === 200) {
-      const usersList = $('#likeUsersList');
-      usersList.empty();
-      if (res.users && res.users.length > 0) {
-        res.users.forEach(function(user) {
-          usersList.append('<li class="list-group-item">用户ID: ' + user + '</li>');
-        });
+  // 点赞帖子
+  function likePost(postId) {
+    $.ajax({
+      url: '${pageContext.request.contextPath}/likes/like',
+      type: 'POST',
+      data: {
+        postId: postId
+      },
+      success: function(res) {
+        if (res.code === 200) {
+          $('#likeCount').text(res.likeCount);
+          updateLikeButtonUI(true);
+          fetchLikeUsers(postId); // 点赞成功后更新点赞用户列表
+        } else if (res.code === 401) {
+          alert(res.message || '请先登录再点赞');
+          window.location.href = '${pageContext.request.contextPath}/login';
+        } else {
+          alert(res.message || '点赞失败');
+        }
+      },
+      error: function() {
+        alert('点赞失败，请稍后重试');
+      }
+    });
+  }
+
+  // 取消点赞
+  function unlikePost(postId) {
+    $.ajax({
+      url: '${pageContext.request.contextPath}/likes/unlike',
+      type: 'POST',
+      data: {
+        postId: postId
+      },
+      success: function(res) {
+        if (res.code === 200) {
+          $('#likeCount').text(res.likeCount);
+          updateLikeButtonUI(false);
+          fetchLikeUsers(postId); // 取消点赞后也更新用户列表
+        } else if (res.code === 401) {
+          alert(res.message || '请先登录再取消点赞');
+          window.location.href = '${pageContext.request.contextPath}/login';
+        } else {
+          alert(res.message || '取消点赞失败');
+        }
+      },
+      error: function() {
+        alert('取消点赞失败，请稍后重试');
+      }
+    });
+  }
+
+  // 切换点赞状态
+  function toggleLike(postId, isLiked) {
+    if (isLiked) {
+      // 已点赞则取消点赞
+      unlikePost(postId);
+    } else {
+      // 未点赞则点赞
+      likePost(postId);
+    }
+  }
+
+  // 动态获取点赞数量
+  function fetchLikeCount(postId) {
+    $.get('${pageContext.request.contextPath}/likes/count/' + postId, function(res) {
+      if (res.code === 200) {
+        $('#likeCount').text(res.likeCount);
       } else {
-        usersList.append('<li class="list-group-item">暂无用户点赞</li>');
+        alert(res.message || '获取点赞数量失败');
       }
-    } else {
-      alert(res.message || '获取点赞用户失败');
-    }
-  }).fail(function() {
-    alert('获取点赞用户失败，请稍后重试');
-  });
-}
+    }).fail(function() {
+      alert('获取点赞数量失败，请稍后重试');
+    });
+  }
+
+  // 获取点赞用户列表（用户名）
+  function fetchLikeUsers(postId) {
+    $.get('${pageContext.request.contextPath}/likes/users/' + postId, function(res) {
+      if (res.code === 200) {
+        const usersList = $('#likeUsersList');
+        usersList.empty();
+        if (res.users && res.users.length > 0) {
+          res.users.forEach(function(username) {
+            usersList.append('<li class="list-group-item">用户名: ' + username + '</li>');
+          });
+        } else {
+          usersList.append('<li class="list-group-item">暂无用户点赞</li>');
+        }
+      } else {
+        alert(res.message || '获取点赞用户失败');
+      }
+    }).fail(function() {
+      alert('获取点赞用户失败，请稍后重试');
+    });
+  }
 
 // 加载举报类型
 function loadReportTypes() {

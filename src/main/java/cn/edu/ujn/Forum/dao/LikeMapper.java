@@ -56,5 +56,7 @@ public interface LikeMapper {
      * @return 返回1表示已点赞，0表示未点赞
      */
     int checkIfUserLikedPost(@Param("userId") Integer userId, @Param("postId") Integer postId);
+
+    List<String> selectUsernamesByPostId(@Param("postId") Integer postId); // 返回用户名列表
 }
 

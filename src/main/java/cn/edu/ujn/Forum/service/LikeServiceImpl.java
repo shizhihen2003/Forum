@@ -73,4 +73,9 @@ public class LikeServiceImpl implements ILikeService{
             return false;
         }
     }
+
+    @Override
+    public List<String> getUsernamesWhoLikedPost(Integer postId) {
+        return likeMapper.selectUsernamesByPostId(postId); // 调用 Mapper 方法
+    }
 }

@@ -54,4 +54,6 @@ public interface ILikeService {
      * @return 已点赞返回 true，未点赞返回 false
      */
     boolean hasUserLikedPost(Integer userId, Integer postId);
+
+    List<String> getUsernamesWhoLikedPost(Integer postId); // 返回用户名列表
 }
