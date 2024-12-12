@@ -86,65 +86,61 @@
       color: white;
     }
     /* Markdown 相关样式 */
-        .editormd-preview-container,
-        .editormd-html-preview {
-          width: 100%;
-          margin: 0;
-          padding: 0;
-          border: none;
-        }
-        .markdown-body {
-          padding: 20px 0;
-        }
-        .markdown-body pre {
-          background-color: #f6f8fa;
-          border-radius: 3px;
-          padding: 16px;
-        }
-        .markdown-body img {
-          max-width: 100%;
-          height: auto;
-        }
-        .markdown-body table {
-          display: table;
-          width: 100%;
-          margin: 15px 0;
-          border-collapse: collapse;
-        }
-        .markdown-body table th,
-        .markdown-body table td {
-          padding: 8px;
-          border: 1px solid #ddd;
-        }
-        .markdown-body blockquote {
-          padding: 0 1em;
-          color: #6a737d;
-          border-left: 0.25em solid #dfe2e5;
-        }
-        .markdown-body code {
-          padding: 0.2em 0.4em;
-          background-color: rgba(27,31,35,0.05);
-          border-radius: 3px;
-        }
+    .editormd-preview-container,
+    .editormd-html-preview {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+    .markdown-body {
+      padding: 20px 0;
+    }
+    .markdown-body pre {
+      background-color: #f6f8fa;
+      border-radius: 3px;
+      padding: 16px;
+    }
+    .markdown-body img {
+      max-width: 100%;
+      height: auto;
+    }
+    .markdown-body table {
+      display: table;
+      width: 100%;
+      margin: 15px 0;
+      border-collapse: collapse;
+    }
+    .markdown-body table th,
+    .markdown-body table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    .markdown-body blockquote {
+      padding: 0 1em;
+      color: #6a737d;
+      border-left: 0.25em solid #dfe2e5;
+    }
+    .markdown-body code {
+      padding: 0.2em 0.4em;
+      background-color: rgba(27,31,35,0.05);
+      border-radius: 3px;
+    }
   </style>
 </head>
 
 <body>
 
-<c:if test="${not empty sessionScope.user}">
-<script>
- var currentUserId = ${sessionScope.user.id};
- </script>
- </c:if>
- <c:if test="${empty sessionScope.user}">
- <script>
- var currentUserId = null;
- </script>
- </c:if>
-
-
-
-
+<c:if test="${not empty sessionScope.loggedInUser}">
+  <script>
+    var currentUserId = ${sessionScope.loggedInUser.id};
+  </script>
+</c:if>
+<c:if test="${empty sessionScope.loggedInUser}">
+  <script>
+    var currentUserId = null;
+  </script>
+</c:if>
 
 <div class="container mt-4">
   <div class="row">
@@ -175,11 +171,11 @@
           </div>
         </div>
 
-         <div id="content" class="post-content markdown-body">
-                 <textarea style="display:none;">${post.content}</textarea>
-               </div>
+        <div id="content" class="post-content markdown-body">
+          <textarea style="display:none;">${post.content}</textarea>
+        </div>
 
-        <!-- 点赞按钮初始先设为“点赞”，待页面加载后根据checkIfUserLikedPost接口更新状态 -->
+        <!-- 点赞按钮初始先设为“点赞”，待页面加载后根据checkLikeStatus接口更新状态 -->
         <button class="btn btn-primary" id="likeButton" onclick="toggleLike(${post.id}, false)">
           <i class="bi bi-heart"></i> 点赞
         </button>
@@ -191,7 +187,7 @@
         <button class="btn btn-success ml-2" onclick="showCommentForm()">
           <i class="bi bi-chat"></i> 评论
         </button>
-        <c:if test="${sessionScope.user.id eq post.userId}">
+        <c:if test="${not empty sessionScope.loggedInUser and sessionScope.loggedInUser.id eq post.userId}">
           <a href="${pageContext.request.contextPath}/post/edit/${post.id}" class="btn btn-warning ml-2">
             <i class="bi bi-pencil"></i> 编辑
           </a>
@@ -220,7 +216,7 @@
           <c:forEach items="${comments}" var="comment">
             <div class="comment-item" id="comment-${comment.id}">
               <div class="comment-user">
-                  <img src="${comment.authorAvatar}" class="comment-avatar" alt="user avatar">
+                <img src="${comment.authorAvatar}" class="comment-avatar" alt="user avatar">
                 <div>
                   <span class="font-weight-bold">${comment.authorName}</span>
                   <small class="text-muted ml-2">
@@ -228,9 +224,9 @@
                   </small>
                 </div>
               </div>
-                <div id="comment-content-${comment.id}" class="comment-content markdown-body">
-                              <textarea style="display:none;">${comment.content}</textarea>
-                            </div>
+              <div id="comment-content-${comment.id}" class="comment-content markdown-body">
+                <textarea style="display:none;">${comment.content}</textarea>
+              </div>
               <div class="comment-actions">
                 <a href="javascript:void(0)" onclick="likeComment(${comment.id})">
                   <i class="bi bi-heart"></i> 赞(${comment.likeCount})
@@ -254,9 +250,9 @@
                           </small>
                         </div>
                       </div>
-                        <div id="comment-content-${reply.id}" class="comment-content markdown-body">
-                                              <textarea style="display:none;">${reply.content}</textarea>
-                                            </div>
+                      <div id="comment-content-${reply.id}" class="comment-content markdown-body">
+                        <textarea style="display:none;">${reply.content}</textarea>
+                      </div>
                       <div class="comment-actions">
                         <a href="javascript:void(0)" onclick="likeComment(${reply.id})">
                           <i class="bi bi-heart"></i> 赞(${reply.likeCount})
@@ -370,11 +366,39 @@
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/jquery.flowchart.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/editormd.min.js"></script>
 <script>
+  // 初始化 Markdown 渲染
   $(function() {
-      console.log('Initializing Markdown rendering...');
+    console.log('Initializing Markdown rendering...');
 
-      // 初始化帖子内容的Markdown渲染
-      editormd.markdownToHTML("content", {
+    // 初始化帖子内容的Markdown渲染
+    editormd.markdownToHTML("content", {
+      htmlDecode: "style,script,iframe",
+      emoji: true,
+      taskList: true,
+      tex: true,
+      flowChart: true,
+      sequenceDiagram: true,
+      previewCodeHighlight: true,
+      tocm: true,
+      toc: true,
+      tocContainer: "",
+      tocDropdown: false,
+      atLink: true,
+      emailLink: true,
+      imageLink: true,
+      theme: "default",
+      mode: "markdown"
+    });
+
+    // 初始化所有评论的Markdown渲染
+    $('.comment-content').each(function() {
+      var $this = $(this);
+      var commentId = $this.attr('id');
+      if (!commentId) return;
+
+      console.log('Rendering comment:', commentId);
+
+      editormd.markdownToHTML(commentId, {
         htmlDecode: "style,script,iframe",
         emoji: true,
         taskList: true,
@@ -382,42 +406,16 @@
         flowChart: true,
         sequenceDiagram: true,
         previewCodeHighlight: true,
-        tocm: true,
-        toc: true,
-        tocContainer: "",
-        tocDropdown: false,
-        atLink: true,
-        emailLink: true,
-        imageLink: true,
         theme: "default",
         mode: "markdown"
       });
-
-      // 初始化所有评论的Markdown渲染
-      $('.comment-content').each(function() {
-        var $this = $(this);
-        var commentId = $this.attr('id');
-        if (!commentId) return;
-
-        console.log('Rendering comment:', commentId);
-
-        editormd.markdownToHTML(commentId, {
-          htmlDecode: "style,script,iframe",
-          emoji: true,
-          taskList: true,
-          tex: true,
-          flowChart: true,
-          sequenceDiagram: true,
-          previewCodeHighlight: true,
-          theme: "default",
-          mode: "markdown"
-        });
-      });
-
-      console.log('Markdown rendering completed');
     });
 
- $(document).ready(function() {
+    console.log('Markdown rendering completed');
+  });
+
+  // 点赞功能相关
+  $(document).ready(function() {
     const postId = ${post.id};
     fetchLikeCount(postId); // 获取点赞数
     fetchLikeUsers(postId); // 获取点赞用户列表
@@ -554,137 +552,140 @@
     });
   }
 
-// 加载举报类型
-function loadReportTypes() {
-  $.get("${pageContext.request.contextPath}/reports/types", function (res) {
-    if (res.code === 200) {
-      const reportTypeSelect = $('#reportType');
-      res.data.forEach(function (type) {
-        reportTypeSelect.append('<option value="' + type + '">' + type + '</option>');
+  // 加载举报类型
+  function loadReportTypes() {
+    $.get("${pageContext.request.contextPath}/reports/types", function (res) {
+      if (res.code === 200) {
+        const reportTypeSelect = $('#reportType');
+        res.data.forEach(function (type) {
+          reportTypeSelect.append('<option value="' + type + '">' + type + '</option>');
+        });
+      } else {
+        alert(res.message || '举报类型加载失败');
+      }
+    }).fail(function () {
+      alert('举报类型加载失败，请稍后重试');
+    });
+  }
+
+  // 提交举报
+  function submitReport() {
+      const postId = ${post.id};
+      const reportType = $('#reportType').val();
+      const reportContent = $('#reportContent').val();
+
+      if (!reportType || !reportContent) {
+          alert('举报类型和内容不能为空！');
+          return;
+      }
+
+      $.ajax({
+          url: '${pageContext.request.contextPath}/reports',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+              postId: postId,
+              type: reportType,
+              content: reportContent
+          }),
+          success: function (res) {
+              if(res.code === 200) {
+                  alert('举报提交成功！');
+                  $('#reportModal').modal('hide');
+              } else {
+                  alert('举报提交失败，请稍后重试');
+              }
+          },
+          error: function () {
+              alert('举报提交失败，请稍后重试');
+          }
       });
-    } else {
-      alert(res.message || '举报类型加载失败');
-    }
-  }).fail(function () {
-    alert('举报类型加载失败，请稍后重试');
-  });
-}
+  }
 
-function submitReport() {
-    const postId = ${post.id};
-    const reportType = $('#reportType').val();
-    const reportContent = $('#reportContent').val();
-
-    if (!reportType || !reportContent) {
-        alert('举报类型和内容不能为空！');
-        return;
+  // 提交评论
+  function submitComment() {
+    var content = $('#commentContent').val();
+    if(!content) {
+      alert('请输入评论内容');
+      return;
     }
 
     $.ajax({
-        url: '${pageContext.request.contextPath}/reports',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            postId: postId,
-            type: reportType,
-            content: reportContent
-        }),
-        success: function (res) {
-            if (res === 'OK') {
-                alert('举报提交成功！');
-                $('#reportModal').modal('hide');
-            } else {
-                alert('举报提交失败，请稍后重试');
-            }
-        },
-        error: function () {
-            alert('举报提交失败，请稍后重试');
+      url: '${pageContext.request.contextPath}/comment/create',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        postId: ${post.id},
+        content: content
+      }),
+      success: function(res) {
+        if(res.code === 200) {
+          alert('评论成功');
+          location.reload();
+        } else {
+          alert(res.message);
         }
+      }
     });
-}
-
-// 提交评论
-function submitComment() {
-  var content = $('#commentContent').val();
-  if(!content) {
-    alert('请输入评论内容');
-    return;
   }
 
-  $.ajax({
-    url: '${pageContext.request.contextPath}/comment/create',
-    type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify({
-      postId: ${post.id},
-      content: content
-    }),
-    success: function(res) {
+  // 回复评论
+  function replyComment(commentId) {
+    $('#replyCommentId').val(commentId);
+    $('#replyModal').modal('show');
+  }
+
+  // 提交回复
+  function submitReply() {
+    var content = $('#replyContent').val();
+    if(!content) {
+      alert('请输入回复内容');
+      return;
+    }
+
+    $.ajax({
+      url: '${pageContext.request.contextPath}/comment/create',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        postId: ${post.id},
+        parentId: $('#replyCommentId').val(),
+        content: content
+      }),
+      success: function(res) {
+        if(res.code === 200) {
+          alert('回复成功');
+          location.reload();
+        } else {
+          alert(res.message);
+        }
+      }
+    });
+  }
+
+  // 点赞评论
+  function likeComment(commentId) {
+    $.post('${pageContext.request.contextPath}/comment/like/' + commentId, function(res) {
       if(res.code === 200) {
-        alert('评论成功');
+        alert('点赞成功');
         location.reload();
       } else {
         alert(res.message);
       }
-    }
-  });
-}
-
-// 回复评论
-function replyComment(commentId) {
-  $('#replyCommentId').val(commentId);
-  $('#replyModal').modal('show');
-}
-
-// 提交回复
-function submitReply() {
-  var content = $('#replyContent').val();
-  if(!content) {
-    alert('请输入回复内容');
-    return;
+    }).fail(function() {
+      alert('点赞失败，请稍后重试');
+    });
   }
 
-  $.ajax({
-    url: '${pageContext.request.contextPath}/comment/create',
-    type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify({
-      postId: ${post.id},
-      parentId: $('#replyCommentId').val(),
-      content: content
-    }),
-    success: function(res) {
-      if(res.code === 200) {
-        alert('回复成功');
-        location.reload();
-      } else {
-        alert(res.message);
-      }
-    }
-  });
-}
+  // 显示评论表单
+  function showCommentForm() {
+    $('#commentContent').focus();
+  }
 
-// 点赞评论
-function likeComment(commentId) {
-  $.post('${pageContext.request.contextPath}/comment/like/' + commentId, function(res) {
-    if(res.code === 200) {
-      alert('点赞成功');
-      location.reload();
-    } else {
-      alert(res.message);
-    }
-  });
-}
-
-// 显示评论表单
-function showCommentForm() {
-  $('#commentContent').focus();
-}
-
-// 关注作者（待实现）
-function followAuthor() {
-  alert('关注功能开发中...');
-}
+  // 关注作者（待实现）
+  function followAuthor() {
+    alert('关注功能开发中...');
+  }
 </script>
 </body>
 </html>
