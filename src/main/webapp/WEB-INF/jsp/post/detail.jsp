@@ -89,10 +89,20 @@
 
 <body>
 
-<!-- 测试用，将来可通过session赋值 -->
+<c:if test="${not empty sessionScope.user}">
 <script>
-    var currentUserId = 1; // 测试用户ID，后续可改为通过session获取
-</script>
+ var currentUserId = ${sessionScope.user.id};
+ </script>
+ </c:if>
+ <c:if test="${empty sessionScope.user}">
+ <script>
+ var currentUserId = null;
+ </script>
+ </c:if>
+
+
+
+
 
 <div class="container mt-4">
   <div class="row">
@@ -414,6 +424,7 @@ function unlikePost(userId, postId) {
 function toggleLike(postId, isLiked) {
   if (!currentUserId) {
     alert('请先登录再点赞');
+window.location.href = 'http://localhost:8080/Forum/login';
     return;
   }
   if (isLiked) {
