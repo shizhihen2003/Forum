@@ -6,80 +6,28 @@
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="password_hash" jdbcType="VARCHAR" property="passwordHash" />
-    <result column="verification_code" jdbcType="VARCHAR" property="verificationCode" />
-    <result column="is_verified" jdbcType="BIT" property="isVerified" />
-    <result column="reset_token" jdbcType="VARCHAR" property="resetToken" />
-    <result column="reset_token_expiration" jdbcType="TIMESTAMP" property="resetTokenExpiration" />
-    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
-    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="verification_code" jdbcType="VARCHAR" property="verification_code" />
   </resultMap>
+
   <sql id="Base_Column_List">
-    id, username, email, phone, password_hash, verification_code, is_verified, reset_token,
-    reset_token_expiration, created_at, updated_at
+    id, username, email, phone, password, verification_code
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from users
-    where id = #{id,jdbcType=INTEGER}
-  </select>
 
-  <select id="selectByEmailOrPhone" resultType="User">
-    SELECT * FROM users
-    WHERE (email = #{email} OR phone = #{phone})
-    LIMIT 1;
-  </select>
-
-
-  <!-- 根据手机号查询用户 -->
-  <select id="selectByPhone" parameterType="string" resultType="User">
-    SELECT * FROM users WHERE phone = #{phone}
-  </select>
-
-  <!-- 根据邮箱查询用户 -->
-  <select id="selectByEmail" parameterType="string" resultType="User">
-    SELECT * FROM users WHERE email = #{email}
-  </select>
-
-  <!-- 更新密码 -->
-  <update id="updatePassword" parameterType="map">
-    UPDATE users SET password_hash = #{passwordHash} WHERE id = #{id}
-  </update>
-
-  <!-- 更新手机验证码 -->
-  <update id="updateVerificationCode" parameterType="map">
-    UPDATE users SET verification_code = #{verificationCode} WHERE phone = #{phone}
-  </update>
-
-  <!-- 更新手机验证状态 -->
-  <update id="updateVerificationStatus" parameterType="map">
-    UPDATE users SET is_verified = #{isVerified} WHERE phone = #{phone}
-  </update>
-
-  <!-- 根据密码重置令牌查询用户 -->
-  <select id="selectByResetToken" parameterType="string" resultType="User">
-    SELECT * FROM users WHERE reset_token = #{resetToken}
-  </select>
-
-  <!-- 更新密码重置令牌 -->
-  <update id="updateResetToken" parameterType="map">
-    UPDATE users SET reset_token = #{resetToken}, reset_token_expiration = #{resetTokenExpiration} WHERE id = #{id}
-  </update>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from users
     where id = #{id,jdbcType=INTEGER}
   </delete>
+
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.User">
     insert into users (id, username, email,
-    phone, password_hash, verification_code,
-    is_verified, reset_token, reset_token_expiration,
-    created_at, updated_at)
+                       phone, password, verification_code
+    )
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
-    #{phone,jdbcType=VARCHAR}, #{passwordHash,jdbcType=VARCHAR}, #{verificationCode,jdbcType=VARCHAR},
-    #{isVerified,jdbcType=BIT}, #{resetToken,jdbcType=VARCHAR}, #{resetTokenExpiration,jdbcType=TIMESTAMP},
-    #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+            #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{verification_code,jdbcType=VARCHAR}
+           )
   </insert>
+
   <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.User">
     insert into users
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -95,26 +43,11 @@
       <if test="phone != null">
         phone,
       </if>
-      <if test="passwordHash != null">
-        password_hash,
+      <if test="password != null">
+        password,
       </if>
-      <if test="verificationCode != null">
+      <if test="verification_code != null">
         verification_code,
-      </if>
-      <if test="isVerified != null">
-        is_verified,
-      </if>
-      <if test="resetToken != null">
-        reset_token,
-      </if>
-      <if test="resetTokenExpiration != null">
-        reset_token_expiration,
-      </if>
-      <if test="createdAt != null">
-        created_at,
-      </if>
-      <if test="updatedAt != null">
-        updated_at,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -130,29 +63,15 @@
       <if test="phone != null">
         #{phone,jdbcType=VARCHAR},
       </if>
-      <if test="passwordHash != null">
-        #{passwordHash,jdbcType=VARCHAR},
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
       </if>
-      <if test="verificationCode != null">
-        #{verificationCode,jdbcType=VARCHAR},
-      </if>
-      <if test="isVerified != null">
-        #{isVerified,jdbcType=BIT},
-      </if>
-      <if test="resetToken != null">
-        #{resetToken,jdbcType=VARCHAR},
-      </if>
-      <if test="resetTokenExpiration != null">
-        #{resetTokenExpiration,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createdAt != null">
-        #{createdAt,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updatedAt != null">
-        #{updatedAt,jdbcType=TIMESTAMP},
+      <if test="verification_code != null">
+        #{verification_code,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
+
   <update id="updateByPrimaryKeySelective" parameterType="cn.edu.ujn.Forum.dao.User">
     update users
     <set>
@@ -165,42 +84,80 @@
       <if test="phone != null">
         phone = #{phone,jdbcType=VARCHAR},
       </if>
-      <if test="passwordHash != null">
-        password_hash = #{passwordHash,jdbcType=VARCHAR},
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
       </if>
-      <if test="verificationCode != null">
-        verification_code = #{verificationCode,jdbcType=VARCHAR},
-      </if>
-      <if test="isVerified != null">
-        is_verified = #{isVerified,jdbcType=BIT},
-      </if>
-      <if test="resetToken != null">
-        reset_token = #{resetToken,jdbcType=VARCHAR},
-      </if>
-      <if test="resetTokenExpiration != null">
-        reset_token_expiration = #{resetTokenExpiration,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createdAt != null">
-        created_at = #{createdAt,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updatedAt != null">
-        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      <if test="verification_code != null">
+        verification_code = #{verification_code,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
+
   <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.User">
     update users
     set username = #{username,jdbcType=VARCHAR},
-    email = #{email,jdbcType=VARCHAR},
-    phone = #{phone,jdbcType=VARCHAR},
-    password_hash = #{passwordHash,jdbcType=VARCHAR},
-    verification_code = #{verificationCode,jdbcType=VARCHAR},
-    is_verified = #{isVerified,jdbcType=BIT},
-    reset_token = #{resetToken,jdbcType=VARCHAR},
-    reset_token_expiration = #{resetTokenExpiration,jdbcType=TIMESTAMP},
-    created_at = #{createdAt,jdbcType=TIMESTAMP},
-    updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+        email = #{email,jdbcType=VARCHAR},
+        phone = #{phone,jdbcType=VARCHAR},
+        password = #{password,jdbcType=VARCHAR},
+        verification_code = #{verification_code,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 根据ID查询用户 -->
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from users
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <!-- 根据邮箱或手机号查询用户 -->
+  <!-- 根据邮箱或手机号查询用户 -->
+  <select id="selectByEmailOrPhone" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from users
+    where email = #{email} OR phone = #{phone}
+  </select>
+
+  <!-- 根据手机号查询用户 -->
+  <select id="selectByPhone" parameterType="string" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from users
+    where phone = #{phone}
+  </select>
+
+  <!-- 根据邮箱查询用户 -->
+  <select id="selectByEmail" parameterType="string" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from users
+    where email = #{email}
+  </select>
+
+  <!-- 更新密码 -->
+  <update id="updatePassword">
+    update users
+    set password = #{password}
+    where id = #{id}
+  </update>
+
+  <!-- 插入新用户 -->
+  <insert id="insertUser" parameterType="cn.edu.ujn.Forum.dao.User" useGeneratedKeys="true" keyProperty="id">
+    insert into users (
+      username, email, phone, password, verification_code
+    ) VALUES (
+               #{username}, #{email}, #{phone}, #{password}, #{verification_code}
+             )
+  </insert>
+
+  <!-- 更新密码重置令牌 -->
+  <update id="updateResetToken">
+    update users
+    set reset_token = #{resetToken},
+        reset_token_expiration = #{resetTokenExpiration}
+    where id = #{id}
   </update>
 </mapper>

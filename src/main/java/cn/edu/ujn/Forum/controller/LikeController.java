@@ -42,16 +42,25 @@ public class LikeController {
 
             Integer userId = user.getId();
 
+            // 先检查是否已经点赞
+            boolean hasLiked = likeService.hasUserLikedPost(userId, postId);
+            if (hasLiked) {
+                response.put("code", 400);
+                response.put("message", "您已经点赞过该帖子");
+                return response;
+            }
+
             boolean result = likeService.likePost(userId, postId);
             if (result) {
                 response.put("code", 200);
                 response.put("message", "点赞成功");
-                response.put("likeCount", likeService.getLikeCountByPostId(postId)); // 返回最新点赞数量
+                response.put("likeCount", likeService.getLikeCountByPostId(postId));
             } else {
                 response.put("code", 400);
-                response.put("message", "点赞失败或已点赞");
+                response.put("message", "点赞失败");
             }
         } catch (Exception e) {
+            e.printStackTrace(); // 添加详细的错误日志
             response.put("code", 500);
             response.put("message", "点赞操作异常：" + e.getMessage());
         }

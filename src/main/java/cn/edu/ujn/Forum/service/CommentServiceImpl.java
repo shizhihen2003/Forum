@@ -2,7 +2,10 @@ package cn.edu.ujn.Forum.service;
 
 import cn.edu.ujn.Forum.dao.Comment;
 import cn.edu.ujn.Forum.dao.CommentMapper;
+import cn.edu.ujn.Forum.dao.Post;
 import cn.edu.ujn.Forum.dao.PostMapper;
+import cn.edu.ujn.Forum.dao.User;
+import cn.edu.ujn.Forum.dao.UserMapper;
 import cn.edu.ujn.Forum.util.CommentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,15 @@ public class CommentServiceImpl implements ICommentService {
     @Autowired
     private PostMapper postMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private INotificationService notificationService;
+
+    @Autowired
+    private IPostService postService;
+
     @Override
     @Transactional
     public Comment createComment(CommentDTO commentDTO) {
@@ -30,7 +42,11 @@ public class CommentServiceImpl implements ICommentService {
         if(commentDTO.getContent() == null || commentDTO.getContent().trim().isEmpty()) {
             throw new IllegalArgumentException("评论内容不能为空");
         }
+        if(commentDTO.getContent().length() > 1000) {
+            throw new IllegalArgumentException("评论内容不能超过1000字符");
+        }
 
+        // 创建评论对象
         Comment comment = new Comment();
         comment.setPostId(commentDTO.getPostId());
         comment.setContent(commentDTO.getContent());
@@ -39,12 +55,40 @@ public class CommentServiceImpl implements ICommentService {
         comment.setLikeCount(0);
         comment.setStatus(1);  // 默认状态为已发布
         comment.setCreateTime(new Date());
+        comment.setUpdateTime(new Date());
 
         // 插入评论
         commentMapper.insert(comment);
 
         // 更新帖子评论数
         postMapper.updateCommentCount(commentDTO.getPostId(), 1);
+
+        // 发送通知
+        User commenter = userMapper.selectByPrimaryKey(getCurrentUserId().intValue());
+        Post post = postService.getPostDetail(commentDTO.getPostId());
+
+        if (comment.getParentId() == null) {
+            // 如果是评论帖子
+            if (!getCurrentUserId().equals(post.getUserId())) { // 不给自己发通知
+                notificationService.createCommentNotification(
+                        post.getUserId().intValue(),
+                        commenter.getUsername(),
+                        post.getTitle(),
+                        post.getId()
+                );
+            }
+        } else {
+            // 如果是回复评论
+            Comment parentComment = commentMapper.selectById(comment.getParentId());
+            if (parentComment != null && !getCurrentUserId().equals(parentComment.getUserId())) {
+                notificationService.createReplyNotification(
+                        parentComment.getUserId().intValue(),
+                        commenter.getUsername(),
+                        post.getTitle(),
+                        post.getId()
+                );
+            }
+        }
 
         return comment;
     }

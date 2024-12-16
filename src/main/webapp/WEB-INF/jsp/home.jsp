@@ -213,6 +213,20 @@
                     </div>
                 </div>
 
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-bell"></i> 消息通知
+                            <span id="unreadNotificationCount" class="badge badge-danger" style="display: none;">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <a href="${pageContext.request.contextPath}/notifications" class="btn btn-primary">
+                            查看所有通知
+                        </a>
+                    </div>
+                </div>
+
                 <div style="text-align: center; margin-top: 30px;">
                     <button class="edit-button" onclick="editProfile()">编辑资料</button>
                     退出登录

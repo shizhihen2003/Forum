@@ -1,7 +1,5 @@
 package cn.edu.ujn.Forum.dao;
 
-import cn.edu.ujn.Forum.dao.User;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 
 public interface UserMapper {
@@ -18,22 +16,22 @@ public interface UserMapper {
     int updateByPrimaryKey(User row);
 
     // 根据邮箱或手机号查询用户（用于登录）
-    User selectByEmailOrPhone(String emailOrPhone);
+    User selectByEmailOrPhone(@Param("email") String email, @Param("phone") String phone);
 
-    // 根据手机号查询用户（用于验证手机号）
+    // 根据手机号查询用户
     User selectByPhone(String phone);
 
     // 根据邮箱查询用户
     User selectByEmail(String email);
 
     // 更新密码
-    int updatePassword(Integer id, String passwordHash);
+    int updatePassword(@Param("id") Integer id, @Param("password") String password);
 
-    // 插入新用户
-    @Insert("INSERT INTO users (username, email, phone, password, verification_code) VALUES (#{username}, #{email}, #{phone}, #{password}, #{verification_code})")
+    // 移除@Insert注解，因为已经在XML中定义了
     void insertUser(User user);
 
     // 更新密码重置令牌
-    int updateResetToken(Integer id, String resetToken, String resetTokenExpiration);
-    User selectByEmailOrPhone(@Param("email") String email, @Param("phone") String phone);
+    int updateResetToken(@Param("id") Integer id,
+                         @Param("resetToken") String resetToken,
+                         @Param("resetTokenExpiration") String resetTokenExpiration);
 }
