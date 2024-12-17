@@ -181,9 +181,18 @@
           <i class="bi bi-heart"></i> 点赞
         </button>
 
-        <button class="btn btn-info ml-2" data-toggle="modal" data-target="#reportModal">
-          <i class="bi bi-star"></i> 举报
-        </button>
+           <!-- 举报按钮仅对登录用户可见 -->
+            <c:if test="${not empty sessionScope.loggedInUser}">
+                <button class="btn btn-info ml-2" data-toggle="modal" data-target="#reportModal">
+                    <i class="bi bi-flag-fill"></i> 举报
+                </button>
+            </c:if>
+
+            <c:if test="${empty sessionScope.loggedInUser}">
+                <button class="btn btn-info ml-2" onclick="promptLoginToReport()">
+                    <i class="bi bi-flag-fill"></i> 举报
+                </button>
+            </c:if>
 
         <button class="btn btn-success ml-2" onclick="showCommentForm()">
           <i class="bi bi-chat"></i> 评论
@@ -318,27 +327,28 @@
 </div>
 
 <!-- 举报模态框 -->
-<div class="modal fade" id="reportModal">
-    <div class="modal-dialog">
+<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">举报帖子</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="关闭">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <form id="reportForm">
-                    <input type="hidden" id="postId" value="${post.id}">
+                    <input type="hidden" id="postId" name="postId" value="${post.id}">
                     <div class="form-group">
                         <label for="reportType">举报类型</label>
-                        <select id="reportType" class="form-control">
-                            <!-- 举报类型通过js动态加载 -->
+                        <select id="reportType" class="form-control" name="reportTypeId" required>
+                            <option value="" disabled selected>请选择举报类型</option>
+                            <!-- 举报类型通过 JavaScript 动态加载 -->
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="reportContent">举报内容</label>
-                        <textarea id="reportContent" class="form-control" rows="3" placeholder="请描述举报原因"></textarea>
+                        <textarea id="reportContent" class="form-control" rows="3" placeholder="请描述举报原因" name="content" required minlength="5" maxlength="500"></textarea>
                     </div>
                     <button type="button" class="btn btn-primary" onclick="submitReport()">提交举报</button>
                 </form>
@@ -545,55 +555,79 @@
     });
   }
 
-  // 加载举报类型
-  function loadReportTypes() {
-    $.get("${pageContext.request.contextPath}/reports/types", function (res) {
-      if (res.code === 200) {
-        const reportTypeSelect = $('#reportType');
-        res.data.forEach(function (type) {
-          reportTypeSelect.append('<option value="' + type + '">' + type + '</option>');
-        });
-      } else {
-        alert(res.message || '举报类型加载失败');
+  function promptLoginToReport() {
+      // 使用confirm询问用户是否跳转到登录页面
+      if (confirm('请先登录再举报，点击确定进入登录页面')) {
+          // 确认后跳转到登录页面
+          window.location.href = '${pageContext.request.contextPath}/login';
       }
-    }).fail(function () {
-      alert('举报类型加载失败，请稍后重试');
-    });
   }
 
-  // 提交举报
-  function submitReport() {
-      const postId = ${post.id};
-      const reportType = $('#reportType').val();
-      const reportContent = $('#reportContent').val();
 
-      if (!reportType || !reportContent) {
-          alert('举报类型和内容不能为空！');
-          return;
-      }
-
-      $.ajax({
-          url: '${pageContext.request.contextPath}/reports',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify({
-              postId: postId,
-              type: reportType,
-              content: reportContent
-          }),
-          success: function (res) {
-              if(res.code === 200) {
-                  alert('举报提交成功！');
-                  $('#reportModal').modal('hide');
-              } else {
-                  alert('举报提交失败，请稍后重试');
+   /**
+       * 加载举报类型并填充到下拉菜单中
+       */
+      function loadReportTypes() {
+          $.ajax({
+              url: '${pageContext.request.contextPath}/reports/types',
+              type: 'GET',
+              success: function(res) {
+                  if(res.code === 200) {
+                      const reportTypeSelect = $('#reportType');
+                      res.data.forEach(function(type) {
+                          reportTypeSelect.append('<option value="' + type.id + '">' + type.typeName + '</option>');
+                      });
+                  } else {
+                      alert('举报类型加载失败，请稍后重试。');
+                  }
+              },
+              error: function() {
+                  alert('举报类型加载失败，请稍后重试。');
               }
-          },
-          error: function () {
-              alert('举报提交失败，请稍后重试');
-          }
-      });
-  }
+          });
+      }
+
+      /**
+         * 提交举报
+         */
+       function submitReport() {
+           const postId = $('#postId').val();
+           const reportType = $('#reportType').val();
+           const reportContent = $('#reportContent').val();
+
+           if (!reportType || !reportContent) {
+               alert('举报类型和内容不能为空！');
+               return;
+           }
+
+           $.ajax({
+               url: '${pageContext.request.contextPath}/reports/report',
+               type: 'POST',
+               data: {
+                   postId: postId,
+                   reportTypeId: reportType,
+                   content: reportContent
+               },
+               success: function (res) {
+                   if(res.code === 200) {
+                       alert('举报提交成功！');
+                       $('#reportModal').modal('hide');
+                       $('#reportForm')[0].reset();
+                   } else if(res.code === 401) {
+                       // 用户未登录
+                       // 提示用户，然后跳转登录页面
+                       if(confirm('请先登录再举报，点击确定进入登录页面')) {
+                           window.location.href = '${pageContext.request.contextPath}/login.jsp';
+                       }
+                   } else {
+                       alert(res.message || '举报提交失败，请稍后重试');
+                   }
+               },
+               error: function () {
+                   alert('举报提交失败，请稍后重试');
+               }
+           });
+       }
 
   // 提交评论
   function submitComment() {

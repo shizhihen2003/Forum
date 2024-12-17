@@ -1,51 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.ujn.Forum.dao.ReportMapper">
+
   <resultMap id="BaseResultMap" type="cn.edu.ujn.Forum.dao.Report">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="post_id" jdbcType="INTEGER" property="postId" />
     <result column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="report_type_id" jdbcType="INTEGER" property="reportTypeId" />
     <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="status" jdbcType="CHAR" property="status" />
     <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
+
   <sql id="Base_Column_List">
-    id, post_id, user_id, report_type_id, description, status, created_at, updated_at
+    id, post_id, user_id, report_type_id, description, created_at, updated_at
   </sql>
+
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select
+    SELECT
     <include refid="Base_Column_List" />
-    from reports
-    where id = #{id,jdbcType=INTEGER}
+    FROM reports
+    WHERE id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectAll" resultType="cn.edu.ujn.Forum.dao.Report">
+
+  <select id="selectAll" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List" />
-    FROM reports;
+    FROM reports
   </select>
+
   <select id="selectAllPaged" parameterType="map" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List" />
     FROM reports
-    LIMIT #{offset}, #{limit};
+    LIMIT #{offset}, #{limit}
   </select>
+
   <select id="countReports" resultType="int">
-    SELECT COUNT(*) FROM reports;
+    SELECT COUNT(*) FROM reports
   </select>
+
+  <select id="getReportsByUserId" parameterType="int" resultType="cn.edu.ujn.Forum.dao.Report">
+    SELECT
+    id,
+    post_id AS postId,
+    user_id AS userId,
+    report_type_id AS reportTypeId,
+    description,
+    created_at AS createdAt,
+    updated_at AS updatedAt
+    FROM reports
+    WHERE user_id = #{userId}
+  </select>
+
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from reports
-    where id = #{id,jdbcType=INTEGER}
+    DELETE FROM reports
+    WHERE id = #{id,jdbcType=INTEGER}
   </delete>
+
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.Report">
-    insert into reports (id, post_id, user_id,
-    report_type_id, description, status,
+    INSERT INTO reports (id, post_id, user_id,
+    report_type_id, description,
     created_at, updated_at)
-    values (#{id,jdbcType=INTEGER}, #{postId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
-    #{reportTypeId,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=CHAR},
+    VALUES (#{id,jdbcType=INTEGER}, #{postId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+    #{reportTypeId,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR},
     #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
+
   <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.Report">
-    insert into reports
+    INSERT INTO reports
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -62,9 +85,6 @@
       <if test="description != null">
         description,
       </if>
-      <if test="status != null">
-        status,
-      </if>
       <if test="createdAt != null">
         created_at,
       </if>
@@ -72,7 +92,7 @@
         updated_at,
       </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
+    <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=INTEGER},
       </if>
@@ -88,9 +108,6 @@
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=CHAR},
-      </if>
       <if test="createdAt != null">
         #{createdAt,jdbcType=TIMESTAMP},
       </if>
@@ -99,8 +116,9 @@
       </if>
     </trim>
   </insert>
+
   <update id="updateByPrimaryKeySelective" parameterType="cn.edu.ujn.Forum.dao.Report">
-    update reports
+    UPDATE reports
     <set>
       <if test="postId != null">
         post_id = #{postId,jdbcType=INTEGER},
@@ -114,9 +132,6 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        status = #{status,jdbcType=CHAR},
-      </if>
       <if test="createdAt != null">
         created_at = #{createdAt,jdbcType=TIMESTAMP},
       </if>
@@ -124,17 +139,17 @@
         updated_at = #{updatedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    WHERE id = #{id,jdbcType=INTEGER}
   </update>
+
   <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.Report">
-    update reports
-    set post_id = #{postId,jdbcType=INTEGER},
+    UPDATE reports
+    SET post_id = #{postId,jdbcType=INTEGER},
     user_id = #{userId,jdbcType=INTEGER},
     report_type_id = #{reportTypeId,jdbcType=INTEGER},
     description = #{description,jdbcType=VARCHAR},
-    status = #{status,jdbcType=CHAR},
     created_at = #{createdAt,jdbcType=TIMESTAMP},
     updated_at = #{updatedAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=INTEGER}
+    WHERE id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

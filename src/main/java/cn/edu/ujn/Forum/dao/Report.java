@@ -4,19 +4,11 @@ import java.util.Date;
 
 public class Report {
     private Integer id;
-
     private Integer postId;
-
     private Integer userId;
-
     private Integer reportTypeId;
-
     private String description;
-
-    private String status;
-
     private Date createdAt;
-
     private Date updatedAt;
 
     public Integer getId() {
@@ -59,14 +51,6 @@ public class Report {
         this.description = description == null ? null : description.trim();
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status == null ? null : status.trim();
-    }
-
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -91,7 +75,6 @@ public class Report {
                 ", userId=" + userId +
                 ", reportTypeId=" + reportTypeId +
                 ", description='" + description + '\'' +
-                ", status='" + status + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';

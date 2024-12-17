@@ -181,6 +181,7 @@
           <c:when test="${not empty sessionScope.loggedInUser}">
             欢迎, ${sessionScope.loggedInUser.username}
             <a href="${pageContext.request.contextPath}/home" class="ml-2">个人中心</a>
+            <a href="${pageContext.request.contextPath}/reports/myReports" class="ml-2">我的举报</a>
             <a href="${pageContext.request.contextPath}/logout" class="ml-2">退出</a>
           </c:when>
           <c:otherwise>
