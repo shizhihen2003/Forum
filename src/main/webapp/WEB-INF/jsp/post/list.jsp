@@ -6,6 +6,7 @@
 <head>
   <title>论坛首页</title>
   <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body {
       background-color: #f5f5f5;
@@ -192,6 +193,7 @@
     </div>
   </div>
 </div>
+
 <div class="container">
   <!-- 分类导航 -->
   <div class="category-box">
@@ -240,8 +242,28 @@
               </c:if>
             </div>
             <div class="post-meta">
-              <span><i class="bi bi-person stat-icon"></i>${post.authorName}</span>
-              <span class="ml-3"><i class="bi bi-folder stat-icon"></i>${post.categoryName}</span>
+              <span>
+                <i class="bi bi-person stat-icon"></i>
+                <c:choose>
+                  <c:when test="${not empty post.author}">
+                    ${post.author.username}
+                  </c:when>
+                  <c:otherwise>
+                    匿名用户
+                  </c:otherwise>
+                </c:choose>
+              </span>
+              <span class="ml-3">
+                <i class="bi bi-folder stat-icon"></i>
+                <c:choose>
+                  <c:when test="${not empty post.category}">
+                    ${post.category.name}
+                  </c:when>
+                  <c:otherwise>
+                    未分类
+                  </c:otherwise>
+                </c:choose>
+              </span>
               <span class="ml-3">
                 <i class="bi bi-clock stat-icon"></i>
                 <fmt:formatDate value="${post.createTime}" pattern="yyyy-MM-dd HH:mm"/>
@@ -285,8 +307,24 @@
           <c:forEach items="${hotPosts}" var="post">
             <a href="${pageContext.request.contextPath}/post/detail/${post.id}"
                class="list-group-item list-group-item-action">
-                ${post.title}
-              <span class="badge badge-light float-right">${post.viewCount}</span>
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-truncate mr-2">${post.title}</span>
+                <span class="badge badge-light">
+                  <i class="bi bi-eye stat-icon"></i>${post.viewCount}
+                </span>
+              </div>
+              <small class="text-muted">
+                <c:choose>
+                  <c:when test="${not empty post.author}">
+                    ${post.author.username}
+                  </c:when>
+                  <c:otherwise>
+                    匿名用户
+                  </c:otherwise>
+                </c:choose>
+                ·
+                <fmt:formatDate value="${post.createTime}" pattern="MM-dd"/>
+              </small>
             </a>
           </c:forEach>
         </div>
@@ -303,16 +341,12 @@
 
   // 页面加载时的初始化
   $(document).ready(function() {
-    // 获取URL参数
     const urlParams = new URLSearchParams(window.location.search);
     currentKeyword = urlParams.get('keyword') || '';
     currentCategoryId = urlParams.get('categoryId') || null;
     currentPage = parseInt(urlParams.get('page')) || 1;
 
-    // 设置搜索框的初始值
     $('#searchInput').val(currentKeyword);
-
-    // 初始加载帖子
     loadPosts(currentCategoryId, currentPage, currentKeyword);
   });
 
@@ -321,7 +355,6 @@
     currentPage = page;
     currentKeyword = keyword;
 
-    // 更新分类样式
     $('.category-item').removeClass('active');
     if (categoryId === null) {
       $('.category-item[data-id=""]').addClass('active');
@@ -329,7 +362,6 @@
       $('.category-item[data-id="' + categoryId + '"]').addClass('active');
     }
 
-    // 更新URL，但不重新加载页面
     const newUrl = updateURLParameter(window.location.href, {
       categoryId: categoryId || '',
       page: page,
@@ -337,7 +369,6 @@
     });
     window.history.pushState({}, '', newUrl);
 
-    // 发起Ajax请求
     $.ajax({
       url: '${pageContext.request.contextPath}/post/list',
       type: 'GET',
@@ -369,7 +400,6 @@
       const createTime = new Date(post.createTime);
       const formattedDate = formatDate(createTime);
 
-      // 修改这里，去掉模板字符串，使用字符串连接
       const postHtml =
               '<div class="post-card">' +
               '<div class="post-title">' +
@@ -378,8 +408,10 @@
               (post.isEssence === 1 ? '<span class="badge badge-essence">精华</span>' : '') +
               '</div>' +
               '<div class="post-meta">' +
-              '<span><i class="bi bi-person stat-icon"></i>' + (post.authorName || '匿名用户') + '</span>' +
-              '<span class="ml-3"><i class="bi bi-folder stat-icon"></i>' + (post.categoryName || '未分类') + '</span>' +
+              '<span><i class="bi bi-person stat-icon"></i>' +
+              (post.author ? post.author.username : '匿名用户') + '</span>' +
+              '<span class="ml-3"><i class="bi bi-folder stat-icon"></i>' +
+              (post.category ? post.category.name : '未分类') + '</span>' +
               '<span class="ml-3"><i class="bi bi-clock stat-icon"></i>' + formattedDate + '</span>' +
               '</div>' +
               '<div class="post-summary">' + (post.summary || '暂无简介') + '</div>' +
@@ -404,7 +436,6 @@
 
     let html = '<nav aria-label="Page navigation"><ul class="pagination">';
 
-    // 上一页
     if (pageData.current > 1) {
       html += '<li class="page-item">' +
               '<a class="page-link" href="javascript:void(0)" onclick="loadPosts(currentCategoryId, ' +
@@ -412,7 +443,6 @@
               '</li>';
     }
 
-    // 页码
     for (let i = 1; i <= pageData.pages; i++) {
       html += '<li class="page-item ' + (i === pageData.current ? 'active' : '') + '">' +
               '<a class="page-link" href="javascript:void(0)" onclick="loadPosts(currentCategoryId, ' +
@@ -420,7 +450,6 @@
               '</li>';
     }
 
-    // 下一页
     if (pageData.current < pageData.pages) {
       html += '<li class="page-item">' +
               '<a class="page-link" href="javascript:void(0)" onclick="loadPosts(currentCategoryId, ' +
@@ -432,7 +461,6 @@
     container.html(html);
   }
 
-  // 处理搜索表单提交
   function handleSearch(event) {
     event.preventDefault();
     const keyword = $('#searchInput').val().trim();
@@ -440,7 +468,6 @@
     return false;
   }
 
-  // 更新URL参数的辅助函数
   function updateURLParameter(url, params) {
     const urlObj = new URL(url);
     Object.keys(params).forEach(key => {
@@ -453,14 +480,20 @@
     return urlObj.toString();
   }
 
-  // 格式化日期的辅助函数
   function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
+    if (!date) return '--';
+    try {
+      date = new Date(date);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes;
+    } catch (e) {
+      console.error('Date formatting error:', e);
+      return '--';
+    }
   }
 </script>
 </body>

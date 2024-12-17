@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.edu.ujn.Forum.dao.PostMapper">
-  <!-- 基础字段映射 -->
+  <!-- 基础帖子映射 -->
   <resultMap id="BaseResultMap" type="cn.edu.ujn.Forum.dao.Post">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="category_id" jdbcType="BIGINT" property="categoryId" />
@@ -16,49 +16,71 @@
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-  </resultMap>
-
-  <!-- 带BLOB字段的结果映射 -->
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.edu.ujn.Forum.dao.Post">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
   </resultMap>
 
-  <!-- 带用户信息的结果映射 -->
-  <resultMap extends="ResultMapWithBLOBs" id="ResultMapWithUser" type="cn.edu.ujn.Forum.dao.Post">
-    <result column="author_name" property="authorName" />
-    <result column="author_avatar" property="authorAvatar" />
-    <result column="category_name" property="categoryName" />
+  <!-- 带作者和分类的帖子映射 -->
+  <resultMap id="PostWithAuthorMap" type="cn.edu.ujn.Forum.dao.Post" extends="BaseResultMap">
+    <!-- 作者信息,包含profile关联 -->
+    <association property="author" javaType="cn.edu.ujn.Forum.dao.User">
+      <id column="user_id" property="id"/>
+      <result column="username" property="username"/>
+      <result column="email" property="email"/>
+      <result column="phone" property="phone"/>
+      <!-- Profile关联 -->
+      <association property="profile" javaType="cn.edu.ujn.Forum.dao.UserProfile">
+        <id column="user_id" property="userId"/>
+        <result column="avatar" property="avatar"/>
+        <result column="nickname" property="nickname"/>
+        <result column="bio" property="bio"/>
+        <result column="location" property="location"/>
+        <result column="birthday" property="birthday"/>
+        <result column="gender" property="gender"/>
+      </association>
+    </association>
+
+    <!-- 分类关联 -->
+    <association property="category" javaType="cn.edu.ujn.Forum.dao.Category">
+      <id column="category_id" property="id"/>
+      <result column="category_name" property="name"/>
+      <result column="category_description" property="description"/>
+    </association>
   </resultMap>
 
   <!-- 基础列 -->
   <sql id="Base_Column_List">
-    id, category_id, user_id, title, summary, view_count, like_count, comment_count,
-    is_top, is_essence, status, create_time, update_time
+    p.id, p.category_id, p.user_id, p.title, p.summary, p.view_count,
+        p.like_count, p.comment_count, p.is_top, p.is_essence, p.status,
+        p.create_time, p.update_time, p.content
   </sql>
 
-  <!-- BLOB列 -->
-  <sql id="Blob_Column_List">
-    content
+  <!-- SQL查询语句更新,包含所有需要的字段 -->
+  <sql id="With_Association_Column_List">
+    p.id, p.category_id, p.user_id, p.title, p.summary, p.view_count,
+    p.like_count, p.comment_count, p.is_top, p.is_essence, p.status,
+    p.create_time, p.update_time, p.content,
+    u.username, u.email, u.phone,
+    up.avatar, up.nickname, up.bio, up.location, up.birthday, up.gender,
+    c.name as category_name, c.description as category_description
   </sql>
-
-  <!-- 查询基础列 -->
-  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
-    select
-    <include refid="Base_Column_List" />,
-    <include refid="Blob_Column_List" />
-    from post
-    where id = #{id,jdbcType=BIGINT}
-  </select>
-
-  <!-- 查询列表（带用户信息） -->
-  <select id="selectList" parameterType="cn.edu.ujn.Forum.util.PostQuery" resultMap="BaseResultMap">
+  <!-- 根据ID查询帖子 -->
+  <select id="selectById" parameterType="java.lang.Long" resultMap="PostWithAuthorMap">
     SELECT
-    p.*,
-    u.username as author_name,
-    u.avatar as author_avatar,
-    c.name as category_name
+    <include refid="With_Association_Column_List" />
     FROM post p
     LEFT JOIN user u ON p.user_id = u.id
+    LEFT JOIN user_profile up ON u.id = up.user_id
+    LEFT JOIN category c ON p.category_id = c.id
+    WHERE p.id = #{id}
+  </select>
+
+  <!-- 查询帖子列表 -->
+  <select id="selectList" parameterType="cn.edu.ujn.Forum.util.PostQuery" resultMap="PostWithAuthorMap">
+    SELECT
+    <include refid="With_Association_Column_List" />
+    FROM post p
+    LEFT JOIN user u ON p.user_id = u.id
+    LEFT JOIN user_profile up ON u.id = up.user_id
     LEFT JOIN category c ON p.category_id = c.id
     <where>
       p.status != 3
@@ -91,7 +113,8 @@
       LIMIT #{offset}, #{limit}
     </if>
   </select>
-  <!-- 统计总数 -->
+
+  <!-- 统计帖子总数 -->
   <select id="countList" parameterType="cn.edu.ujn.Forum.util.PostQuery" resultType="java.lang.Integer">
     SELECT COUNT(*)
     FROM post p
@@ -106,9 +129,6 @@
       <if test="status != null">
         AND p.status = #{status}
       </if>
-      <if test="excludeId != null">
-        AND p.id != #{excludeId}
-      </if>
       <if test="keyword != null and keyword != ''">
         AND (p.title LIKE CONCAT('%',#{keyword},'%')
         OR p.content LIKE CONCAT('%',#{keyword},'%'))
@@ -117,291 +137,126 @@
   </select>
 
   <!-- 查询热门帖子 -->
-  <select id="selectHotPosts" resultMap="ResultMapWithUser">
+  <select id="selectHotPosts" resultMap="PostWithAuthorMap">
     SELECT
-      p.*,
-      u.username as author_name,
-      u.avatar as author_avatar,
-      c.name as category_name
+    <include refid="With_Association_Column_List" />
     FROM post p
-           LEFT JOIN user u ON p.user_id = u.id
-           LEFT JOIN category c ON p.category_id = c.id
+    LEFT JOIN user u ON p.user_id = u.id
+    LEFT JOIN user_profile up ON u.id = up.user_id
+    LEFT JOIN category c ON p.category_id = c.id
     WHERE p.status = 1
     ORDER BY p.view_count DESC, p.like_count DESC, p.comment_count DESC
-      LIMIT #{limit}
-  </select>
-
-  <!-- 根据ID查询帖子详情 -->
-  <select id="selectById" parameterType="java.lang.Long" resultMap="ResultMapWithUser">
-    SELECT
-      p.*,
-      u.username as author_name,
-      u.avatar as author_avatar,
-      c.name as category_name
-    FROM post p
-           LEFT JOIN user u ON p.user_id = u.id
-           LEFT JOIN category c ON p.category_id = c.id
-    WHERE p.id = #{id}
+    LIMIT #{limit}
   </select>
 
   <!-- 查询相关帖子 -->
-  <select id="selectRelatedPosts" resultMap="ResultMapWithUser">
+  <select id="selectRelatedPosts" resultMap="BaseResultMap">
     SELECT
-      p.*,
-      u.username as author_name,
-      u.avatar as author_avatar,
-      c.name as category_name
+    <include refid="With_Association_Column_List" />
     FROM post p
-           LEFT JOIN user u ON p.user_id = u.id
-           LEFT JOIN category c ON p.category_id = c.id
+    LEFT JOIN user u ON p.user_id = u.id
+    LEFT JOIN user_profile up ON u.id = up.user_id
+    LEFT JOIN category c ON p.category_id = c.id
     WHERE p.category_id = #{categoryId}
-      AND p.id != #{currentId}
-      AND p.status = 1
+    AND p.id != #{currentId}
+    AND p.status = 1
     ORDER BY p.create_time DESC, p.view_count DESC
-      LIMIT #{limit}
+    LIMIT #{limit}
   </select>
 
-  <!-- 删除帖子 -->
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from post
-    where id = #{id,jdbcType=BIGINT}
-  </delete>
-
-  <!-- 插入帖子（全字段） -->
+  <!-- 插入帖子 -->
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.Post" useGeneratedKeys="true" keyProperty="id">
-    insert into post (category_id, user_id,
-                      title, summary, view_count,
-                      like_count, comment_count, status,
-                      is_top, is_essence,
-                      create_time, update_time, content
+    INSERT INTO post (
+      category_id, user_id, title, summary, view_count,
+      like_count, comment_count, status, is_top, is_essence,
+      create_time, update_time, content
     )
-    values (#{categoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
-            #{title,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, #{viewCount,jdbcType=INTEGER},
-            #{likeCount,jdbcType=INTEGER}, #{commentCount,jdbcType=INTEGER}, #{status,jdbcType=TINYINT},
-            #{isTop,jdbcType=INTEGER}, #{isEssence,jdbcType=INTEGER},
-            #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{content,jdbcType=LONGVARCHAR}
+    VALUES (
+             #{categoryId}, #{userId}, #{title}, #{summary}, #{viewCount},
+             #{likeCount}, #{commentCount}, #{status}, #{isTop}, #{isEssence},
+             #{createTime}, #{updateTime}, #{content}
            )
   </insert>
 
-  <!-- 插入帖子（动态字段） -->
-  <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.Post">
-    insert into post
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="categoryId != null">
-        category_id,
-      </if>
-      <if test="userId != null">
-        user_id,
-      </if>
-      <if test="title != null">
-        title,
-      </if>
-      <if test="summary != null">
-        summary,
-      </if>
-      <if test="viewCount != null">
-        view_count,
-      </if>
-      <if test="likeCount != null">
-        like_count,
-      </if>
-      <if test="commentCount != null">
-        comment_count,
-      </if>
-      <if test="isTop != null">
-        is_top,
-      </if>
-      <if test="isEssence != null">
-        is_essence,
-      </if>
-      <if test="status != null">
-        status,
-      </if>
-      <if test="createTime != null">
-        create_time,
-      </if>
-      <if test="updateTime != null">
-        update_time,
-      </if>
-      <if test="content != null">
-        content,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
-      <if test="categoryId != null">
-        #{categoryId,jdbcType=BIGINT},
-      </if>
-      <if test="userId != null">
-        #{userId,jdbcType=BIGINT},
-      </if>
-      <if test="title != null">
-        #{title,jdbcType=VARCHAR},
-      </if>
-      <if test="summary != null">
-        #{summary,jdbcType=VARCHAR},
-      </if>
-      <if test="viewCount != null">
-        #{viewCount,jdbcType=INTEGER},
-      </if>
-      <if test="likeCount != null">
-        #{likeCount,jdbcType=INTEGER},
-      </if>
-      <if test="commentCount != null">
-        #{commentCount,jdbcType=INTEGER},
-      </if>
-      <if test="isTop != null">
-        #{isTop,jdbcType=INTEGER},
-      </if>
-      <if test="isEssence != null">
-        #{isEssence,jdbcType=INTEGER},
-      </if>
-      <if test="status != null">
-        #{status,jdbcType=TINYINT},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="content != null">
-        #{content,jdbcType=LONGVARCHAR},
-      </if>
-    </trim>
-  </insert>
-
-  <!-- 更新帖子（动态字段） -->
-  <update id="updateByPrimaryKeySelective" parameterType="cn.edu.ujn.Forum.dao.Post">
-    update post
+  <!-- 更新帖子 -->
+  <update id="update" parameterType="cn.edu.ujn.Forum.dao.Post">
+    UPDATE post
     <set>
-      <if test="categoryId != null">
-        category_id = #{categoryId,jdbcType=BIGINT},
-      </if>
-      <if test="userId != null">
-        user_id = #{userId,jdbcType=BIGINT},
-      </if>
-      <if test="title != null">
-        title = #{title,jdbcType=VARCHAR},
-      </if>
-      <if test="summary != null">
-        summary = #{summary,jdbcType=VARCHAR},
-      </if>
-      <if test="viewCount != null">
-        view_count = #{viewCount,jdbcType=INTEGER},
-      </if>
-      <if test="likeCount != null">
-        like_count = #{likeCount,jdbcType=INTEGER},
-      </if>
-      <if test="commentCount != null">
-        comment_count = #{commentCount,jdbcType=INTEGER},
-      </if>
-      <if test="isTop != null">
-        is_top = #{isTop,jdbcType=INTEGER},
-      </if>
-      <if test="isEssence != null">
-        is_essence = #{isEssence,jdbcType=INTEGER},
-      </if>
-      <if test="status != null">
-        status = #{status,jdbcType=TINYINT},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="content != null">
-        content = #{content,jdbcType=LONGVARCHAR},
-      </if>
+      <if test="categoryId != null">category_id = #{categoryId},</if>
+      <if test="title != null">title = #{title},</if>
+      <if test="summary != null">summary = #{summary},</if>
+      <if test="content != null">content = #{content},</if>
+      <if test="status != null">status = #{status},</if>
+      <if test="isTop != null">is_top = #{isTop},</if>
+      <if test="isEssence != null">is_essence = #{isEssence},</if>
+      update_time = #{updateTime}
     </set>
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-
-  <!-- 更新帖子（带BLOB字段） -->
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.edu.ujn.Forum.dao.Post">
-    update post
-    set category_id = #{categoryId,jdbcType=BIGINT},
-        user_id = #{userId,jdbcType=BIGINT},
-        title = #{title,jdbcType=VARCHAR},
-        summary = #{summary,jdbcType=VARCHAR},
-        view_count = #{viewCount,jdbcType=INTEGER},
-        like_count = #{likeCount,jdbcType=INTEGER},
-        comment_count = #{commentCount,jdbcType=INTEGER},
-        is_top = #{isTop,jdbcType=INTEGER},
-        is_essence = #{isEssence,jdbcType=INTEGER},
-        status = #{status,jdbcType=TINYINT},
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-        content = #{content,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=BIGINT}
-  </update>
-
-  <!-- 更新帖子（不带BLOB字段） -->
-  <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.Post">
-    update post
-    set category_id = #{categoryId,jdbcType=BIGINT},
-        user_id = #{userId,jdbcType=BIGINT},
-        title = #{title,jdbcType=VARCHAR},
-        summary = #{summary,jdbcType=VARCHAR},
-        view_count = #{viewCount,jdbcType=INTEGER},
-        like_count = #{likeCount,jdbcType=INTEGER},
-        comment_count = #{commentCount,jdbcType=INTEGER},
-        is_top = #{isTop,jdbcType=INTEGER},
-        is_essence = #{isEssence,jdbcType=INTEGER},
-        status = #{status,jdbcType=TINYINT},
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-        update_time = #{updateTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=BIGINT}
+    WHERE id = #{id}
   </update>
 
   <!-- 更新帖子状态 -->
   <update id="updateStatus">
     UPDATE post
-    SET status = #{status,jdbcType=TINYINT},
-        update_time = NOW()
-    WHERE id = #{id,jdbcType=BIGINT}
+    SET status = #{status}, update_time = NOW()
+    WHERE id = #{id}
   </update>
 
   <!-- 增加浏览次数 -->
   <update id="increaseViewCount">
     UPDATE post
     SET view_count = view_count + 1
-    WHERE id = #{id,jdbcType=BIGINT}
+    WHERE id = #{id}
   </update>
 
   <!-- 更新点赞次数 -->
   <update id="updateLikeCount">
     UPDATE post
-    SET like_count = like_count + #{delta,jdbcType=INTEGER}
-    WHERE id = #{id,jdbcType=BIGINT}
+    SET like_count = like_count + #{delta}
+    WHERE id = #{id}
   </update>
 
   <!-- 更新评论次数 -->
   <update id="updateCommentCount">
     UPDATE post
-    SET comment_count = comment_count + #{delta,jdbcType=INTEGER}
-    WHERE id = #{id,jdbcType=BIGINT}
+    SET comment_count = comment_count + #{delta}
+    WHERE id = #{id}
   </update>
 
   <!-- 更新置顶状态 -->
   <update id="updateTopStatus">
     UPDATE post
-    SET is_top = #{isTop,jdbcType=INTEGER},
-        update_time = NOW()
-    WHERE id = #{id,jdbcType=BIGINT}
+    SET is_top = #{isTop}, update_time = NOW()
+    WHERE id = #{id}
   </update>
 
   <!-- 更新精华状态 -->
   <update id="updateEssenceStatus">
     UPDATE post
-    SET is_essence = #{isEssence,jdbcType=INTEGER},
-        update_time = NOW()
-    WHERE id = #{id,jdbcType=BIGINT}
+    SET is_essence = #{isEssence}, update_time = NOW()
+    WHERE id = #{id}
   </update>
+
+  <!-- 批量更新状态 -->
+  <update id="batchUpdateStatus">
+    UPDATE post
+    SET status = #{status}, update_time = NOW()
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </update>
+
+  <!-- 物理删除帖子 -->
+  <delete id="deleteById">
+    DELETE FROM post WHERE id = #{id}
+  </delete>
+
+  <!-- 批量删除帖子 -->
+  <delete id="batchDelete">
+    DELETE FROM post
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
 </mapper>

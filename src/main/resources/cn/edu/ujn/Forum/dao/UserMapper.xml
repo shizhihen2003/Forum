@@ -15,12 +15,12 @@
   </sql>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from users
+    delete from user
     where id = #{id,jdbcType=INTEGER}
   </delete>
 
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.User">
-    insert into users (id, username, email,
+    insert into user (id, username, email,
                        phone, password, verification_code
     )
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
@@ -29,7 +29,7 @@
   </insert>
 
   <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.User">
-    insert into users
+    insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -73,7 +73,7 @@
   </insert>
 
   <update id="updateByPrimaryKeySelective" parameterType="cn.edu.ujn.Forum.dao.User">
-    update users
+    update user
     <set>
       <if test="username != null">
         username = #{username,jdbcType=VARCHAR},
@@ -95,7 +95,7 @@
   </update>
 
   <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.User">
-    update users
+    update user
     set username = #{username,jdbcType=VARCHAR},
         email = #{email,jdbcType=VARCHAR},
         phone = #{phone,jdbcType=VARCHAR},
@@ -108,7 +108,7 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from users
+    from user
     where id = #{id,jdbcType=INTEGER}
   </select>
 
@@ -117,7 +117,7 @@
   <select id="selectByEmailOrPhone" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from users
+    from user
     where email = #{email} OR phone = #{phone}
   </select>
 
@@ -125,7 +125,7 @@
   <select id="selectByPhone" parameterType="string" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from users
+    from user
     where phone = #{phone}
   </select>
 
@@ -133,20 +133,20 @@
   <select id="selectByEmail" parameterType="string" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
-    from users
+    from user
     where email = #{email}
   </select>
 
   <!-- 更新密码 -->
   <update id="updatePassword">
-    update users
+    update user
     set password = #{password}
     where id = #{id}
   </update>
 
   <!-- 插入新用户 -->
   <insert id="insertUser" parameterType="cn.edu.ujn.Forum.dao.User" useGeneratedKeys="true" keyProperty="id">
-    insert into users (
+    insert into user (
       username, email, phone, password, verification_code
     ) VALUES (
                #{username}, #{email}, #{phone}, #{password}, #{verification_code}
@@ -155,7 +155,7 @@
 
   <!-- 更新密码重置令牌 -->
   <update id="updateResetToken">
-    update users
+    update user
     set reset_token = #{resetToken},
         reset_token_expiration = #{resetTokenExpiration}
     where id = #{id}

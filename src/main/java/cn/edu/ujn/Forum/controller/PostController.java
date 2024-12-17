@@ -3,6 +3,7 @@ package cn.edu.ujn.Forum.controller;
 import cn.edu.ujn.Forum.dao.Comment;
 import cn.edu.ujn.Forum.dao.Post;
 import cn.edu.ujn.Forum.dao.Category;
+import cn.edu.ujn.Forum.dao.User;
 import cn.edu.ujn.Forum.service.ICommentService;
 import cn.edu.ujn.Forum.service.IPostService;
 import cn.edu.ujn.Forum.service.ICategoryService;
@@ -10,6 +11,7 @@ import cn.edu.ujn.Forum.util.PageResult;
 import cn.edu.ujn.Forum.util.PostDTO;
 import cn.edu.ujn.Forum.util.PostQuery;
 import cn.edu.ujn.Forum.util.Result;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -89,11 +91,18 @@ public class PostController {
      */
     @PostMapping("/create")
     @ResponseBody
-    public Result<Post> createPost(@RequestBody PostDTO postDTO) {
+    public Result<Post> createPost(@RequestBody PostDTO postDTO, HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+        if (user == null) {
+            return Result.fail("请先登录后再发帖");
+        }
+
         try {
             Post post = postService.createPost(postDTO);
             return Result.success(post);
         } catch (IllegalArgumentException e) {
+            return Result.fail(e.getMessage());
+        } catch (IllegalStateException e) {
             return Result.fail(e.getMessage());
         } catch (Exception e) {
             return Result.fail("发布帖子失败");

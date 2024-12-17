@@ -148,6 +148,7 @@
     <div class="col-md-9">
       <!-- 帖子内容 -->
       <div class="post-container">
+        <!-- 帖子头部信息 -->
         <div class="post-header">
           <h1 class="post-title">
             ${post.title}
@@ -159,12 +160,12 @@
             </c:if>
           </h1>
           <div class="post-info">
-            <span><i class="bi bi-person"></i> ${post.authorName}</span>
-            <span class="ml-3"><i class="bi bi-folder"></i> ${post.categoryName}</span>
+            <span><i class="bi bi-person"></i> ${post.author.username}</span>
+            <span class="ml-3"><i class="bi bi-folder"></i> ${post.category.name}</span>
             <span class="ml-3">
-              <i class="bi bi-clock"></i>
-              <fmt:formatDate value="${post.createTime}" pattern="yyyy-MM-dd HH:mm"/>
-            </span>
+            <i class="bi bi-clock"></i>
+            <fmt:formatDate value="${post.createTime}" pattern="yyyy-MM-dd HH:mm"/>
+        </span>
             <span class="ml-3"><i class="bi bi-eye"></i> ${post.viewCount} 浏览</span>
             <span class="ml-3"><i class="bi bi-chat"></i> ${post.commentCount} 评论</span>
             <span class="ml-3"><i class="bi bi-heart"></i> <span id="likeCount">${post.likeCount}</span> 点赞</span>
@@ -211,10 +212,11 @@
           <button class="btn btn-primary mt-2" onclick="submitComment()">发表评论</button>
         </div>
 
-        <!-- 评论列表 -->
+        <!-- 评论列表部分 -->
         <div id="commentList">
           <c:forEach items="${comments}" var="comment">
             <div class="comment-item" id="comment-${comment.id}">
+              <!-- 评论用户信息 -->
               <div class="comment-user">
                 <img src="${comment.authorAvatar}" class="comment-avatar" alt="user avatar">
                 <div>
@@ -224,9 +226,13 @@
                   </small>
                 </div>
               </div>
-              <div id="comment-content-${comment.id}" class="comment-content markdown-body">
-                <textarea style="display:none;">${comment.content}</textarea>
+
+              <!-- 评论内容部分 -->
+              <div class="comment-content">
+                  ${comment.content}
               </div>
+
+              <!-- 评论操作按钮 -->
               <div class="comment-actions">
                 <a href="javascript:void(0)" onclick="likeComment(${comment.id})">
                   <i class="bi bi-heart"></i> 赞(${comment.likeCount})
@@ -235,36 +241,6 @@
                   <i class="bi bi-reply"></i> 回复
                 </a>
               </div>
-
-              <!-- 评论回复列表 -->
-              <c:if test="${not empty comment.children}">
-                <div class="comment-replies">
-                  <c:forEach items="${comment.children}" var="reply">
-                    <div class="comment-reply">
-                      <div class="comment-user">
-                        <img src="${reply.authorAvatar}" class="comment-avatar" alt="user avatar">
-                        <div>
-                          <span class="font-weight-bold">${reply.authorName}</span>
-                          <small class="text-muted ml-2">
-                            <fmt:formatDate value="${reply.createTime}" pattern="yyyy-MM-dd HH:mm"/>
-                          </small>
-                        </div>
-                      </div>
-                      <div id="comment-content-${reply.id}" class="comment-content markdown-body">
-                        <textarea style="display:none;">${reply.content}</textarea>
-                      </div>
-                      <div class="comment-actions">
-                        <a href="javascript:void(0)" onclick="likeComment(${reply.id})">
-                          <i class="bi bi-heart"></i> 赞(${reply.likeCount})
-                        </a>
-                        <a href="javascript:void(0)" onclick="replyComment(${reply.id})">
-                          <i class="bi bi-reply"></i> 回复
-                        </a>
-                      </div>
-                    </div>
-                  </c:forEach>
-                </div>
-              </c:if>
             </div>
           </c:forEach>
         </div>
@@ -273,16 +249,33 @@
 
     <!-- 侧边栏 -->
     <div class="col-md-3">
-      <!-- 作者信息 -->
+      <!-- 作者信息卡片 -->
+      <!-- 作者信息卡片 -->
       <div class="card mb-3">
         <div class="card-body text-center">
-          <img src="${post.authorAvatar}" class="rounded-circle mb-3" style="width: 80px; height: 80px;" alt="author avatar">
-          <h5 class="card-title">${post.authorName}</h5>
-          <button class="btn btn-outline-primary btn-sm" onclick="followAuthor()">
-            <i class="bi bi-plus"></i> 关注作者
-          </button>
+          <c:choose>
+            <c:when test="${not empty post.author.profile.avatar}">
+              <img src="${post.author.profile.avatar}" class="rounded-circle mb-3"
+                   style="width: 80px; height: 80px;" alt="author avatar">
+            </c:when>
+            <c:otherwise>
+              <img src="${pageContext.request.contextPath}/static/upload/avatars/default-avatar.jpg"
+                   class="rounded-circle mb-3" style="width: 80px; height: 80px;"
+                   alt="default avatar">
+            </c:otherwise>
+          </c:choose>
+          <h5 class="card-title">${post.author.username}</h5>
+          <c:if test="${post.author.profile != null && not empty post.author.profile.bio}">
+            <p class="card-text">${post.author.profile.bio}</p>
+          </c:if>
+          <c:if test="${not empty sessionScope.loggedInUser and sessionScope.loggedInUser.id ne post.userId}">
+            <button class="btn btn-outline-primary btn-sm" onclick="followAuthor(${post.userId})">
+              <i class="bi bi-plus"></i> 关注作者
+            </button>
+          </c:if>
         </div>
       </div>
+
 
       <!-- 相关帖子 -->
       <div class="card">

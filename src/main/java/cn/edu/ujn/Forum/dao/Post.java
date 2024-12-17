@@ -1,6 +1,7 @@
 package cn.edu.ujn.Forum.dao;
 
 import java.util.Date;
+import java.util.List;
 
 public class Post {
     private Long id;
@@ -8,6 +9,7 @@ public class Post {
     private Long userId;
     private String title;
     private String summary;
+    private String content;
     private Integer viewCount;
     private Integer likeCount;
     private Integer commentCount;
@@ -16,14 +18,14 @@ public class Post {
     private Byte status;
     private Date createTime;
     private Date updateTime;
-    private String content;
+
+    // 关联属性
+    private User author;
+    private Category category;
+    private List<Comment> comments;
     private boolean isLiked;
 
-    // 扩展字段
-    private String authorName;
-    private String authorAvatar;
-    private String categoryName;
-
+    // Getters and setters for basic properties
     public Long getId() {
         return id;
     }
@@ -53,7 +55,7 @@ public class Post {
     }
 
     public void setTitle(String title) {
-        this.title = title == null ? null : title.trim();
+        this.title = title;
     }
 
     public String getSummary() {
@@ -61,7 +63,15 @@ public class Post {
     }
 
     public void setSummary(String summary) {
-        this.summary = summary == null ? null : summary.trim();
+        this.summary = summary;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Integer getViewCount() {
@@ -128,36 +138,29 @@ public class Post {
         this.updateTime = updateTime;
     }
 
-    public String getContent() {
-        return content;
+    // Getters and setters for associated properties
+    public User getAuthor() {
+        return author;
     }
 
-    public void setContent(String content) {
-        this.content = content == null ? null : content.trim();
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
-    public String getAuthorName() {
-        return authorName;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
-    public String getAuthorAvatar() {
-        return authorAvatar;
+    public List<Comment> getComments() {
+        return comments;
     }
 
-    public void setAuthorAvatar(String authorAvatar) {
-        this.authorAvatar = authorAvatar;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 
     public boolean getIsLiked() {
@@ -166,5 +169,27 @@ public class Post {
 
     public void setIsLiked(boolean isLiked) {
         this.isLiked = isLiked;
+    }
+
+    // Utility methods for getting author information
+    public String getAuthorName() {
+        if (author != null) {
+            if (author.getProfile() != null && author.getProfile().getNickname() != null) {
+                return author.getProfile().getNickname();
+            }
+            return author.getUsername();
+        }
+        return "匿名用户";
+    }
+
+    public String getAuthorAvatar() {
+        if (author != null && author.getProfile() != null && author.getProfile().getAvatar() != null) {
+            return author.getProfile().getAvatar();
+        }
+        return "/static/upload/avatars/default-avatar.jpg";
+    }
+
+    public String getCategoryName() {
+        return category != null ? category.getName() : null;
     }
 }

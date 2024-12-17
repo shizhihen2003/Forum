@@ -14,12 +14,11 @@ public class Comment {
     private Date createTime;
     private Date updateTime;
 
-    // 扩展字段
-    private String authorName;
-    private String authorAvatar;
+    // 关联属性
+    private User author;
     private List<Comment> children;
 
-    // Getters and Setters
+    // 基本属性的 getters 和 setters
     public Long getId() {
         return id;
     }
@@ -92,20 +91,13 @@ public class Comment {
         this.updateTime = updateTime;
     }
 
-    public String getAuthorName() {
-        return authorName;
+    // 关联属性的 getters 和 setters
+    public User getAuthor() {
+        return author;
     }
 
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public String getAuthorAvatar() {
-        return authorAvatar;
-    }
-
-    public void setAuthorAvatar(String authorAvatar) {
-        this.authorAvatar = authorAvatar;
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     public List<Comment> getChildren() {
@@ -114,5 +106,23 @@ public class Comment {
 
     public void setChildren(List<Comment> children) {
         this.children = children;
+    }
+
+    // 辅助方法，用于在JSP中获取作者信息
+    public String getAuthorName() {
+        if (author != null) {
+            if (author.getProfile() != null && author.getProfile().getNickname() != null) {
+                return author.getProfile().getNickname();
+            }
+            return author.getUsername();
+        }
+        return "匿名用户";
+    }
+
+    public String getAuthorAvatar() {
+        if (author != null && author.getProfile() != null && author.getProfile().getAvatar() != null) {
+            return author.getProfile().getAvatar();
+        }
+        return "/static/upload/avatars/default-avatar.jpg";
     }
 }

@@ -2,14 +2,18 @@ package cn.edu.ujn.Forum.service;
 
 import cn.edu.ujn.Forum.dao.Post;
 import cn.edu.ujn.Forum.dao.PostMapper;
+import cn.edu.ujn.Forum.dao.User;
 import cn.edu.ujn.Forum.util.PageResult;
 import cn.edu.ujn.Forum.util.PostDTO;
 import cn.edu.ujn.Forum.util.PostQuery;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -52,9 +56,13 @@ public class PostServiceImpl implements IPostService {
             summary = extractSummary(postDTO.getContent(), 500);
         }
         post.setSummary(summary);
-
-        // 设置其他信息
-        post.setUserId(getCurrentUserId());
+        try {
+            // 获取当前登录用户ID
+            Long userId = getCurrentUserId();
+            post.setUserId(userId);
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("请先登录后再发帖");
+        }
         post.setViewCount(0);
         post.setLikeCount(0);
         post.setCommentCount(0);
@@ -274,8 +282,15 @@ public class PostServiceImpl implements IPostService {
 
     // 获取当前用户ID - 需要实际实现
     private Long getCurrentUserId() {
-        // TODO: 实现获取当前用户ID的逻辑
-        return 1L;
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            HttpSession session = attributes.getRequest().getSession();
+            User user = (User) session.getAttribute("loggedInUser");
+            if (user != null) {
+                return user.getId().longValue(); // 转换Integer到Long
+            }
+        }
+        throw new IllegalStateException("用户未登录");
     }
 
     // 检查是否是管理员 - 需要实际实现

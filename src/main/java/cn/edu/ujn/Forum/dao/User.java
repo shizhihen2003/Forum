@@ -4,17 +4,16 @@ import java.util.Date;
 
 public class User {
     private Integer id;
-
     private String username;
-
     private String email;
-
     private String phone;
-
     private String password;
-
     private String verification_code;
 
+    // 关联UserProfile
+    private UserProfile profile;
+
+    // Getters and Setters
     public Integer getId() {
         return id;
     }
@@ -61,6 +60,14 @@ public class User {
 
     public void setVerification_code(String verification_code) {
         this.verification_code = verification_code;
+    }
+
+    public UserProfile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(UserProfile profile) {
+        this.profile = profile;
     }
 
     @Override

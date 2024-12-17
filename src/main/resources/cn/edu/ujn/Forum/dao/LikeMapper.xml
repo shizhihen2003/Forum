@@ -47,7 +47,7 @@
     <select id="selectUsernamesByPostId" resultType="String">
         SELECT u.username
         FROM likes l
-        JOIN users u ON l.user_id = u.id
+        JOIN user u ON l.user_id = u.id
         WHERE l.post_id = #{postId}
     </select>
 

@@ -7,9 +7,12 @@ import cn.edu.ujn.Forum.dao.PostMapper;
 import cn.edu.ujn.Forum.dao.User;
 import cn.edu.ujn.Forum.dao.UserMapper;
 import cn.edu.ujn.Forum.util.CommentDTO;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Date;
 import java.util.List;
@@ -51,7 +54,11 @@ public class CommentServiceImpl implements ICommentService {
         comment.setPostId(commentDTO.getPostId());
         comment.setContent(commentDTO.getContent());
         comment.setParentId(commentDTO.getParentId());
-        comment.setUserId(getCurrentUserId());
+        try {
+            comment.setUserId(getCurrentUserId());
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("请先登录后再评论");
+        }
         comment.setLikeCount(0);
         comment.setStatus(1);  // 默认状态为已发布
         comment.setCreateTime(new Date());
@@ -188,8 +195,15 @@ public class CommentServiceImpl implements ICommentService {
 
     // 获取当前用户ID - 需要实际实现
     private Long getCurrentUserId() {
-        // TODO: 实现获取当前用户ID的逻辑
-        return 1L;
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            HttpSession session = attributes.getRequest().getSession();
+            User user = (User) session.getAttribute("loggedInUser");
+            if (user != null) {
+                return user.getId().longValue();
+            }
+        }
+        throw new IllegalStateException("用户未登录");
     }
 
     // 检查是否是管理员 - 需要实际实现
