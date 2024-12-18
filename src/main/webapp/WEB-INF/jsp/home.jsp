@@ -291,7 +291,7 @@
                         <!-- 修改下拉菜单部分的结构 -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
-                               role="button" data-toggle="dropdown" aria-expanded="false">
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-person-circle"></i> ${sessionScope.loggedInUser.username}
                             </a>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -384,10 +384,12 @@
                             查看所有通知
                         </a>
                     </div>
-                </div>
 
+
+                </div>
                 <div style="text-align: center; margin-top: 30px;">
                     <button class="edit-button" onclick="editProfile()">编辑资料</button>
+                    <button class="edit-button" onclick="goToLogs()">查看登录记录</button>
                     退出登录
                 </div>
             </div>
@@ -426,6 +428,19 @@
             // TODO: 实现编辑资料功能
             alert('编辑资料功能开发中...');
         }
+        function goToLogs() {
+            window.location.href = '${pageContext.request.contextPath}/logs';
+        }
     </script>
+<script src="${pageContext.request.contextPath}/static/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 初始化下拉菜单
+    document.addEventListener('DOMContentLoaded', function() {
+        var dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(function(dropdown) {
+            new bootstrap.Dropdown(dropdown);
+        });
+    });
+</script>
 </body>
 </html>
