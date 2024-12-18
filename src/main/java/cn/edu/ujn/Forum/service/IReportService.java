@@ -48,15 +48,6 @@ public interface IReportService {
     void deleteReport(Integer id);
 
     /**
-     * 分页获取举报记录。
-     *
-     * @param offset 偏移量。
-     * @param limit 每页的记录数。
-     * @return 包含指定范围内 Report 对象的列表。
-     */
-    List<Report> getReportsPaged(int offset, int limit);
-
-    /**
      * 统计举报记录总数。
      *
      * @return 举报记录的总数。
@@ -66,5 +57,7 @@ public interface IReportService {
     List<ReportType> getAllReportTypes();
 
     List<Report> getReportsByUserId(int userId);
+
+
 
 }
