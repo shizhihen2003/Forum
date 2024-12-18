@@ -322,7 +322,7 @@
                  href="${pageContext.request.contextPath}/login">登录</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link btn btn-primary"
+              <a class="nav-link btn btn-outline-primary me-2"
                  href="${pageContext.request.contextPath}/register">注册</a>
             </li>
           </c:otherwise>
