@@ -181,6 +181,11 @@
           <i class="bi bi-heart"></i> 点赞
         </button>
 
+        <button id="collectionButton-${post.id}" class="btn btn-outline-warning collectionButton" data-post-id="${post.id}">
+          <i class="bi bi-star"></i> 收藏
+        </button>
+
+
            <!-- 举报按钮仅对登录用户可见 -->
             <c:if test="${not empty sessionScope.loggedInUser}">
                 <button class="btn btn-info ml-2" data-toggle="modal" data-target="#reportModal">
@@ -840,7 +845,137 @@
 
 
 
+/**
+ * 切换收藏状态
+ * @param {number} postId - 帖子ID
+ * @param {boolean} initialLoad - 是否为初始化加载
+ */
+// 检查用户是否收藏该帖
+ // 检查用户是否收藏该帖
+ var contextPath = '${pageContext.request.contextPath}';
+   function checkCollectionStatus(postId) {
+     $.get(contextPath + '/api/collection/isCollected', { postId: postId }, function(res) {
+       if (res.isCollected !== undefined) {
+         updateCollectionButtonUI(postId, res.isCollected);
+       } else {
+         alert('检查收藏状态失败');
+       }
+     }).fail(function() {
+       alert('检查收藏状态失败，请稍后重试');
+     });
+   }
 
+   // 根据是否收藏更新按钮UI
+   function updateCollectionButtonUI(postId, isCollected) {
+     var collectionButton = $('#collectionButton-' + postId);
+     if (isCollected) {
+       collectionButton.html('<i class="bi bi-star-fill"></i> 已收藏')
+         .removeClass('btn-outline-warning')
+         .addClass('btn-warning')
+         .attr('onclick', 'toggleCollection(' + postId + ', true)');
+     } else {
+       collectionButton.html('<i class="bi bi-star"></i> 收藏')
+         .removeClass('btn-warning')
+         .addClass('btn-outline-warning')
+         .attr('onclick', 'toggleCollection(' + postId + ', false)');
+     }
+   }
+
+   // 收藏帖子
+  // 收藏帖子
+  // 收藏帖子
+  function collectPost(postId) {
+      $.ajax({
+          url: '${pageContext.request.contextPath}/api/collection/add',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ postId: postId }),
+          success: function(res) {
+              if (res.code === 200) {
+                  $('#collectionCount-' + postId).text(res.collectionCount);
+                  updateCollectionButtonUI(postId, true);
+
+                  alert(res.message); // 显示 "收藏成功"
+              } else if (res.code === 401) {
+                  alert(res.message || '请先登录再收藏');
+                  window.location.href = '${pageContext.request.contextPath}/login';
+              } else {
+                  alert(res.message || '收藏失败');
+              }
+          },
+          error: function(xhr, status, error) {
+              console.error("收藏失败:", xhr, status, error);
+              alert('收藏失败，请稍后重试');
+          }
+      });
+  }
+
+
+  // 取消收藏
+ // 取消收藏
+ function uncollectPost(postId) {
+     $.ajax({
+         url: '${pageContext.request.contextPath}/api/collection/remove?postId=' + postId,
+         type: 'DELETE',
+         success: function(res) {
+             if (res.code === 200) {
+                 $('#collectionCount-' + postId).text(res.collectionCount);
+                 updateCollectionButtonUI(postId, false);
+
+                 alert(res.message); // 显示 "取消收藏成功"
+             } else if (res.code === 401) {
+                 alert(res.message || '请先登录再取消收藏');
+                 window.location.href = '${pageContext.request.contextPath}/login';
+             } else {
+                 alert(res.message || '取消收藏失败');
+             }
+         },
+         error: function(xhr, status, error) {
+             console.error("取消收藏失败:", xhr, status, error);
+             alert('取消收藏失败，请稍后重试');
+         }
+     });
+ }
+
+
+
+
+   // 切换收藏状态
+   function toggleCollection(postId, isCollected) {
+     if (isCollected) {
+       // 已收藏则取消收藏
+       uncollectPost(postId);
+     } else {
+       // 未收藏则收藏
+       collectPost(postId);
+     }
+   }
+
+   // 动态获取收藏数量
+   function fetchCollectionCount(postId) {
+     $.get('${pageContext.request.contextPath}/api/collection/count', { postId: postId }, function(res) {
+       if (res.code === 200) {
+         $('#collectionCount-' + postId).text(res.count);
+       } else {
+         alert(res.message || '获取收藏数量失败');
+       }
+     }).fail(function() {
+       alert('获取收藏数量失败，请稍后重试');
+     });
+   }
+
+
+
+   // 页面加载时检查所有帖子是否已收藏
+   document.addEventListener('DOMContentLoaded', function () {
+     const collectionButtons = document.querySelectorAll('.collectionButton');
+     collectionButtons.forEach(button => {
+       const postId = button.getAttribute('data-post-id');
+       if (postId) {
+         checkCollectionStatus(postId); // 初始化收藏按钮状态
+       }
+     });
+   });
 </script>
 </body>
 </html>

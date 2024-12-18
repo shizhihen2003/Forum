@@ -16,5 +16,7 @@ public interface FanMapper {
     List<Integer> getFollowers(@Param("authorId") Integer authorId);
 
     List<Fan> findFansByFanGroupId(@Param("groupId") Integer groupId);
+
+    List<Fan> findAllFans();
 }
 

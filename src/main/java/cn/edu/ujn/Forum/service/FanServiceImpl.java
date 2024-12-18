@@ -42,6 +42,12 @@ public class FanServiceImpl implements IFanService {
     public List<Integer> getFollowers(Integer authorId) {
         return fanMapper.getFollowers(authorId);
     }
+
+    @Override
+    public List<Fan> getAllFans() {
+        // 调用 FanMapper 查询所有粉丝
+        return fanMapper.findAllFans();
+    }
 }
 
 

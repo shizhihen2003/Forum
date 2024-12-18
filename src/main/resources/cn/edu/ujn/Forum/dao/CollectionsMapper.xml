@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.edu.ujn.Forum.dao.CollectionsMapper">
+
+    <!-- 插入收藏 -->
+    <insert id="insertCollection" parameterType="cn.edu.ujn.Forum.dao.Collections">
+        INSERT INTO collection (user_id, post_id, created_at)
+        VALUES (#{userId}, #{postId}, #{createdAt})
+    </insert>
+
+    <!-- 删除收藏 -->
+    <delete id="deleteCollection">
+        DELETE FROM collection
+        WHERE user_id = #{userId} AND post_id = #{postId}
+    </delete>
+
+    <!-- 检查是否已收藏 -->
+    <select id="isCollected" resultType="int">
+        SELECT COUNT(*) FROM collection
+        WHERE user_id = #{userId} AND post_id = #{postId}
+    </select>
+
+    <!-- 获取用户的所有收藏 -->
+    <select id="getUserCollections" resultType="java.lang.Long"> <!-- 修改为 java.lang.Long -->
+        SELECT post_id FROM collection
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 获取某个帖子的收藏数量 -->
+    <select id="countCollections" resultType="int">
+        SELECT COUNT(*) FROM collection
+        WHERE post_id = #{postId}
+    </select>
+
+    <!-- 获取收藏用户列表（用户名） -->
+    <select id="getCollectionUsers" resultType="string">
+        SELECT u.username FROM collection c
+        JOIN user u ON c.user_id = u.id
+        WHERE c.post_id = #{postId}
+    </select>
+
+</mapper>
