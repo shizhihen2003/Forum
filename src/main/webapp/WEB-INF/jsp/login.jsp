@@ -1,8 +1,15 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.preview.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -178,7 +185,7 @@
                                href="${pageContext.request.contextPath}/login">登录</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-primary"
+                            <a class="nav-link btn btn-outline-primary me-2"
                                href="${pageContext.request.contextPath}/register">注册</a>
                         </li>
                     </c:otherwise>
@@ -205,5 +212,6 @@
             </c:if>
 
     <p>Don't have an account? <a href="/Forum/register">Register here</a></p>
+
 </body>
 </html>
