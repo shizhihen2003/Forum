@@ -1,17 +1,20 @@
 package cn.edu.ujn.Forum.dao;
 
-import cn.edu.ujn.Forum.dao.Fan;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface FanMapper {
-    int deleteByPrimaryKey(Integer fanId);
 
-    int insert(Fan row);
+    void insertFollow(@Param("fanId") Integer fanId, @Param("authorId") Integer authorId);
 
-    int insertSelective(Fan row);
+    void deleteFollow(@Param("fanId") Integer fanId, @Param("authorId") Integer authorId);
 
-    Fan selectByPrimaryKey(Integer fanId);
+    int isFollowing(@Param("fanId") Integer fanId, @Param("authorId") Integer authorId);
 
-    int updateByPrimaryKeySelective(Fan row);
+    List<Integer> getFollowingList(@Param("fanId") Integer fanId);
 
-    int updateByPrimaryKey(Fan row);
+    List<Integer> getFollowers(@Param("authorId") Integer authorId);
+
+    List<Fan> findFansByFanGroupId(@Param("groupId") Integer groupId);
 }
+

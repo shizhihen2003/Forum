@@ -1,82 +1,69 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="cn.edu.ujn.Forum.dao.FanMapper">
-  <resultMap id="BaseResultMap" type="cn.edu.ujn.Forum.dao.Fan">
-    <id column="fan_id" jdbcType="INTEGER" property="fanId" />
-    <result column="star_name" jdbcType="VARCHAR" property="starName" />
-    <result column="fan_name" jdbcType="VARCHAR" property="fanName" />
-    <result column="follow_time" jdbcType="TIMESTAMP" property="followTime" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    fan_id, star_name, fan_name, follow_time
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from fans
-    where fan_id = #{fanId,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from fans
-    where fan_id = #{fanId,jdbcType=INTEGER}
+
+  <!-- 插入关注记录 -->
+  <insert id="insertFollow">
+    INSERT INTO fans (fan_id, author_id, created_at)
+    VALUES (#{fanId}, #{authorId}, NOW())
+  </insert>
+
+  <!-- 删除关注记录 -->
+  <delete id="deleteFollow">
+    DELETE FROM fans
+    WHERE fan_id = #{fanId} AND author_id = #{authorId}
   </delete>
-  <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.Fan">
-    insert into fans (fan_id, star_name, fan_name, 
-      follow_time)
-    values (#{fanId,jdbcType=INTEGER}, #{starName,jdbcType=VARCHAR}, #{fanName,jdbcType=VARCHAR}, 
-      #{followTime,jdbcType=TIMESTAMP})
-  </insert>
-  <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.Fan">
-    insert into fans
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="fanId != null">
-        fan_id,
-      </if>
-      <if test="starName != null">
-        star_name,
-      </if>
-      <if test="fanName != null">
-        fan_name,
-      </if>
-      <if test="followTime != null">
-        follow_time,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="fanId != null">
-        #{fanId,jdbcType=INTEGER},
-      </if>
-      <if test="starName != null">
-        #{starName,jdbcType=VARCHAR},
-      </if>
-      <if test="fanName != null">
-        #{fanName,jdbcType=VARCHAR},
-      </if>
-      <if test="followTime != null">
-        #{followTime,jdbcType=TIMESTAMP},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="cn.edu.ujn.Forum.dao.Fan">
-    update fans
-    <set>
-      <if test="starName != null">
-        star_name = #{starName,jdbcType=VARCHAR},
-      </if>
-      <if test="fanName != null">
-        fan_name = #{fanName,jdbcType=VARCHAR},
-      </if>
-      <if test="followTime != null">
-        follow_time = #{followTime,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    where fan_id = #{fanId,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.Fan">
-    update fans
-    set star_name = #{starName,jdbcType=VARCHAR},
-      fan_name = #{fanName,jdbcType=VARCHAR},
-      follow_time = #{followTime,jdbcType=TIMESTAMP}
-    where fan_id = #{fanId,jdbcType=INTEGER}
-  </update>
+
+  <!-- 检查是否已关注 -->
+  <select id="isFollowing" resultType="int">
+    SELECT COUNT(1)
+    FROM fans
+    WHERE fan_id = #{fanId} AND author_id = #{authorId}
+  </select>
+
+  <!-- 获取用户关注的作者列表 -->
+  <select id="getFollowingList" resultMap="FanResultMap">
+    SELECT
+    f.id,
+    f.fan_id,
+    f.author_id,
+    f.created_at,
+    u.username AS authorName,
+    u.avatar AS authorAvatar
+    FROM fans f
+    JOIN users u ON f.author_id = u.id
+    WHERE f.fan_id = #{fanId};
+  </select>
+
+  <!-- 获取某作者的粉丝列表 -->
+  <select id="getFollowers" resultMap="FanResultMap">
+    SELECT
+    f.id,
+    f.fan_id,
+    f.author_id,
+    f.created_at,
+    u.username AS fanName,
+    u.avatar AS fanAvatar
+    FROM fans f
+    JOIN users u ON f.fan_id = u.id
+    WHERE f.author_id = #{authorId};
+  </select>
+  <select id="findFansByFanGroupId" resultType="cn.edu.ujn.Forum.dao.Fan">
+    SELECT * FROM fans WHERE group_id = #{groupId}
+  </select>
+
+  <!-- FanResultMap 定义 -->
+  <resultMap id="FanResultMap" type="cn.edu.ujn.Forum.dao.Fan">
+    <id column="id" property="id"/>
+    <result column="fan_id" property="fanId"/>
+    <result column="author_id" property="authorId"/>
+    <result column="created_at" property="createdAt"/>
+    <result column="authorName" property="authorName"/>
+    <result column="authorAvatar" property="authorAvatar"/>
+    <result column="fanName" property="fanName"/>
+    <result column="fanAvatar" property="fanAvatar"/>
+  </resultMap>
+
 </mapper>

@@ -277,11 +277,15 @@
           <c:if test="${post.author.profile != null && not empty post.author.profile.bio}">
             <p class="card-text">${post.author.profile.bio}</p>
           </c:if>
-          <c:if test="${not empty sessionScope.loggedInUser and sessionScope.loggedInUser.id ne post.userId}">
-            <button class="btn btn-outline-primary btn-sm" onclick="followAuthor(${post.userId})">
-              <i class="bi bi-plus"></i> 关注作者
-            </button>
-          </c:if>
+
+            <!-- 动态关注按钮 -->
+                <!-- 直接在按钮上设置 data-author-id 属性存储作者ID -->
+                <button id="followButton" class="btn btn-outline-primary btn-sm"
+                        data-author-id="${post.userId}"
+                        onclick="toggleFollow(${post.userId})">
+                    <i class="bi bi-plus"></i> 关注作者
+                </button>
+
         </div>
       </div>
 
@@ -710,9 +714,133 @@
   }
 
   // 关注作者（待实现）
-  function followAuthor() {
-    alert('关注功能开发中...');
-  }
+ function toggleFollow(authorId) {
+          // 转换并验证 authorId
+          authorId = Number(authorId);
+          console.log('当前操作的作者ID:', authorId);
+
+          if (!authorId || isNaN(authorId)) {
+              console.error('无效的作者ID');
+              alert('无法获取有效的作者ID');
+              return;
+          }
+
+          const button = document.getElementById('followButton');
+          const isFollowing = button.classList.contains('btn-success');
+
+          if (isFollowing) {
+              // 构建请求URL
+              const url = new URL('/Forum/api/fan/unfollow', window.location.origin);
+              url.searchParams.append('authorId', authorId);
+
+              console.log('发送取消关注请求到:', url.toString());
+
+              fetch(url.toString(), {
+                  method: 'DELETE',
+                  credentials: 'same-origin',
+                  headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                  }
+              })
+              .then(async response => {
+                  if (!response.ok) {
+                      const errorText = await response.text();
+                      console.error('服务器返回错误:', errorText);
+                      throw new Error(errorText);
+                  }
+                  console.log('取消关注成功');
+                  button.classList.remove('btn-success');
+                  button.classList.add('btn-outline-primary');
+                  button.innerHTML = '<i class="bi bi-plus"></i> 关注作者';
+              })
+              .catch(err => {
+                  console.error('取消关注请求失败:', err);
+                  alert('取消关注失败：' + err.message);
+              });
+          }else {
+              // 添加关注
+              fetch('/Forum/api/fan/follow', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ authorId: authorId }),
+                  credentials: 'same-origin'
+              })
+              .then(response => {
+                  if (!response.ok) {
+                      return response.text().then(text => {
+                          throw new Error(text || '关注失败');
+                      });
+                  }
+                  // 更新按钮状态为已关注
+                  button.classList.remove('btn-outline-primary');
+                  button.classList.add('btn-success');
+                  button.innerHTML = '<i class="bi bi-check"></i> 已关注';
+                  console.log('成功关注作者');
+              })
+              .catch(err => {
+                  console.error('关注错误:', err);
+                  alert(err.message || '关注时发生错误');
+              });
+          }
+      }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const button = document.getElementById('followButton');
+
+        if (!button) {
+            console.error('没有找到 id 为 "followButton" 的按钮');
+            return;
+        }
+
+        const authorId = button.getAttribute('data-author-id');
+        if (!authorId) {
+            console.error('按钮缺少 data-author-id 属性');
+            return;
+        }
+
+        // 检查关注状态
+        fetch(`/Forum/api/fan/isFollowing?authorId=${post.userId}`, {
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            console.log('响应状态:', response.status);
+            console.log('响应头 Content-Type:', response.headers.get('Content-Type'));
+            if (!response.ok) {
+                throw new Error(`HTTP error! 状态码: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(isFollowingData => {
+            console.log('接收到的响应数据:', isFollowingData);
+
+            const isFollowing = isFollowingData.isFollowing;  // 获取关注状态
+
+            console.log('接收到的 isFollowing 值:', isFollowing, '类型:', typeof isFollowing);
+
+            // 确保 isFollowing 是布尔值
+            const isFollowingBool = Boolean(isFollowing);
+
+            console.log('转换后的 isFollowingBool:', isFollowingBool);
+
+            if (isFollowingBool) {
+                button.classList.remove('btn-outline-primary');
+                button.classList.add('btn-success');
+                button.innerHTML = '<i class="bi bi-check"></i> 已关注';
+            } else {
+                // 如果未关注，设置为“关注”状态
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-primary');
+                button.innerHTML = '<i class="bi bi-plus"></i> 关注';
+            }
+            console.log('初始关注状态 (布尔值):', isFollowingBool);
+        })
+        .catch(err => console.error('检查关注状态失败:', err));
+    });
+
+
+
+
 </script>
 </body>
 </html>
