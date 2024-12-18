@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 @RequestMapping("")
@@ -262,6 +263,29 @@ public class UserController {
         } catch (IOException e) {
             return Result.fail("头像上传失败：" + e.getMessage());
         }
+    }
+    @GetMapping("/logs")
+    public String viewLoginLogs(HttpSession session, Model model) {
+        // 从 session 中获取当前登录的用户信息
+        User user = (User) session.getAttribute("loggedInUser");
+
+        // 如果用户未登录，重定向到登录页面
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        // 获取当前用户的登录记录
+        List<Logs> loginLogs = logsService.getLogsByUserId(user.getId());
+
+
+
+        // 将登录记录传递给模型
+        model.addAttribute("loginLogs", loginLogs);
+
+        // 将当前登录用户的用户名传递给 JSP 页面
+        model.addAttribute("loggedInUser", user);
+
+        return "logs";  // 返回 logs.jsp 页面
     }
 }
 

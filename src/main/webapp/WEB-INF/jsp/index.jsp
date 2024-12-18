@@ -220,7 +220,6 @@
                 box-shadow: none;
             }
         }
-        }
         /* 导航栏样式 */
         .navbar {
             background-color: #fff;

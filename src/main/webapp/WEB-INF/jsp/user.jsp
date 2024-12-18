@@ -39,7 +39,7 @@
 	<ul class="nav navbar-top-links navbar-right">
 		<!-- 用户信息和系统设置 start -->
 		<li class="dropdown">
-			<a class="dropdown-toggle" data-toggle="dropdown" href="#"> 
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 				<i class="fa fa-user fa-fw"></i>
 				<i class="fa fa-caret-down"></i>
 			</a>
@@ -116,7 +116,7 @@
 				</form>
 			</div>
 		</div>
-		<a href="#" class="btn btn-primary" data-toggle="modal" 
+		<a href="#" class="btn btn-primary" data-toggle="modal"
 		           data-target="#newUserDialog" onclick="clearUser()">新建</a>
 		<div class="row">
 			<div class="col-lg-12">
