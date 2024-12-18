@@ -73,4 +73,11 @@
         INSERT INTO logs (user_id, login_time)
         VALUES (#{userId}, #{loginTime})
     </insert>
+    <!-- 根据用户 ID 查询登录记录 -->
+    <select id="selectLogsByUserId" resultType="cn.edu.ujn.Forum.dao.Logs">
+        SELECT user_id AS userId, login_time AS loginTime
+        FROM logs
+        WHERE user_id = #{userId}
+        ORDER BY login_time DESC;
+    </select>
 </mapper>
