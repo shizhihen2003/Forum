@@ -805,7 +805,7 @@
         }
 
         // 检查关注状态
-        fetch(`/Forum/api/fan/isFollowing?authorId=${authorId}`, {
+        fetch(`/Forum/api/fan/isFollowing?authorId=${post.userId}`, {
             credentials: 'same-origin'
         })
         .then(response => {
