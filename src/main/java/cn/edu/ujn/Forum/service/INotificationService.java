@@ -75,4 +75,6 @@ public interface INotificationService {
      * @param postId 帖子ID
      */
     void createReplyNotification(Integer userId, String replierName, String postTitle, Long postId);
+
+    void createCollectionNotification(Integer userId, String collectorName, String postTitle, Long postId);
 }
