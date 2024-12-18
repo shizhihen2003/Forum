@@ -57,4 +57,11 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void resetPassword(String resetToken, String newPassword) {
     }
+    @Override
+    public User getUserById(Integer userId) {
+        if (userId == null) {
+            return null;
+        }
+        return userMapper.selectByPrimaryKey(userId.intValue());
+    }
 }

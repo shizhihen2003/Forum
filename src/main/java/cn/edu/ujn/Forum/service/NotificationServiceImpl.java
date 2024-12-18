@@ -84,4 +84,12 @@ public class NotificationServiceImpl implements INotificationService {
         String content = String.format("用户 %s 回复了你在帖子《%s》中的评论", replierName, postTitle);
         createNotification(userId, "reply", title, content);
     }
+
+    @Override
+    @Transactional
+    public void createCollectionNotification(Integer userId, String collectorName, String postTitle, Long postId) {
+        String title = "收到新的收藏";
+        String content = String.format("用户 %s 收藏了你的帖子《%s》", collectorName, postTitle);
+        createNotification(userId, "collection", title, content);
+    }
 }
