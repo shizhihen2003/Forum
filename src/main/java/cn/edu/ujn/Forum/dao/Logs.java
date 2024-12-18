@@ -21,4 +21,12 @@ public class Logs {
     public void setLoginTime(Date loginTime) {
         this.loginTime = loginTime;
     }
+
+    @Override
+    public String toString() {
+        return "Logs{" +
+                "userId=" + userId +
+                ", loginTime=" + loginTime +
+                '}';
+    }
 }
