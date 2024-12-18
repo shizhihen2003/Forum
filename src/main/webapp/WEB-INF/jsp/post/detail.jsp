@@ -720,75 +720,75 @@
 
   // 关注作者（待实现）
  function toggleFollow(authorId) {
-          // 转换并验证 authorId
-          authorId = Number(authorId);
-          console.log('当前操作的作者ID:', authorId);
+     authorId = Number(authorId);
+     console.log('当前操作的作者ID:', authorId);
 
-          if (!authorId || isNaN(authorId)) {
-              console.error('无效的作者ID');
-              alert('无法获取有效的作者ID');
-              return;
-          }
+     if (!authorId || isNaN(authorId)) {
+         console.error('无效的作者ID');
+         alert('无法获取有效的作者ID');
+         return;
+     }
 
-          const button = document.getElementById('followButton');
-          const isFollowing = button.classList.contains('btn-success');
+     const button = document.getElementById('followButton');
+     const isFollowing = button.classList.contains('btn-success');
 
-          if (isFollowing) {
-              // 构建请求URL
-              const url = new URL('/Forum/api/fan/unfollow', window.location.origin);
-              url.searchParams.append('authorId', authorId);
+     if (isFollowing) {
+        // 删除关注
+        fetch('/Forum/api/fan/unfollow?authorId=' + authorId, {
+            method: 'DELETE',
+            credentials: 'same-origin', // 保持 session 信息
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text || '取消关注失败');
+                });
+            }
+            console.log('取消关注成功');
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-primary');
+            button.innerHTML = '<i class="bi bi-plus"></i> 关注作者';
+        })
+        .catch(err => {
+            console.error('取消关注请求失败:', err);
+            alert('取消关注失败：' + err.message);
+        });
 
-              console.log('发送取消关注请求到:', url.toString());
+     } else {
+         // 添加关注操作
+         fetch('/Forum/api/fan/follow', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ authorId: authorId }),
+             credentials: 'same-origin'
+         })
+         .then(response => {
+             if (response.status === 401) {
+                 alert('请先登录再操作');
+                 window.location.href = '/Forum/login';
+                 return;
+             }
+             if (!response.ok) {
+                 return response.text().then(text => {
+                     throw new Error(text || '关注失败');
+                 });
+             }
+             console.log('成功关注作者');
+             button.classList.remove('btn-outline-primary');
+             button.classList.add('btn-success');
+             button.innerHTML = '<i class="bi bi-check"></i> 已关注';
+         })
+         .catch(err => {
+             console.error('关注错误:', err);
+             alert(err.message || '关注时发生错误');
+         });
+     }
+ }
 
-              fetch(url.toString(), {
-                  method: 'DELETE',
-                  credentials: 'same-origin',
-                  headers: {
-                      'Accept': 'application/json',
-                      'Content-Type': 'application/json'
-                  }
-              })
-              .then(async response => {
-                  if (!response.ok) {
-                      const errorText = await response.text();
-                      console.error('服务器返回错误:', errorText);
-                      throw new Error(errorText);
-                  }
-                  console.log('取消关注成功');
-                  button.classList.remove('btn-success');
-                  button.classList.add('btn-outline-primary');
-                  button.innerHTML = '<i class="bi bi-plus"></i> 关注作者';
-              })
-              .catch(err => {
-                  console.error('取消关注请求失败:', err);
-                  alert('取消关注失败：' + err.message);
-              });
-          }else {
-              // 添加关注
-              fetch('/Forum/api/fan/follow', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ authorId: authorId }),
-                  credentials: 'same-origin'
-              })
-              .then(response => {
-                  if (!response.ok) {
-                      return response.text().then(text => {
-                          throw new Error(text || '关注失败');
-                      });
-                  }
-                  // 更新按钮状态为已关注
-                  button.classList.remove('btn-outline-primary');
-                  button.classList.add('btn-success');
-                  button.innerHTML = '<i class="bi bi-check"></i> 已关注';
-                  console.log('成功关注作者');
-              })
-              .catch(err => {
-                  console.error('关注错误:', err);
-                  alert(err.message || '关注时发生错误');
-              });
-          }
-      }
 
     document.addEventListener('DOMContentLoaded', function() {
         const button = document.getElementById('followButton');
@@ -805,7 +805,7 @@
         }
 
         // 检查关注状态
-        fetch(`/Forum/api/fan/isFollowing?authorId=${post.userId}`, {
+        fetch(`/Forum/api/fan/isFollowing?authorId=${authorId}`, {
             credentials: 'same-origin'
         })
         .then(response => {
@@ -842,6 +842,7 @@
         })
         .catch(err => console.error('检查关注状态失败:', err));
     });
+
 
 
 

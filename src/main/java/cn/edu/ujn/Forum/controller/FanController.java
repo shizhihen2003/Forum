@@ -31,23 +31,30 @@ public class FanController {
     public ResponseEntity<String> followAuthor(@RequestBody(required = false) Map<String, Integer> payload, HttpSession session) {
         System.out.println("收到的请求体：" + payload);
 
+        // 校验请求体是否有效，包含 authorId
         if (payload == null || !payload.containsKey("authorId")) {
             System.out.println("请求体为空或缺少 authorId");
             return ResponseEntity.badRequest().body("无效的请求");
         }
 
+        // 获取当前用户的 fanId（即当前登录的用户）
         Integer fanId = getCurrentUserId(session);
         System.out.println("当前用户ID：" + fanId);
+
+        // 如果用户未登录，则返回 401 未授权状态
         if (fanId == null) {
-            return ResponseEntity.badRequest().body("用户未登录");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("用户未登录");
         }
 
+        // 获取 authorId（要关注的作者的 ID）
         Integer authorId = payload.get("authorId");
         System.out.println("被关注的作者ID：" + authorId);
 
+        // 调用服务层添加关注操作
         fanService.addFollow(fanId, authorId);
         return ResponseEntity.ok("关注成功");
     }
+
 
     /**
      * 取消关注
