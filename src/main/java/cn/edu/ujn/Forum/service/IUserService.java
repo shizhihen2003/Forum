@@ -1,5 +1,7 @@
 package cn.edu.ujn.Forum.service;
 
+import cn.edu.ujn.Forum.dao.User;
+
 public interface IUserService {
 
         // 用户注册
@@ -18,5 +20,7 @@ public interface IUserService {
 
         // 重置密码
         void resetPassword(String resetToken, String newPassword);
+
+        User getUserById(Integer userId);
     }
 
