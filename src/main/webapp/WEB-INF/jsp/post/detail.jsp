@@ -884,31 +884,35 @@
    // 收藏帖子
   // 收藏帖子
   // 收藏帖子
-  function collectPost(postId) {
-      $.ajax({
-          url: '${pageContext.request.contextPath}/api/collection/add',
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify({ postId: postId }),
-          success: function(res) {
-              if (res.code === 200) {
-                  $('#collectionCount-' + postId).text(res.collectionCount);
-                  updateCollectionButtonUI(postId, true);
+ function collectPost(postId) {
+     $.ajax({
+         url: '${pageContext.request.contextPath}/api/collection/add',
+         type: 'POST',
+         contentType: 'application/json',
+         data: JSON.stringify({ postId: postId }),
+         success: function(res) {
+             if (res.code === 200) {
+                 $('#collectionCount-' + postId).text(res.collectionCount);
+                 updateCollectionButtonUI(postId, true);
 
-                  alert(res.message); // 显示 "收藏成功"
-              } else if (res.code === 401) {
-                  alert(res.message || '请先登录再收藏');
-                  window.location.href = '${pageContext.request.contextPath}/login';
-              } else {
-                  alert(res.message || '收藏失败');
-              }
-          },
-          error: function(xhr, status, error) {
-              console.error("收藏失败:", xhr, status, error);
-              alert('收藏失败，请稍后重试');
-          }
-      });
-  }
+                 alert(res.message); // 显示 "收藏成功"
+             } else {
+                 alert(res.message || '收藏失败');
+             }
+         },
+         error: function(xhr, status, error) {
+             console.error("收藏失败:", xhr, status, error);
+             // 判断是 401 错误并处理
+             if (xhr.status === 401) {
+                 alert('请先登录再收藏');
+                 window.location.href = '${pageContext.request.contextPath}/login';
+             } else {
+                 alert('收藏失败，请稍后重试');
+             }
+         }
+     });
+ }
+
 
 
   // 取消收藏
