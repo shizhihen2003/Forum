@@ -6,7 +6,9 @@ public class Fan {
     private Integer id;            // 主键ID
     private Integer fanId;         // 粉丝ID
     private Integer authorId;      // 作者ID
-    private Timestamp createdAt;   // 关注时间
+    private Timestamp createdAt;
+    private User fan;      // 粉丝用户对象
+    private User author;   // 作者用户对象// 关注时间
 
     // Getter 和 Setter 方法
     public Integer getId() {
@@ -15,6 +17,22 @@ public class Fan {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public User getFan() {
+        return fan;
+    }
+
+    public void setFan(User fan) {
+        this.fan = fan;
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     public Integer getFanId() {
@@ -41,7 +59,6 @@ public class Fan {
         this.createdAt = createdAt;
     }
 
-    // 重写 toString 方法，方便调试
     @Override
     public String toString() {
         return "Fan{" +
@@ -49,6 +66,8 @@ public class Fan {
                 ", fanId=" + fanId +
                 ", authorId=" + authorId +
                 ", createdAt=" + createdAt +
+                ", fan=" + fan +
+                ", author=" + author +
                 '}';
     }
 }
