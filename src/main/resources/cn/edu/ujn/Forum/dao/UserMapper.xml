@@ -18,16 +18,24 @@
     delete from user
     where id = #{id,jdbcType=INTEGER}
   </delete>
-
+  <delete id="deleteByPrimarye" parameterType="string">
+    delete from user
+    where phone = #{phone,jdbcType=VARCHAR}
+  </delete>
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.User">
     insert into user (id, username, email,
-                       phone, password, verification_code
+    phone, password, verification_code
     )
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
-            #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{verification_code,jdbcType=VARCHAR}
-           )
+    #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{verification_code,jdbcType=VARCHAR}
+    )
   </insert>
 
+  <insert id="insert1" parameterType="cn.edu.ujn.Forum.dao.User">
+    insert into user (username, email, phone, password)
+    values (#{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
+    #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR})
+  </insert>
   <insert id="insertSelective" parameterType="cn.edu.ujn.Forum.dao.User">
     insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -97,12 +105,13 @@
   <update id="updateByPrimaryKey" parameterType="cn.edu.ujn.Forum.dao.User">
     update user
     set username = #{username,jdbcType=VARCHAR},
-        email = #{email,jdbcType=VARCHAR},
-        phone = #{phone,jdbcType=VARCHAR},
-        password = #{password,jdbcType=VARCHAR},
-        verification_code = #{verification_code,jdbcType=VARCHAR}
+    email = #{email,jdbcType=VARCHAR},
+    phone = #{phone,jdbcType=VARCHAR},
+    password = #{password,jdbcType=VARCHAR},
+    verification_code = #{verification_code,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
 
   <!-- 根据ID查询用户 -->
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -110,6 +119,29 @@
     <include refid="Base_Column_List" />
     from user
     where id = #{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectAll" parameterType="User" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user
+    limit #{start},#{rows}
+  </select>
+
+  <select id="select" parameterType="User" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user
+
+  </select>
+
+
+
+  <select id="selectCount"  resultType="Integer">
+    select
+    count(*)
+    from user
+
   </select>
 
   <!-- 根据邮箱或手机号查询用户 -->
@@ -137,6 +169,7 @@
     where email = #{email}
   </select>
 
+
   <!-- 更新密码 -->
   <update id="updatePassword">
     update user
@@ -144,20 +177,27 @@
     where id = #{id}
   </update>
 
+
+
   <!-- 插入新用户 -->
   <insert id="insertUser" parameterType="cn.edu.ujn.Forum.dao.User" useGeneratedKeys="true" keyProperty="id">
     insert into user (
-      username, email, phone, password, verification_code
+    username, email, phone, password, verification_code
     ) VALUES (
-               #{username}, #{email}, #{phone}, #{password}, #{verification_code}
-             )
+    #{username}, #{email}, #{phone}, #{password}, #{verification_code}
+    )
   </insert>
-
+  <update id="updateUsernameByPhone" parameterType="cn.edu.ujn.Forum.dao.User">
+    UPDATE user
+    SET username = #{username,jdbcType=VARCHAR}
+    , password=#{password,jdbcType=VARCHAR}
+    WHERE phone = #{phone,jdbcType=VARCHAR}
+  </update>
   <!-- 更新密码重置令牌 -->
   <update id="updateResetToken">
     update user
     set reset_token = #{resetToken},
-        reset_token_expiration = #{resetTokenExpiration}
+    reset_token_expiration = #{resetTokenExpiration}
     where id = #{id}
   </update>
 </mapper>

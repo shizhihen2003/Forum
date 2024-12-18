@@ -40,4 +40,10 @@ public class SearchRecord {
     public void setPermissionid(Integer permissionid) {
         this.permissionid = permissionid;
     }
+
+    public SearchRecord(String userid, Integer searchtime, Integer permissionid) {
+        this.userid = userid;
+        this.searchtime = searchtime;
+        this.permissionid = permissionid;
+    }
 }

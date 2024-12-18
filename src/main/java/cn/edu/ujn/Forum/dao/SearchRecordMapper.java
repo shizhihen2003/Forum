@@ -1,6 +1,6 @@
 package cn.edu.ujn.Forum.dao;
 
-import cn.edu.ujn.Forum.dao.SearchRecord;
+import java.util.List;
 
 public interface SearchRecordMapper {
     int deleteByPrimaryKey(Integer searchrecordid);
@@ -14,4 +14,5 @@ public interface SearchRecordMapper {
     int updateByPrimaryKeySelective(SearchRecord row);
 
     int updateByPrimaryKey(SearchRecord row);
+    List<SearchRecord> selectAll();
 }

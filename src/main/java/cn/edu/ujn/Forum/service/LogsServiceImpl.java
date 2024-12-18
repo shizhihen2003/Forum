@@ -5,8 +5,6 @@ import cn.edu.ujn.Forum.dao.LogsMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class LogsServiceImpl implements ILogsService{
 
@@ -23,12 +21,4 @@ public class LogsServiceImpl implements ILogsService{
     public void insertLog(Logs logs) {
         logsMapper.insertLog(logs); // 调用 Mapper 方法插入日志
     }
-
-    @Override
-    public List<Logs> getLogsByUserId(Integer userId) {
-        // 从数据库中查询某个用户的所有登录记录
-        return logsMapper.selectLogsByUserId(userId);
-    }
-
-
 }

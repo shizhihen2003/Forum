@@ -1,33 +1,98 @@
 package cn.edu.ujn.Forum.dao;
 
 public class Permission {
-    private Integer permissionid;
 
-    private String userid;
+    private Integer permissionId;
 
-    private Integer targetpermission;
+    private String userId;
 
-    public Integer getPermissionid() {
-        return permissionid;
+    private Integer start;
+
+    public String getUser() {
+        return user;
     }
 
-    public void setPermissionid(Integer permissionid) {
-        this.permissionid = permissionid;
+    @Override
+    public String toString() {
+        return "Permission{" +
+                "permissionId=" + permissionId +
+                ", userId='" + userId + '\'' +
+                ", start=" + start +
+                ", user='" + user + '\'' +
+                ", rows=" + rows +
+                ", username='" + username + '\'' +
+                ", targetPermission=" + targetPermission +
+                '}';
     }
 
-    public String getUserid() {
-        return userid;
+    public void setUser(String user) {
+        this.user = user;
     }
 
-    public void setUserid(String userid) {
-        this.userid = userid == null ? null : userid.trim();
+    private String user;
+
+    public String getUsername() {
+        return username;
     }
 
-    public Integer getTargetpermission() {
-        return targetpermission;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setTargetpermission(Integer targetpermission) {
-        this.targetpermission = targetpermission;
+    private Integer rows;
+
+    private String username;
+
+    public Permission() {
     }
+
+    public Permission( String userId, Integer targetPermission) {
+
+        this.userId = userId;
+        this.targetPermission = targetPermission;
+    }
+
+    public Integer getPermissionId() {
+        return permissionId;
+    }
+
+    public void setPermissionId(Integer permissionId) {
+        this.permissionId = permissionId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Integer getTargetPermission() {
+        return targetPermission;
+    }
+
+    public void setTargetPermission(Integer targetPermission) {
+        this.targetPermission = targetPermission;
+    }
+
+    public Integer getStart() {
+        return start;
+    }
+
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    public Integer getRows() {
+        return rows;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
+
+    private Integer targetPermission;
+
+
 }

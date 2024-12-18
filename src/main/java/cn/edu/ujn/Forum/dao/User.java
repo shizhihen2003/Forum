@@ -9,6 +9,40 @@ public class User {
     private String phone;
     private String password;
     private String verification_code;
+    private Integer start;
+
+    private Integer rows;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", password='" + password + '\'' +
+                ", verification_code='" + verification_code + '\'' +
+                ", start=" + start +
+                ", rows=" + rows +
+                ", profile=" + profile +
+                '}';
+    }
+
+    public Integer getStart() {
+        return start;
+    }
+
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    public Integer getRows() {
+        return rows;
+    }
+
+    public void setRows(Integer rows) {
+        this.rows = rows;
+    }
 
     // 关联UserProfile
     private UserProfile profile;
@@ -70,15 +104,4 @@ public class User {
         this.profile = profile;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", password='" + password + '\'' +
-                ", verification_code='" + verification_code + '\'' +
-                '}';
-    }
 }
