@@ -28,10 +28,10 @@ public class CollectionsController {
      */
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addCollection(@RequestBody Map<String, Long> payload, HttpSession session) {
-        System.out.println("收到的请求体：" + payload);
+
 
         if (payload == null || !payload.containsKey("postId") || payload.get("postId") <= 0) {
-            System.out.println("请求体为空或缺少 postId");
+
             Map<String, Object> response = new HashMap<>();
             response.put("code", 400);
             response.put("message", "无效的请求");
@@ -39,7 +39,7 @@ public class CollectionsController {
         }
 
         Integer userId = getCurrentUserId(session);
-        System.out.println("当前用户ID：" + userId);
+
         if (userId == null) {
             Map<String, Object> response = new HashMap<>();
             response.put("code", 401);
@@ -48,7 +48,7 @@ public class CollectionsController {
         }
 
         Long postId = payload.get("postId");
-        System.out.println("被收藏的帖子ID：" + postId);
+
 
         boolean success = collectionService.addCollection(userId, postId);
         Map<String, Object> response = new HashMap<>();
@@ -70,7 +70,7 @@ public class CollectionsController {
      */
     @DeleteMapping("/remove")
     public ResponseEntity<Map<String, Object>> removeCollection(@RequestParam(value = "postId", required = true) Long postId, HttpSession session) {
-        System.out.println("接收到取消收藏请求，帖子ID: " + postId);
+
 
         Integer userId = getCurrentUserId(session);
         if (userId == null) {
@@ -101,16 +101,16 @@ public class CollectionsController {
      */
     @GetMapping("/isCollected")
     public ResponseEntity<Map<String, Boolean>> isCollected(@RequestParam(name = "postId", required = true) Long postId, HttpSession session) {
-        System.out.println("检查收藏状态，postId: " + postId);
+
 
         Integer userId = getCurrentUserId(session);
         if (userId == null) {
-            System.out.println("用户未登录，返回 false");
+
             return ResponseEntity.ok(Collections.singletonMap("isCollected", false));
         }
 
         boolean isCollected = collectionService.isCollected(userId, postId);
-        System.out.println("用户 " + userId + " 是否收藏帖子 " + postId + ": " + isCollected);
+
 
         return ResponseEntity.ok(Collections.singletonMap("isCollected", isCollected));
     }
