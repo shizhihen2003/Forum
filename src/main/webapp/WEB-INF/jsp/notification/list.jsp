@@ -356,6 +356,7 @@
                                               <c:when test="${notification.type == 'like'}">点赞</c:when>
                                               <c:when test="${notification.type == 'comment'}">评论</c:when>
                                               <c:when test="${notification.type == 'reply'}">回复</c:when>
+                                              <c:when test="${notification.type == 'collection'}">收藏</c:when>
                                               <c:otherwise>${notification.type}</c:otherwise>
                                             </c:choose>
                                         </span>
