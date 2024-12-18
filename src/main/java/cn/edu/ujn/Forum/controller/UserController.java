@@ -35,10 +35,10 @@ public class UserController {
     private ServletContext servletContext;
 
     // 映射根路径，返回index.jsp页面
-//    @RequestMapping("/")
-//    public String index() {
-//        return "index";  // 这里不需要加文件路径，Spring 会自动映射到 WEB-INF/jsp/index.jsp
-//    }
+    @RequestMapping(value = {"/", "/index"})
+    public String index(Model model) {
+        return "index";  // 返回 WEB-INF/jsp/index.jsp
+    }
 
 
 
