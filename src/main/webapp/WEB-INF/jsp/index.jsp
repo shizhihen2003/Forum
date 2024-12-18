@@ -383,9 +383,9 @@
             <div class="col-md-4">
                 <h5 class="footer-title">联系我们</h5>
                 <ul class="footer-links">
-                    <li><i class="bi bi-envelope"></i> contact@forum.com</li>
+                    <li><i class="bi bi-envelope"></i> contact@ujn.edu.cn</li>
                     <li><i class="bi bi-telephone"></i> +1 234 567 890</li>
-                    <li><i class="bi bi-geo-alt"></i> 北京市海淀区</li>
+                    <li><i class="bi bi-geo-alt"></i> 山东省济南市济南大学</li>
                 </ul>
             </div>
         </div>
