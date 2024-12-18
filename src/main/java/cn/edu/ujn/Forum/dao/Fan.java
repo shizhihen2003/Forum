@@ -1,15 +1,21 @@
 package cn.edu.ujn.Forum.dao;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class Fan {
-    private Integer fanId;
+    private Integer id;            // 主键ID
+    private Integer fanId;         // 粉丝ID
+    private Integer authorId;      // 作者ID
+    private Timestamp createdAt;   // 关注时间
 
-    private String starName;
+    // Getter 和 Setter 方法
+    public Integer getId() {
+        return id;
+    }
 
-    private String fanName;
-
-    private Date followTime;
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public Integer getFanId() {
         return fanId;
@@ -19,27 +25,30 @@ public class Fan {
         this.fanId = fanId;
     }
 
-    public String getStarName() {
-        return starName;
+    public Integer getAuthorId() {
+        return authorId;
     }
 
-    public void setStarName(String starName) {
-        this.starName = starName == null ? null : starName.trim();
+    public void setAuthorId(Integer authorId) {
+        this.authorId = authorId;
     }
 
-    public String getFanName() {
-        return fanName;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    public void setFanName(String fanName) {
-        this.fanName = fanName == null ? null : fanName.trim();
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public Date getFollowTime() {
-        return followTime;
-    }
-
-    public void setFollowTime(Date followTime) {
-        this.followTime = followTime;
+    // 重写 toString 方法，方便调试
+    @Override
+    public String toString() {
+        return "Fan{" +
+                "id=" + id +
+                ", fanId=" + fanId +
+                ", authorId=" + authorId +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }
