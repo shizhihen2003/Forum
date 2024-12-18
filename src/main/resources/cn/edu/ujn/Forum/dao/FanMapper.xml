@@ -54,6 +54,12 @@
     SELECT * FROM fans WHERE group_id = #{groupId}
   </select>
 
+  <!-- 获取所有粉丝 -->
+  <select id="findAllFans" resultType="cn.edu.ujn.Forum.dao.Fan">
+    SELECT * FROM fans;
+  </select>
+
+
   <!-- FanResultMap 定义 -->
   <resultMap id="FanResultMap" type="cn.edu.ujn.Forum.dao.Fan">
     <id column="id" property="id"/>
