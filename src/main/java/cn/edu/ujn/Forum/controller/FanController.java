@@ -29,7 +29,7 @@ public class FanController {
      */
     @PostMapping("/follow")
     public ResponseEntity<String> followAuthor(@RequestBody(required = false) Map<String, Integer> payload, HttpSession session) {
-        System.out.println("收到的请求体：" + payload);
+
 
         // 校验请求体是否有效，包含 authorId
         if (payload == null || !payload.containsKey("authorId")) {
@@ -39,7 +39,7 @@ public class FanController {
 
         // 获取当前用户的 fanId（即当前登录的用户）
         Integer fanId = getCurrentUserId(session);
-        System.out.println("当前用户ID：" + fanId);
+
 
         // 如果用户未登录，则返回 401 未授权状态
         if (fanId == null) {
@@ -48,7 +48,7 @@ public class FanController {
 
         // 获取 authorId（要关注的作者的 ID）
         Integer authorId = payload.get("authorId");
-        System.out.println("被关注的作者ID：" + authorId);
+
 
         // 调用服务层添加关注操作
         fanService.addFollow(fanId, authorId);
@@ -71,7 +71,7 @@ public class FanController {
             Integer authorIdInt = Integer.parseInt(authorId);
 
             // 打印接收到的参数
-            System.out.println("接收到取消关注请求，作者ID: " + authorIdInt);
+
 
             Integer fanId = getCurrentUserId(session);
             if (fanId == null) {
@@ -86,10 +86,10 @@ public class FanController {
             return ResponseEntity.ok("取消关注成功");
 
         } catch (NumberFormatException e) {
-            System.out.println("参数转换错误: " + e.getMessage());
+
             return ResponseEntity.badRequest().body("作者ID格式不正确");
         } catch (Exception e) {
-            System.out.println("取消关注失败: " + e.getMessage());
+
             return ResponseEntity.badRequest().body("取消关注失败: " + e.getMessage());
         }
     }
@@ -105,27 +105,27 @@ public class FanController {
             @RequestParam(name = "authorId", required = true) Integer authorId,
             HttpSession session) {
         try {
-            System.out.println("检查关注状态，authorId: " + authorId);
+
 
             if (authorId == null) {
-                System.out.println("authorId 为 null，返回 false");
+
                 return ResponseEntity.badRequest().body(Collections.singletonMap("isFollowing", false));
             }
 
             Integer fanId = getCurrentUserId(session); // 获取当前用户的 ID
-            System.out.println("当前用户ID：" + fanId);
+
 
             if (fanId == null) {
-                System.out.println("用户未登录，返回 false");
+
                 return ResponseEntity.ok(Collections.singletonMap("isFollowing", false));
             }
 
             // 检查当前用户是否已经关注了指定的作者
             boolean isFollowing = fanService.isFollowing(fanId, authorId);
-            System.out.println("用户 " + fanId + " 是否关注作者 " + authorId + ": " + isFollowing);
+
 
             // 添加日志以确认返回结果
-            System.out.println("返回 isFollowing 状态: " + isFollowing);
+
 
             return ResponseEntity.ok(Collections.singletonMap("isFollowing", isFollowing)); // 返回关注状态
         } catch (Exception e) {
