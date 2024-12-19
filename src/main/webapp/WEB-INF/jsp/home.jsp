@@ -344,19 +344,38 @@
                 <div class="profile-bio">${empty sessionScope.userProfile.bio ? '这个人很懒，还没有填写个人简介' : sessionScope.userProfile.bio}</div>
                 <div class="profile-stats">
                     <div class="stat-item">
-                        <div class="stat-value">0</div>
+                        <div class="stat-value">
+                            <!-- 显示帖子总数 -->
+                            ${posts.size()}
+                        </div>
                         <div class="stat-label">帖子</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">0</div>
+                        <div class="stat-value">
+                            <!-- 累加所有帖子的评论数 -->
+                            <c:set var="totalComments" value="0" />
+                            <c:forEach items="${posts}" var="post">
+                                <c:set var="totalComments" value="${totalComments + post.commentCount}" />
+                            </c:forEach>
+                            ${totalComments}
+                        </div>
                         <div class="stat-label">评论</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">0</div>
+                        <div class="stat-value">
+                            <!-- 累加所有帖子的点赞数 -->
+                            <c:set var="totalLikes" value="0" />
+                            <c:forEach items="${posts}" var="post">
+                                <c:set var="totalLikes" value="${totalLikes + post.likeCount}" />
+                            </c:forEach>
+                            ${totalLikes}
+                        </div>
                         <div class="stat-label">获赞</div>
                     </div>
                 </div>
             </div>
+
+
 
             <div class="profile-content">
                 <div class="info-section">

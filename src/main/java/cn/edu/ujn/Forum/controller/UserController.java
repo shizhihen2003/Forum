@@ -2,7 +2,10 @@ package cn.edu.ujn.Forum.controller;
 
 import cn.edu.ujn.Forum.dao.*;
 import cn.edu.ujn.Forum.service.ILogsService;
+import cn.edu.ujn.Forum.service.IPostService;
 import cn.edu.ujn.Forum.service.UserServiceImpl;
+import cn.edu.ujn.Forum.util.PageResult;
+import cn.edu.ujn.Forum.util.PostQuery;
 import cn.edu.ujn.Forum.util.Result;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +37,9 @@ public class UserController {
 
     @Autowired
     private ServletContext servletContext;
+
+    @Autowired
+    private IPostService postService;
 
     // 映射根路径，返回index.jsp页面
     @RequestMapping(value = {"/", "/index"})
@@ -109,6 +115,15 @@ public class UserController {
         if (user == null) {
             return "redirect:/login";
         }
+
+
+        // 获取用户的所有帖子
+        PostQuery query = new PostQuery();
+        query.setUserId(user.getId().longValue());
+        PageResult<Post> userPosts = postService.getPostList(query);
+
+        // 将帖子列表和用户信息添加到model
+        model.addAttribute("posts", userPosts.getList());
 
         // 使用正确的属性名将用户信息添加到模型中
         model.addAttribute("loggedInUser", user); // 这里也改为 loggedInUser 以保持一致
