@@ -394,7 +394,9 @@
                  <button class="edit-button" onclick="window.open('p', '_blank')">权限设置</button>
                     <button class="edit-button" onclick="editProfile()">编辑资料</button>
                     <button class="edit-button" onclick="goToLogs()">查看登录记录</button>
-                    退出登录
+                    <button class="logout-button" onclick="window.location.href='${pageContext.request.contextPath}/logout'">
+                        <i class="bi bi-box-arrow-right"></i> 退出登录
+                    </button>
                 </div>
             </div>
         </div>
