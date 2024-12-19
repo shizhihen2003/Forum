@@ -27,6 +27,9 @@ public class LikeServiceImpl implements ILikeService {
     @Autowired // 自动注入 IPostService，用于帖子相关操作
     private IPostService postService;
 
+    @Autowired
+    private PostMapper postMapper;  // 添加 PostMapper 的注入
+
     /**
      * 取消点赞操作。
      *
@@ -35,15 +38,26 @@ public class LikeServiceImpl implements ILikeService {
      * @return 取消点赞是否成功
      */
     @Override
+    @Transactional
     public boolean unlikePost(Integer userId, Integer postId) {
         try {
-            // 调用 Mapper 删除点赞记录
+            // 先检查是否已点赞
+            if (!hasUserLikedPost(userId, postId)) {
+                return false;
+            }
+
+            // 删除点赞记录
             int result = likeMapper.deleteLike(userId, postId);
-            return result > 0; // 返回操作是否成功
+
+            if (result > 0) {
+                // 更新帖子点赞数 -1
+                postMapper.updateLikeCount(postId.longValue(), -1);
+                return true;
+            }
+            return false;
         } catch (Exception e) {
-            // 记录错误信息
             System.err.println("Error unliking post: " + e.getMessage());
-            return false; // 操作失败
+            throw e; // 抛出异常以触发事务回滚
         }
     }
 
@@ -56,12 +70,12 @@ public class LikeServiceImpl implements ILikeService {
     @Override
     public int getLikeCountByPostId(Integer postId) {
         try {
-            // 调用 Mapper 统计点赞数
-            return likeMapper.countLikesByPostId(postId);
+            // 直接从帖子表获取点赞数
+            Post post = postService.getPostDetail(postId.longValue());
+            return post != null ? post.getLikeCount() : 0;
         } catch (Exception e) {
-            // 记录错误信息
             System.err.println("Error retrieving like count: " + e.getMessage());
-            return 0; // 出错时返回0
+            return 0;
         }
     }
 
@@ -141,48 +155,46 @@ public class LikeServiceImpl implements ILikeService {
      * @return 点赞是否成功
      */
     @Override
-    @Transactional // 确保操作的事务性
+    @Transactional
     public boolean likePost(Integer userId, Integer postId) {
         try {
             // 检查用户是否已点赞
             if (hasUserLikedPost(userId, postId)) {
-                return false; // 已点赞则返回失败
+                return false;
             }
 
             // 插入点赞记录
             int result = likeMapper.insertLike(userId, postId);
 
             if (result > 0) {
+                // 更新帖子点赞数 +1
+                postMapper.updateLikeCount(postId.longValue(), 1);
+
                 // 获取被点赞的帖子详情
                 Post post = postService.getPostDetail(postId.longValue());
-                if (post != null) {
-                    // 如果点赞者不是帖子作者，发送通知
-                    if (!userId.equals(post.getUserId().intValue())) {
-                        // 获取点赞者信息
-                        User liker = userMapper.selectByPrimaryKey(userId);
-                        if (liker != null) {
-                            try {
-                                // 创建点赞通知
-                                notificationService.createLikeNotification(
-                                        post.getUserId().intValue(),
-                                        liker.getUsername(),
-                                        post.getTitle(),
-                                        post.getId()
-                                );
-                            } catch (Exception e) {
-                                // 记录通知创建失败的错误，但不影响点赞操作
-                                e.printStackTrace();
-                            }
+                if (post != null && !userId.equals(post.getUserId().intValue())) {
+                    // 发送点赞通知（如果点赞者不是作者本人）
+                    User liker = userMapper.selectByPrimaryKey(userId);
+                    if (liker != null) {
+                        try {
+                            notificationService.createLikeNotification(
+                                    post.getUserId().intValue(),
+                                    liker.getUsername(),
+                                    post.getTitle(),
+                                    post.getId()
+                            );
+                        } catch (Exception e) {
+                            // 记录通知创建失败，但不影响点赞操作
+                            e.printStackTrace();
                         }
                     }
-                    return true; // 点赞成功
                 }
+                return true;
             }
-            return false; // 点赞失败
+            return false;
         } catch (Exception e) {
-            // 记录错误信息并回滚事务
             e.printStackTrace();
-            throw e;
+            throw e; // 抛出异常以触发事务回滚
         }
     }
 }
