@@ -96,7 +96,7 @@ public class UserController {
                 logs.setLoginTime(new Date());  // 设置当前时间
                 logsService.insertLog(logs);
 
-                return "home"; // 重定向到主页
+                return "redirect:home"; // 重定向到主页
             } else {
                 model.addAttribute("errorMessage", "Invalid email/phone or password.");
                 return "login"; // 登录失败
@@ -301,6 +301,51 @@ public class UserController {
         model.addAttribute("loggedInUser", user);
 
         return "logs";  // 返回 logs.jsp 页面
+    }
+    @PostMapping("/editProfile")
+    @ResponseBody
+    public Result<String> editProfile(
+            @RequestParam String username,
+            @RequestParam(required = false) String bio,
+            @RequestParam(required = false) String location,
+            HttpSession session) {
+
+        User currentUser = (User) session.getAttribute("loggedInUser");
+        if (currentUser == null) {
+            return Result.fail("请先登录");
+        }
+
+        try {
+            // 更新用户基本信息
+            currentUser.setUsername(username);
+            userMapper.updateByPrimaryKeySelective(currentUser);
+
+            // 更新用户详细资料
+            UserProfile profile = userProfileMapper.selectByUserId(currentUser.getId());
+            if (profile == null) {
+                profile = new UserProfile();
+                profile.setUserId(currentUser.getId());
+                profile.setBio(bio);
+                profile.setLocation(location);
+                profile.setCreateTime(new Date());
+                profile.setUpdateTime(new Date());
+                userProfileMapper.insert(profile);
+            } else {
+                profile.setBio(bio);
+                profile.setLocation(location);
+                profile.setUpdateTime(new Date());
+                userProfileMapper.update(profile);
+            }
+
+            // 更新 session 中的信息
+            session.setAttribute("loggedInUser", currentUser);
+            session.setAttribute("userProfile", profile);
+
+            return Result.success("资料更新成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.fail("更新失败：" + e.getMessage());
+        }
     }
 }
 

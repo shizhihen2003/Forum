@@ -8,6 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人主页</title>
+    <!-- Bootstrap icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -137,7 +139,7 @@
             flex: 1;
             color: #333;
         }
-.edit-button {
+        .edit-button {
             background-color: #1890ff;
             color: white;
             border: none;
@@ -254,6 +256,46 @@
         .nav-item{
             list-style-type:none;
         }
+        .modal-content {
+            border-radius: 8px;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-header .close {
+            color: white;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-control {
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        .modal-backdrop {
+            opacity: 0.2 !important;
+        }
     </style>
 </head>
 <body>
@@ -329,143 +371,215 @@
         </div>
     </div>
 </nav>
-    <div class="container">
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="avatar-container">
-                    <img src="${sessionScope.userProfile.avatar}" class="avatar" id="currentAvatar" alt="用户头像">
-                    <label for="avatarInput" class="avatar-upload" title="更换头像">
-                        <i class="bi bi-camera-fill"></i>
-                    </label>
-                    <input type="file" id="avatarInput" name="file" accept="image/*" style="display: none" onchange="uploadAvatar(this)">
-                </div>
-
-                <div class="profile-name">${sessionScope.userProfile.nickname}</div>
-                <div class="profile-bio">${empty sessionScope.userProfile.bio ? '这个人很懒，还没有填写个人简介' : sessionScope.userProfile.bio}</div>
-                <div class="profile-stats">
-                    <div class="stat-item">
-                        <div class="stat-value">
-                            <!-- 显示帖子总数 -->
-                            ${posts.size()}
-                        </div>
-                        <div class="stat-label">帖子</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">
-                            <!-- 累加所有帖子的评论数 -->
-                            <c:set var="totalComments" value="0" />
-                            <c:forEach items="${posts}" var="post">
-                                <c:set var="totalComments" value="${totalComments + post.commentCount}" />
-                            </c:forEach>
-                            ${totalComments}
-                        </div>
-                        <div class="stat-label">评论</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">
-                            <!-- 累加所有帖子的点赞数 -->
-                            <c:set var="totalLikes" value="0" />
-                            <c:forEach items="${posts}" var="post">
-                                <c:set var="totalLikes" value="${totalLikes + post.likeCount}" />
-                            </c:forEach>
-                            ${totalLikes}
-                        </div>
-                        <div class="stat-label">获赞</div>
-                    </div>
-                </div>
+<div class="container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="avatar-container">
+                <img src="${sessionScope.userProfile.avatar}" class="avatar" id="currentAvatar" alt="用户头像">
+                <label for="avatarInput" class="avatar-upload" title="更换头像">
+                    <i class="bi bi-camera-fill"></i>
+                </label>
+                <input type="file" id="avatarInput" name="file" accept="image/*" style="display: none" onchange="uploadAvatar(this)">
             </div>
-
-
-
-            <div class="profile-content">
-                <div class="info-section">
-                    <div class="section-title">基本信息</div>
-                    <div class="info-item">
-                        <div class="info-label">用户名</div>
-                        <div class="info-value">${sessionScope.loggedInUser.username}</div>
+<%--            <div class="profile-name">${sessionScope.userProfile.nickname}</div>--%>
+            <div class="profile-name">${sessionScope.loggedInUser.username}</div>
+            <div class="profile-bio">${empty sessionScope.userProfile.bio ? '这个人很懒，还没有填写个人简介' : sessionScope.userProfile.bio}</div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value">
+                        <!-- 显示帖子总数 -->
+                        ${posts.size()}
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">邮箱</div>
-                        <div class="info-value">${sessionScope.loggedInUser.email}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">手机号</div>
-                        <div class="info-value">${sessionScope.loggedInUser.phone}</div>
-                    </div>
+                    <div class="stat-label">帖子</div>
                 </div>
-
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="bi bi-bell"></i> 消息通知
-                            <span id="unreadNotificationCount" class="badge badge-danger" style="display: none;">0</span>
-                        </h5>
+                <div class="stat-item">
+                    <div class="stat-value">
+                        <!-- 累加所有帖子的评论数 -->
+                        <c:set var="totalComments" value="0" />
+                        <c:forEach items="${posts}" var="post">
+                            <c:set var="totalComments" value="${totalComments + post.commentCount}" />
+                        </c:forEach>
+                        ${totalComments}
                     </div>
-                    <div class="card-body">
-                        <a href="${pageContext.request.contextPath}/notifications" class="btn btn-primary" target="_self">
-                            查看所有通知
-                        </a>
-                    </div>
-
-
+                    <div class="stat-label">评论</div>
                 </div>
-                <div style="text-align: center; margin-top: 30px;">
-                 <button class="edit-button" onclick="window.open('p', '_blank')">权限设置</button>
-                    <button class="edit-button" onclick="editProfile()">编辑资料</button>
-                    <button class="edit-button" onclick="goToLogs()">查看登录记录</button>
-                    <button class="logout-button" onclick="window.location.href='${pageContext.request.contextPath}/logout'">
-                        <i class="bi bi-box-arrow-right"></i> 退出登录
-                    </button>
+                <div class="stat-item">
+                    <div class="stat-value">
+                        <!-- 累加所有帖子的点赞数 -->
+                        <c:set var="totalLikes" value="0" />
+                        <c:forEach items="${posts}" var="post">
+                            <c:set var="totalLikes" value="${totalLikes + post.likeCount}" />
+                        </c:forEach>
+                        ${totalLikes}
+                    </div>
+                    <div class="stat-label">获赞</div>
                 </div>
             </div>
         </div>
+
+
+
+        <div class="profile-content">
+            <div class="info-section">
+                <div class="section-title">基本信息</div>
+                <div class="info-item">
+                    <div class="info-label">用户名</div>
+                    <div class="info-value">${sessionScope.loggedInUser.username}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">邮箱</div>
+                    <div class="info-value">${sessionScope.loggedInUser.email}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">手机号</div>
+                    <div class="info-value">${sessionScope.loggedInUser.phone}</div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bell"></i> 消息通知
+                        <span id="unreadNotificationCount" class="badge badge-danger" style="display: none;">0</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <a href="${pageContext.request.contextPath}/notifications" class="btn btn-primary" target="_self">
+                        查看所有通知
+                    </a>
+                </div>
+
+
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="edit-button" onclick="window.open('p', '_self')">权限设置</button>
+                <button type="button" class="edit-button" onclick="showEditProfile()">
+                    <i class="bi bi-pencil"></i> 编辑资料
+                </button>
+                <button class="edit-button" onclick="goToLogs()">查看登录记录</button>
+                <button class="logout-button" onclick="window.location.href='${pageContext.request.contextPath}/logout'">
+                    <i class="bi bi-box-arrow-right"></i> 退出登录
+                </button>
+            </div>
+        </div>
     </div>
+</div>
 
-    <script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
-    <script>
-        function uploadAvatar(input) {
-            if (input.files && input.files[0]) {
-                var formData = new FormData();
-                formData.append('file', input.files[0]);
 
-                $.ajax({
-                    url: '${pageContext.request.contextPath}/uploadAvatar',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        if (response.code === 200) {
-                            $('#currentAvatar').attr('src', response.data);
-                            alert('头像上传成功！');
-                        } else {
-                            alert(response.message || '头像上传失败');
-                        }
-                    },
-                    error: function() {
-                        alert('上传失败，请稍后重试');
-                    }
-                });
-            }
-        }
+<!-- 编辑资料模态框 -->
+<div class="modal" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑个人资料</h5>
+<%--                <button type="button" class="close" data-dismiss="modal" aria-label="Close">--%>
+<%--                    <span aria-hidden="true">&times;</span>--%>
+<%--                </button>--%>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label for="editUsername">用户名</label>
+                        <input type="text" class="form-control" id="editUsername"
+                               name="username" value="${sessionScope.loggedInUser.username}">
+                    </div>
+                    <div class="form-group">
+                        <label for="editBio">个人简介</label>
+                        <textarea class="form-control" id="editBio" name="bio"
+                                  rows="3">${sessionScope.userProfile.bio}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLocation">所在地</label>
+                        <input type="text" class="form-control" id="editLocation"
+                               name="location" value="${sessionScope.userProfile.location}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveProfile()">保存更改</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        function editProfile() {
-            // TODO: 实现编辑资料功能
-            alert('编辑资料功能开发中...');
-        }
-        function goToLogs() {
-            window.location.href = '${pageContext.request.contextPath}/logs';
-        }
-    </script>
+<!-- 在 body 底部修改 JavaScript 引入 -->
+<script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // 初始化下拉菜单
-    document.addEventListener('DOMContentLoaded', function() {
-        var dropdowns = document.querySelectorAll('.dropdown-toggle');
-        dropdowns.forEach(function(dropdown) {
-            new bootstrap.Dropdown(dropdown);
+    function uploadAvatar(input) {
+        if (input.files && input.files[0]) {
+            var formData = new FormData();
+            formData.append('file', input.files[0]);
+
+            $.ajax({
+                url: '${pageContext.request.contextPath}/uploadAvatar',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.code === 200) {
+                        $('#currentAvatar').attr('src', response.data);
+                        alert('头像上传成功！');
+                    } else {
+                        alert(response.message || '头像上传失败');
+                    }
+                },
+                error: function() {
+                    alert('上传失败，请稍后重试');
+                }
+            });
+        }
+    }
+
+    function goToLogs() {
+        window.location.href = '${pageContext.request.contextPath}/logs';
+    }
+</script>
+<script>
+    function showEditProfile() {
+        const editProfileModal = new bootstrap.Modal(document.getElementById('editProfileModal'), {
+            backdrop: 'static',
+            keyboard: false
         });
-    });
+        editProfileModal.show();
+    }
+
+    function saveProfile() {
+        const formData = {
+            username: $('#editUsername').val().trim(),
+            bio: $('#editBio').val().trim(),
+            location: $('#editLocation').val().trim()
+        };
+
+        if (!formData.username) {
+            alert('用户名不能为空');
+            return;
+        }
+
+        $.ajax({
+            url: '${pageContext.request.contextPath}/editProfile',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.code === 200) {
+                    alert('资料更新成功！');
+                    const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+                    if (editProfileModal) {
+                        editProfileModal.hide();
+                    }
+                    location.reload();
+                } else {
+                    alert(response.message || '更新失败，请稍后重试');
+                }
+            },
+            error: function() {
+                alert('服务器错误，请稍后重试');
+            }
+        });
+    }
 </script>
 </body>
 </html>
