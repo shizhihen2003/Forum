@@ -383,7 +383,7 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <a href="${pageContext.request.contextPath}/notifications" class="btn btn-primary">
+                        <a href="${pageContext.request.contextPath}/notifications" class="btn btn-primary" target="_self">
                             查看所有通知
                         </a>
                     </div>
