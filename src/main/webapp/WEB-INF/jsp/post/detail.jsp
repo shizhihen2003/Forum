@@ -5,9 +5,9 @@
 <html>
 <head>
   <title>${post.title}</title>
-  <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
   <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.preview.css" rel="stylesheet">
 
   <style>
@@ -257,7 +257,7 @@
                         <!-- 修改下拉菜单部分的结构 -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
-                               role="button" data-toggle="dropdown" aria-expanded="false">
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-person-circle"></i> ${sessionScope.loggedInUser.username}
                             </a>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -533,7 +533,7 @@
 
 
 <script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/static/js/bootstrap.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/marked.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/prettify.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/raphael.min.js"></script>

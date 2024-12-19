@@ -19,8 +19,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>用户管理</title>
 	<!-- 引入css样式文件 -->
-	<!-- Bootstrap Core CSS -->
-	<link href="<%=basePath%>static/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+	<link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
 	<!-- MetisMenu CSS -->
 	<link href="<%=basePath%>static/css/metisMenu.min.css" rel="stylesheet" />
 	<!-- DataTables CSS -->
@@ -162,7 +162,7 @@
 						<!-- 修改下拉菜单部分的结构 -->
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
-							   role="button" data-toggle="dropdown" aria-expanded="false">
+							   role="button" data-bs-toggle="dropdown" aria-expanded="false">
 								<i class="bi bi-person-circle"></i> ${sessionScope.loggedInUser.username}
 							</a>
 							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -481,7 +481,8 @@
 		</div>
 	</div>
 </div>
-
+<script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/js/bootstrap.bundle.min.js"></script>
 <!-- 引入js文件 -->
     <!-- jQuery -->
     <script src="<%=basePath%>static/js/jquery-1.11.3.min.js"></script>

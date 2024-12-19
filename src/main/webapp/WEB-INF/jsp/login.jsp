@@ -6,10 +6,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.preview.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -129,7 +127,7 @@
 <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container">
         <a class="navbar-brand" href="${pageContext.request.contextPath}/">Forum</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-target="#navbarNav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -215,6 +213,7 @@
             </c:if>
 
     <p>Don't have an account? <a href="/Forum/register">Register here</a></p>
-
+<script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
