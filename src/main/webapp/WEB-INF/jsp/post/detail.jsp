@@ -6,7 +6,7 @@
 <head>
   <title>${post.title}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/static/bootstrap5/css/bootstrap.min.css" rel="stylesheet">
   <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.min.css" rel="stylesheet">
   <link href="${pageContext.request.contextPath}/static/plugins/editor.md/css/editormd.preview.css" rel="stylesheet">
 
@@ -533,7 +533,7 @@
 
 
 <script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/static/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/bootstrap5/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/marked.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/prettify.min.js"></script>
 <script src="${pageContext.request.contextPath}/static/plugins/editor.md/lib/raphael.min.js"></script>
