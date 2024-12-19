@@ -7,8 +7,10 @@
 <head>
     <meta charset="UTF-8">
     <title>我的举报记录</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- 引入 Bootstrap CSS -->
     <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入 Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- 引入 Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600&display=swap" rel="stylesheet">
     <style>
@@ -291,7 +293,6 @@
 </head>
 <body>
 <!-- 导航栏（来自第一份代码） -->
-<!-- 导航栏 -->
 <nav class="navbar navbar-expand-lg navbar-light sticky-top">
     <div class="container">
         <a class="navbar-brand" href="${pageContext.request.contextPath}/">Forum</a>
@@ -325,10 +326,9 @@
                                 <i class="bi bi-flag"></i> 我的举报
                             </a>
                         </li>
-                        <!-- 修改下拉菜单部分的结构 -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                               role="button" data-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-person-circle"></i> ${sessionScope.loggedInUser.username}
                             </a>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -483,14 +483,14 @@
 
 <!-- 引入必要的脚本 -->
 <script src="${pageContext.request.contextPath}/static/js/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/static/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/static/js/bootstrap.min.js"></script>
 <script>
-function showEditModal(id, reportTypeId, description) {
-    $('#editReportId').val(id);
-    $('#editReportType').val(reportTypeId);
-    $('#editDescription').val(description);
-    $('#editModal').modal('show');
-}
+    function showEditModal(id, reportTypeId, description) {
+        $('#editReportId').val(id);
+        $('#editReportType').val(reportTypeId);
+        $('#editDescription').val(description);
+        $('#editModal').modal('show');
+    }
 </script>
 </body>
 </html>
