@@ -391,6 +391,7 @@
 
                 </div>
                 <div style="text-align: center; margin-top: 30px;">
+                 <button class="edit-button" onclick="window.open('p', '_blank')">权限设置</button>
                     <button class="edit-button" onclick="editProfile()">编辑资料</button>
                     <button class="edit-button" onclick="goToLogs()">查看登录记录</button>
                     退出登录

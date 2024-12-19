@@ -2,6 +2,8 @@ package cn.edu.ujn.Forum.dao;
 
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 public interface UserMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -34,4 +36,14 @@ public interface UserMapper {
     int updateResetToken(@Param("id") Integer id,
                          @Param("resetToken") String resetToken,
                          @Param("resetTokenExpiration") String resetTokenExpiration);
+
+    List<User> selectAll(User user);
+    int deleteByPrimarye(String phone);
+
+    int insert1(User row);
+    Integer selectCount();
+    void updateUsernameByPhone(User user);
+    User selectByPhone1(String phone);
+
+    List<User> select();
 }

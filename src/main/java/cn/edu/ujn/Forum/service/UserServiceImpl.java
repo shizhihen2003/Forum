@@ -2,10 +2,12 @@ package cn.edu.ujn.Forum.service;
 
 import cn.edu.ujn.Forum.dao.User;
 import cn.edu.ujn.Forum.dao.UserMapper;
+import cn.edu.ujn.Forum.util.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -64,4 +66,57 @@ public class UserServiceImpl implements IUserService {
         }
         return userMapper.selectByPrimaryKey(userId.intValue());
     }
+    @Override
+    public Page<User> selectAll(User user) {
+
+        List<User> users= userMapper.selectAll(user);
+        Page<User> page = new Page<>();
+        page.setPage(user.getStart());
+        page.setRows(users);
+        page.setSize(user.getRows());
+        page.setTotal(userMapper.selectCount());
+        return page;
+
+    }
+
+
+    @Override
+    public User selectByphone1(String phone) {
+        return userMapper.selectByPhone(phone);
+    }
+
+    @Override
+    public int deleteByPrimarye(int id) {
+        return userMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public void update(User user) {
+        userMapper.updateUsernameByPhone(user);
+    }
+
+    @Override
+    public List<User> select() {
+        return userMapper.select();
+    }
+
+    @Override
+    public int delete(String phone) {
+        return userMapper.deleteByPrimarye(phone);
+    }
+    @Override
+    public int insert1(String username, String email, String phone, String password) {
+
+        User existingUser = userMapper.selectByPhone(email);
+        if (existingUser != null) {
+            throw new IllegalArgumentException("Email or phone already exists");
+        }
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setPassword(password);
+        return userMapper.insert1(user);
+    }
+
 }

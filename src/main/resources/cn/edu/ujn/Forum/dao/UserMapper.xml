@@ -18,7 +18,40 @@
     delete from user
     where id = #{id,jdbcType=INTEGER}
   </delete>
+  <delete id="deleteByPrimarye" parameterType="string">
+    delete from user
+    where phone = #{phone,jdbcType=VARCHAR}
+  </delete>
+  <select id="selectAll" parameterType="User" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user
+    limit #{start},#{rows}
+  </select>
 
+  <update id="updateUsernameByPhone" parameterType="cn.edu.ujn.Forum.dao.User">
+    UPDATE user
+    SET username = #{username,jdbcType=VARCHAR}
+    , password=#{password,jdbcType=VARCHAR}
+    WHERE phone = #{phone,jdbcType=VARCHAR}
+  </update>
+  <select id="selectCount"  resultType="Integer">
+    select
+    count(*)
+    from user
+
+  </select>
+  <select id="select" parameterType="User" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user
+
+  </select>
+  <insert id="insert1" parameterType="cn.edu.ujn.Forum.dao.User">
+    insert into user (username, email, phone, password)
+    values (#{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},
+    #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR})
+  </insert>
   <insert id="insert" parameterType="cn.edu.ujn.Forum.dao.User">
     insert into user (id, username, email,
                        phone, password, verification_code
