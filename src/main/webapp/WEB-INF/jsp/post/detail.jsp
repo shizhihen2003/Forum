@@ -368,6 +368,9 @@
           <a href="${pageContext.request.contextPath}/post/edit/${post.id}" class="btn btn-warning ml-2">
             <i class="bi bi-pencil"></i> 编辑
           </a>
+            <button class="btn btn-danger" onclick="deletePost(${post.id})">
+                <i class="bi bi-trash"></i> 删除
+            </button>
         </c:if>
       </div>
 
@@ -1143,6 +1146,28 @@
        }
      });
    });
+  // 在detail.jsp中添加删除帖子的函数
+  function deletePost(postId) {
+      if (!confirm('确定要删除这篇帖子吗？此操作不可恢复！')) {
+          return;
+      }
+
+      $.ajax({
+          url: '${pageContext.request.contextPath}/post/delete/' + postId,
+          type: 'POST',
+          success: function(response) {
+              if (response.code === 200) {
+                  alert('帖子已成功删除！');
+                  window.location.href = '${pageContext.request.contextPath}/post';
+              } else {
+                  alert(response.message || '删除失败，请稍后重试');
+              }
+          },
+          error: function() {
+              alert('删除失败，请稍后重试');
+          }
+      });
+  }
 </script>
 </body>
 </html>
