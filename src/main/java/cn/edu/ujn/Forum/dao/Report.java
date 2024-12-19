@@ -1,7 +1,9 @@
 package cn.edu.ujn.Forum.dao;
 
-import java.util.Date;
+import org.springframework.stereotype.Component;
 
+import java.util.Date;
+@Component
 public class Report {
     private Integer id;
     private Integer postId;

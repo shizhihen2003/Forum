@@ -1,7 +1,9 @@
 package cn.edu.ujn.Forum.dao;
 
-import java.util.Date;
+import org.springframework.stereotype.Component;
 
+import java.util.Date;
+@Component
 public class UserProfile {
     private Integer userId;      // 用户ID
     private String avatar;       // 头像URL

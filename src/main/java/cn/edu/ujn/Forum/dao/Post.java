@@ -1,8 +1,10 @@
 package cn.edu.ujn.Forum.dao;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Date;
 import java.util.List;
-
+@Component
 public class Post {
     private Long id;
     private Long categoryId;

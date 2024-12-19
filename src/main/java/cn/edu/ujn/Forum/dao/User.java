@@ -1,7 +1,9 @@
 package cn.edu.ujn.Forum.dao;
 
-import java.util.Date;
+import org.springframework.stereotype.Component;
 
+import java.util.Date;
+@Component
 public class User {
     private Integer id;
     private String username;

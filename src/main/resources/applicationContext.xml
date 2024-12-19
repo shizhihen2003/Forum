@@ -53,6 +53,8 @@
 	</bean>
 	<!-- 扫描Service -->
 	<context:component-scan	base-package="cn.edu.ujn" />
+	<!--开启AOP自动代理-->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
 	<!-- 静态资源映射 -->
 	<mvc:resources mapping="/static/**" location="/static/"/>
 	<!-- 加载注解驱动 -->
@@ -74,4 +76,5 @@
 <!--	</bean>-->
 	<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver">
 	</bean>
+
 </beans>

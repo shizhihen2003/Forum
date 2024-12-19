@@ -1,7 +1,9 @@
 package cn.edu.ujn.Forum.dao;
 
-import java.sql.Timestamp;
+import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+@Component
 public class Fan {
     private Integer id;            // 主键ID
     private Integer fanId;         // 粉丝ID

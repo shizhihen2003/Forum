@@ -1,5 +1,8 @@
 package cn.edu.ujn.Forum.dao;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Permission {
 
     private Integer permissionId;

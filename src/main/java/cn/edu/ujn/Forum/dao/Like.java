@@ -1,5 +1,8 @@
 package cn.edu.ujn.Forum.dao;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Like {
     private Integer id;        // 主键ID
     private Integer userId;    // 用户ID

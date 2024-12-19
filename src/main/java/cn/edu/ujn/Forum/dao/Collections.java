@@ -1,7 +1,9 @@
 package cn.edu.ujn.Forum.dao;
 
-import java.sql.Timestamp;
+import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+@Component
 public class Collections {
     private Long id;          // bigint 对应 Long
     private Integer userId;   // int 对应 Integer
