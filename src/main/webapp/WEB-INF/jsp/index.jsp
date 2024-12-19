@@ -286,6 +286,9 @@
                 box-shadow: none;
             }
         }
+        .nav-item{
+            list-style-type:none;
+        }
     </style>
 </head>
 <body>
