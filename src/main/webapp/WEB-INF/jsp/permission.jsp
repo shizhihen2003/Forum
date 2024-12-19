@@ -31,41 +31,172 @@
 	<link href="<%=basePath%>static/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 	<link href="<%=basePath%>static/css/boot-crm.css" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+	/* 导航栏样式 */
+	.navbar {
+		background-color: #fff;
+		box-shadow: 0 2px 4px rgba(0,0,0,.08);
+		padding: 1rem 0;
+	}
 
+	.navbar-brand {
+		font-size: 1.8rem;
+		font-weight: bold;
+		color: #2c3e50;
+		margin-right: 3rem;
+	}
 
+	.navbar-nav .nav-link {
+		color: #2c3e50 !important;
+		font-weight: 500;
+		padding: 0.5rem 1rem;
+		margin: 0 0.5rem;
+		transition: color 0.3s ease;
+	}
 
+	.navbar-nav .nav-link:hover {
+		color: #667eea !important;
+	}
+
+	/* 下拉菜单样式修复 */
+	.dropdown-menu {
+		border: none;
+		box-shadow: 0 2px 8px rgba(0,0,0,.1);
+		padding: 0.5rem 0;
+		right: 0;  /* 确保下拉菜单右对齐 */
+		left: auto;
+	}
+
+	.dropdown-item {
+		padding: 0.5rem 1.5rem;
+		color: #2c3e50;
+		transition: all 0.3s ease;
+		display: flex !important;
+		align-items: center;
+	}
+
+	.dropdown-item i {
+		margin-right: 0.5rem;
+		width: 1.2rem;  /* 固定图标宽度 */
+		text-align: center;
+	}
+
+	.dropdown-item span {
+		flex: 1;  /* 让文本占据剩余空间 */
+	}
+
+	.dropdown-item:hover {
+		background-color: #f8f9fa;
+		color: #667eea;
+	}
+
+	/* 按钮样式 */
+	.btn-nav {
+		padding: 0.5rem 1.5rem;
+		border-radius: 50px;
+		transition: all 0.3s ease;
+	}
+
+	.btn-nav.btn-primary {
+		background-color: #667eea;
+		border-color: #667eea;
+	}
+
+	.btn-nav.btn-outline-primary {
+		border-color: #667eea;
+		color: #667eea;
+	}
+
+	.btn-nav:hover {
+		transform: translateY(-2px);
+	}
+	/* 修复下拉菜单在移动端的显示 */
+	@media (max-width: 991.98px) {
+		.dropdown-menu {
+			width: 100%;
+			margin-top: 0;
+			border-radius: 0;
+			box-shadow: none;
+		}
+	}
+	.nav-item{
+		list-style-type:none;
+	}
+</style>
 </head>
 <body>
-<div id="wrapper">
-  <!-- 导航栏部分 -->
-  <nav class="navbar navbar-default navbar-static-top" role="navigation"
-		 style="margin-bottom: 0">
-	<div class="navbar-header">
-		<a class="navbar-brand" href="<%=basePath%>user"><i class="fa fa-home fa-fw"></i>权限设置</a>
-    </div>
-	<ul class="nav navbar-top-links navbar-right">
-		<!-- 用户信息和系统设置 start -->
-		<li class="dropdown">
-			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-				<i class="fa fa-user fa-fw"></i>
-				<i class="fa fa-caret-down"></i>
-			</a>
-			<ul class="dropdown-menu dropdown-user">
-				<li><a href="#"><i class="fa fa-user fa-fw"></i>
-				               用户：${sessionScope.USER_SESSION.userCode}
-				    </a>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+	<div class="container">
+		<a class="navbar-brand" href="${pageContext.request.contextPath}/">Forum</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item">
+					<a class="nav-link" href="${pageContext.request.contextPath}/post">
+						<i class="bi bi-house"></i> 论坛
+					</a>
 				</li>
-				<li><a href="#"><i class="fa fa-gear fa-fw"></i> 系统设置</a></li>
-				<li class="divider"></li>
-				<li>
-					<a href="${pageContext.request.contextPath }/logout">
-					<i class="fa fa-sign-out fa-fw"></i>退出登录
+				<li class="nav-item">
+					<a class="nav-link" href="#">
+						<i class="bi bi-info-circle"></i> 关于我们
 					</a>
 				</li>
 			</ul>
-		</li>
-		<!-- 用户信息和系统设置结束 -->
-    </ul>
+
+			<ul class="navbar-nav">
+				<c:choose>
+					<c:when test="${not empty sessionScope.loggedInUser}">
+						<li class="nav-item">
+							<a class="nav-link" href="${pageContext.request.contextPath}/post/create">
+								<i class="bi bi-plus-circle"></i> 发布帖子
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="${pageContext.request.contextPath}/reports/myReports">
+								<i class="bi bi-flag"></i> 我的举报
+							</a>
+						</li>
+						<!-- 修改下拉菜单部分的结构 -->
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
+							   role="button" data-toggle="dropdown" aria-expanded="false">
+								<i class="bi bi-person-circle"></i> ${sessionScope.loggedInUser.username}
+							</a>
+							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+								<a class="dropdown-item d-flex align-items-center" href="${pageContext.request.contextPath}/home">
+									<i class="bi bi-person me-2"></i>
+									<span>个人中心</span>
+								</a>
+								<a class="dropdown-item d-flex align-items-center" href="${pageContext.request.contextPath}/notifications">
+									<i class="bi bi-bell me-2"></i>
+									<span>消息通知</span>
+								</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item d-flex align-items-center" href="${pageContext.request.contextPath}/logout">
+									<i class="bi bi-box-arrow-right me-2"></i>
+									<span>退出</span>
+								</a>
+							</div>
+						</li>
+					</c:when>
+					<c:otherwise>
+						<li class="nav-item">
+							<a class="nav-link btn btn-outline-primary me-2"
+							   href="${pageContext.request.contextPath}/login">登录</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link btn btn-outline-primary me-2"
+							   href="${pageContext.request.contextPath}/register">注册</a>
+						</li>
+					</c:otherwise>
+				</c:choose>
+			</ul>
+		</div>
+	</div>
+</nav>
 
   </nav>
     <!-- 列表查询部分  start-->
